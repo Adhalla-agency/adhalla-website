@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="et">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Kontakt — Adhalla</title>
+<meta name="description" content="Võta Adhallaga ühendust.">
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<header class="nav shell">
+  <a class="brand" href="index.html">
+    <img src="assets/adhalla-logo-placeholder.svg" alt="Adhalla logo">
+    <span>ADHALLA</span>
+  </a>
+  <nav class="nav-links" aria-label="Peamenüü">
+    <a href="index.html">Klientidele</a>
+    <a href="vision.html">Visioon</a>
+    <a href="contact.html">Kontakt</a>
+    <a class="nav-cta" href="index.html#waitlist">Ootenimekiri</a>
+  </nav>
+</header>
+
+<main>
+<section class="hero shell">
+  <div class="eyebrow">KONTAKT</div>
+  <h1>Kirjuta meile.</h1>
+  <p class="lead">Üldised küsimused, koostöö, tehniline huvi või varajase kliendi soov: <a href="mailto:info@adhalla.ee">info@adhalla.ee</a></p>
+</section>
+
+<section class="section shell">
+  <div class="split">
+    <div>
+      <span class="kicker">OTSE</span>
+      <h2>info@adhalla.ee</h2>
+      <p class="muted">Kui vormiteenus pole veel ühendatud, saad alati kirjutada otse e-postile.</p>
+      <a class="button primary" href="mailto:info@adhalla.ee?subject=Adhalla%20kontakt">Ava e-kiri</a>
+    </div>
+    <div class="form-card">
+      <form class="form" data-placeholder-form action="https://formspree.io/f/YOUR_FORM_ID_CONTACT" method="POST">
+        <label><span>Nimi</span><input name="name" required></label>
+        <label><span>E-post</span><input type="email" name="email" required></label>
+        <label><span>Teema</span><input name="subject" required></label>
+        <label><span>Sõnum</span><textarea name="message" required></textarea></label>
+        <label class="consent"><input type="checkbox" required><span>Nõustun, et Adhalla OÜ töötleb minu sisestatud andmeid sellele päringule vastamiseks.</span></label>
+        <button class="button primary full">Saada</button>
+        <small data-form-note>Enne avalikku kasutust ühenda vorm Formspree või Adhalla enda backendiga, mis saadab kirja aadressile info@adhalla.ee.</small>
+      </form>
+    </div>
+  </div>
+</section>
+</main>
+
+<footer class="footer shell">
+  <div>© <span data-year></span> Adhalla OÜ · Eesti</div>
+  <div class="footer-links">
+    <a href="vision.html">Visioon</a>
+    <a href="contact.html">Kontakt</a>
+    <a href="privacy.html">Privaatsus</a>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body></html>
