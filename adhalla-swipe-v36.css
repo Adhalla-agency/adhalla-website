@@ -1504,3 +1504,20 @@ html:not([data-ab-variant]) [data-ab-only="A"]{display:block}
 @media(max-width:820px){
   .faq-section .grid.two{grid-template-columns:1fr}
 }
+
+
+/* Public form submission state */
+.form-submit-status{
+  margin-top:12px;
+  min-height:1.35em;
+  font-size:.9rem;
+  line-height:1.45;
+  color:var(--muted);
+}
+.form-submit-status.error{color:#ffd0c9}
+.form-submit-status.sending{color:var(--muted)}
+.form button[type="submit"]:disabled{
+  opacity:.68;
+  cursor:wait;
+  transform:none!important;
+}
