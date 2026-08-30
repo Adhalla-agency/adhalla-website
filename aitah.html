@@ -1,57 +1,78 @@
 <!doctype html>
 <html lang="et">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>Aitäh | Adhalla</title>
-  <meta name="description" content="Sinu sõnum jõudis Adhallani.">
-  <meta name="robots" content="index,follow,max-image-preview:large">
+  <meta name="description" content="Sinu päring on Adhallani jõudnud.">
+  <meta name="robots" content="noindex,follow">
   <link rel="canonical" href="https://adhalla.ee/aitah.html">
-  <link rel="alternate" hreflang="et-EE" href="https://adhalla.ee/aitah.html">
   <link rel="icon" href="assets/favicon.ico" sizes="any">
   <link rel="icon" type="image/png" href="assets/favicon-48.png" sizes="48x48">
   <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#170C22">
-
-  <meta property="og:type" content="website">
-  <meta property="og:locale" content="et_EE">
-  <meta property="og:site_name" content="Adhalla">
-  <meta property="og:title" content="Aitäh | Adhalla">
-  <meta property="og:description" content="Sinu sõnum jõudis Adhallani.">
-  <meta property="og:url" content="https://adhalla.ee/aitah.html">
-  <meta property="og:image" content="https://adhalla.ee/assets/og-adhalla.jpg">
-  <meta property="og:image:width" content="1200">
-  <meta property="og:image:height" content="630">
-
-  <meta name="twitter:card" content="summary_large_image">
-  <meta name="twitter:title" content="Aitäh | Adhalla">
-  <meta name="twitter:description" content="Sinu sõnum jõudis Adhallani.">
-  <meta name="twitter:image" content="https://adhalla.ee/assets/og-adhalla.jpg">
-
-<link rel="stylesheet" href="adhalla-swipe-v36.css?v=production1">
-<meta name="robots" content="noindex,follow">
-<link rel="manifest" href="site.webmanifest">
+  <link rel="stylesheet" href="adhalla-swipe-v36.css?v=production1">
 </head>
 <body>
 <header class="nav shell">
-  <a class="brand" href="index.html"><img src="assets/adhalla-logo.png" alt="Adhalla logo"><span>ADHALLA</span></a>
+  <a class="brand" href="/">
+    <img src="assets/adhalla-logo.png" alt="Adhalla logo">
+    <span>ADHALLA</span>
+  </a>
 </header>
+
 <main class="hero shell">
   <div class="eyebrow">AITÄH</div>
-  <h1>Sõnum on teel.</h1>
-  <p class="lead">Kui vorm on aktiveeritud, jõuab sinu päring aadressile info@adhalla.ee.</p>
-  <div class="hero-actions"><a class="button primary" href="/">Tagasi avalehele</a></div>
+  <h1 id="thanks-title">Sinu päring on meieni jõudnud.</h1>
+  <p class="lead" id="thanks-copy">
+    Vaatame info üle ja võtame sinuga ühendust.
+  </p>
+  <div class="hero-actions">
+    <a class="button primary" href="/">Tagasi avalehele</a>
+  </div>
 </main>
+
 <script>
-window.dataLayer=window.dataLayer||[];
-const p=new URLSearchParams(location.search);
-window.dataLayer.push({
-  event:"adhalla_lead_success",
-  experiment_id:"landing_v1",
-  experiment_variant:p.get("variant")||"n/a",
-  lead_type:p.get("type")||"unknown"
-});
+(function(){
+  const params = new URLSearchParams(location.search);
+  const type = params.get("type") || "client";
+  const variant = params.get("variant") || "n/a";
+
+  const title = document.getElementById("thanks-title");
+  const copy = document.getElementById("thanks-copy");
+
+  const messages = {
+    contact: {
+      title: "Sinu sõnum on meieni jõudnud.",
+      copy: "Vaatame selle üle ja võtame sinuga vajadusel ühendust."
+    },
+    "future-client": {
+      title: "Sinu huvi on kirjas.",
+      copy: "Hoiame sind Adhalla arenguga kursis ja võtame ühendust, kui järgmine samm muutub asjakohaseks."
+    },
+    "future-worker": {
+      title: "Sinu huvi on kirjas.",
+      copy: "Täname, et tahad Adhalla tulevikus kaasa mõelda. Võtame ühendust, kui sobiv võimalus tekib."
+    },
+    client: {
+      title: "Sinu päring on meieni jõudnud.",
+      copy: "Vaatame sinu lähtekoha üle ja võtame sinuga ühendust, kui Adhalla võiks sinu ettevõttele sobida."
+    }
+  };
+
+  const m = messages[type] || messages.client;
+  title.textContent = m.title;
+  copy.textContent = m.copy;
+
+  window.dataLayer = window.dataLayer || [];
+  window.dataLayer.push({
+    event:"adhalla_lead_success",
+    experiment_id:"landing_v1",
+    experiment_variant:variant,
+    lead_type:type
+  });
+})();
 </script>
 </body>
 </html>
