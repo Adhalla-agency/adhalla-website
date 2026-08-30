@@ -1,0 +1,57 @@
+<!doctype html>
+<html lang="et">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+
+  <title>Aitäh | Adhalla</title>
+  <meta name="description" content="Sinu sõnum jõudis Adhallani.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://adhalla.ee/aitah.html">
+  <link rel="alternate" hreflang="et-EE" href="https://adhalla.ee/aitah.html">
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="assets/favicon-48.png" sizes="48x48">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="theme-color" content="#170C22">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="et_EE">
+  <meta property="og:site_name" content="Adhalla">
+  <meta property="og:title" content="Aitäh | Adhalla">
+  <meta property="og:description" content="Sinu sõnum jõudis Adhallani.">
+  <meta property="og:url" content="https://adhalla.ee/aitah.html">
+  <meta property="og:image" content="https://adhalla.ee/assets/og-adhalla.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Aitäh | Adhalla">
+  <meta name="twitter:description" content="Sinu sõnum jõudis Adhallani.">
+  <meta name="twitter:image" content="https://adhalla.ee/assets/og-adhalla.jpg">
+
+<link rel="stylesheet" href="adhalla-swipe-v36.css?v=production1">
+<meta name="robots" content="noindex,follow">
+<link rel="manifest" href="site.webmanifest">
+</head>
+<body>
+<header class="nav shell">
+  <a class="brand" href="index.html"><img src="assets/adhalla-logo.png" alt="Adhalla logo"><span>ADHALLA</span></a>
+</header>
+<main class="hero shell">
+  <div class="eyebrow">AITÄH</div>
+  <h1>Sõnum on teel.</h1>
+  <p class="lead">Kui vorm on aktiveeritud, jõuab sinu päring aadressile info@adhalla.ee.</p>
+  <div class="hero-actions"><a class="button primary" href="/">Tagasi avalehele</a></div>
+</main>
+<script>
+window.dataLayer=window.dataLayer||[];
+const p=new URLSearchParams(location.search);
+window.dataLayer.push({
+  event:"adhalla_lead_success",
+  experiment_id:"landing_v1",
+  experiment_variant:p.get("variant")||"n/a",
+  lead_type:p.get("type")||"unknown"
+});
+</script>
+</body>
+</html>

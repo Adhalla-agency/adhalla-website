@@ -1,66 +1,46 @@
-# Adhalla public site V2
+# Adhalla production website
 
-Static multi-page Estonian website.
+Public production build for `adhalla.ee`.
 
-## Pages
+## A/B test
+The public homepage uses one canonical URL. During a browser session the visitor is assigned 50/50 to:
+- A — conventional lead form
+- B — swipe-based scoping flow
 
-- `index.html` — client-facing landing page only
-- `vision.html` — broader Adhalla work/pay/human-development vision
-- `contact.html` — contact page
-- `privacy.html` — starter privacy page
-- `styles.css`
-- `script.js`
-- `assets/adhalla-logo-placeholder.svg`
+The assignment is stored in sessionStorage and emitted as:
+`adhalla_ab_exposure`
+with event parameter:
+`experiment_variant`
 
-## Important: logo
+Lead events:
+- `adhalla_lead_form_start`
+- `adhalla_lead_submit`
+- `adhalla_lead_success`
+- `adhalla_scope_complete` (B only)
 
-The included SVG is only an approximate placeholder based on the previously established Adhalla design direction.
-
-Replace:
-`assets/adhalla-logo-placeholder.svg`
-
-with the actual approved Adhalla logo file when available. If you rename the logo, update the `<img>` path in all HTML files.
-
-Recovered earlier palette:
-- Purple: `#895D7C`
-- Deep purple: `#4C3645`
-
-This site adds a warm yellow accent: `#F4C95D`.
+These events are pushed to `dataLayer` and become measurable once GTM/GA4 is connected.
 
 ## Forms
+Forms submit through FormSubmit to `info@adhalla.ee`.
+The FIRST test submission triggers an activation/confirmation email to that mailbox. Confirm it before sending real traffic.
 
-All forms contain placeholder Formspree endpoints:
+## Production domain
+The repo includes `CNAME` with:
+`adhalla.ee`
 
-- `YOUR_FORM_ID_CLIENT`
-- `YOUR_FORM_ID_WORKER`
-- `YOUR_FORM_ID_CONTACT`
+## SEO
+Includes:
+- canonical URLs
+- Estonian titles/descriptions
+- Organization + Service schema
+- favicon/search icon
+- Open Graph image
+- robots.txt
+- sitemap.xml
+- visible Estonian Google Ads / AI marketing / automated marketing copy
 
-Create real endpoints that forward to the correct Adhalla mailbox, then replace the placeholders.
-
-Do not advertise or collect real leads until:
-1. each form has been tested end-to-end;
-2. the privacy page reflects the actual form provider;
-3. analytics/consent language reflects the actual tags installed.
-
-## GitHub Pages
-
-Upload these files to a GitHub repository and publish from the repository root with GitHub Pages.
-
-## For the first Google Ads technical test
-
-Use the client-facing `index.html`, not the vision page, as the ad landing page.
-
-The first campaign only needs enough real activity to prove the Adhalla backend can read live campaign data. €10–20 total is enough for that technical test; it is not enough to judge marketing performance.
-
-Keep Adhalla backend writes disabled during this first read-data test.
-
-
-## V2.1 changes
-
-- Ongoing service pricing now reads `250 € / month + actual AI/API token usage`.
-- Vision page now reserves a future constitutional / legitimacy failsafe:
-  - locked assessment reserve;
-  - periodic large-scale public-impact review;
-  - independent methodology;
-  - staged wind-down instead of destructive instant shutdown;
-  - explicit protection against bot/brigaded internet polls.
+## Before paid traffic
+1. Confirm FormSubmit delivery.
+2. Connect GTM + GA4 and verify the A/B events.
+3. Implement Consent Mode / consent handling before analytics or advertising cookies are enabled.
+4. Verify Google Ads conversion import only after GA4 tracking is tested.

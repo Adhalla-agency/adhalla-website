@@ -2,15 +2,39 @@
 <html lang="et">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Kontakt — Adhalla</title>
-<meta name="description" content="Võta Adhallaga ühendust.">
-<link rel="stylesheet" href="styles.css">
+  <title>Kontakt | Adhalla</title>
+  <meta name="description" content="Võta Adhallaga ühendust Google Ads halduse, AI-turunduse, automatiseerimise või varajase kliendihuvi teemal.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://adhalla.ee/contact.html">
+  <link rel="alternate" hreflang="et-EE" href="https://adhalla.ee/contact.html">
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="assets/favicon-48.png" sizes="48x48">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="theme-color" content="#170C22">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="et_EE">
+  <meta property="og:site_name" content="Adhalla">
+  <meta property="og:title" content="Kontakt | Adhalla">
+  <meta property="og:description" content="Võta Adhallaga ühendust Google Ads halduse, AI-turunduse, automatiseerimise või varajase kliendihuvi teemal.">
+  <meta property="og:url" content="https://adhalla.ee/contact.html">
+  <meta property="og:image" content="https://adhalla.ee/assets/og-adhalla.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Kontakt | Adhalla">
+  <meta name="twitter:description" content="Võta Adhallaga ühendust Google Ads halduse, AI-turunduse, automatiseerimise või varajase kliendihuvi teemal.">
+  <meta name="twitter:image" content="https://adhalla.ee/assets/og-adhalla.jpg">
+
+<link rel="stylesheet" href="adhalla-swipe-v36.css?v=3.6">
+<link rel="manifest" href="site.webmanifest">
 </head>
 <body>
 
 <header class="nav shell">
   <a class="brand" href="index.html">
-    <img src="assets/adhalla-logo-placeholder.svg" alt="Adhalla logo">
+    <img src="assets/adhalla-logo.png" alt="Adhalla logo">
     <span>ADHALLA</span>
   </a>
   <nav class="nav-links" aria-label="Peamenüü">
@@ -37,14 +61,20 @@
       <a class="button primary" href="mailto:info@adhalla.ee?subject=Adhalla%20kontakt">Ava e-kiri</a>
     </div>
     <div class="form-card">
-      <form class="form" data-placeholder-form action="https://formspree.io/f/YOUR_FORM_ID_CONTACT" method="POST">
+      <form class="form" data-placeholder-form action="https://formsubmit.co/info@adhalla.ee" method="POST">
+        
+        <input type="hidden" name="_subject" value="Adhalla.ee kontaktivormi sõnum">
+        <input type="hidden" name="_next" value="https://adhalla.ee/aitah.html?type=contact">
+        <input type="hidden" name="_template" value="table">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+
         <label><span>Nimi</span><input name="name" required></label>
         <label><span>E-post</span><input type="email" name="email" required></label>
         <label><span>Teema</span><input name="subject" required></label>
         <label><span>Sõnum</span><textarea name="message" required></textarea></label>
         <label class="consent"><input type="checkbox" required><span>Nõustun, et Adhalla OÜ töötleb minu sisestatud andmeid sellele päringule vastamiseks.</span></label>
         <button class="button primary full">Saada</button>
-        <small data-form-note>Enne avalikku kasutust ühenda vorm Formspree või Adhalla enda backendiga, mis saadab kirja aadressile info@adhalla.ee.</small>
+        
       </form>
     </div>
   </div>

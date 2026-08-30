@@ -2,15 +2,65 @@
 <html lang="et">
 <head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Adhalla — reklaami järgmine tööviis</title>
-<meta name="description" content="Adhalla ehitab kontrollitud AI-põhist Google Adsi süsteemi, mis ühendab reklaami, mõõtmise ja äritulemused.">
-<link rel="stylesheet" href="styles.css">
+  <title>Google Ads haldus Eestis | AI-põhine reklaamihaldus | Adhalla</title>
+  <meta name="description" content="Odavam alternatiiv traditsioonilisele Google Ads agentuurile: AI-põhine ja automatiseeritud Google Ads haldus Eestis, mõõtmine ja turvapiirid. Esimeste testklientide hinnastus.">
+  <meta name="robots" content="index,follow,max-image-preview:large">
+  <link rel="canonical" href="https://adhalla.ee/">
+  <link rel="alternate" hreflang="et-EE" href="https://adhalla.ee/">
+  <link rel="icon" href="assets/favicon.ico" sizes="any">
+  <link rel="icon" type="image/png" href="assets/favicon-48.png" sizes="48x48">
+  <link rel="apple-touch-icon" href="assets/apple-touch-icon.png">
+  <meta name="theme-color" content="#170C22">
+
+  <meta property="og:type" content="website">
+  <meta property="og:locale" content="et_EE">
+  <meta property="og:site_name" content="Adhalla">
+  <meta property="og:title" content="Google Ads haldus Eestis | AI-põhine reklaamihaldus | Adhalla">
+  <meta property="og:description" content="Odavam alternatiiv traditsioonilisele Google Ads agentuurile: AI-põhine ja automatiseeritud Google Ads haldus Eestis, mõõtmine ja turvapiirid. Esimeste testklientide hinnastus.">
+  <meta property="og:url" content="https://adhalla.ee/">
+  <meta property="og:image" content="https://adhalla.ee/assets/og-adhalla.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="Google Ads haldus Eestis | AI-põhine reklaamihaldus | Adhalla">
+  <meta name="twitter:description" content="Odavam alternatiiv traditsioonilisele Google Ads agentuurile: AI-põhine ja automatiseeritud Google Ads haldus Eestis, mõõtmine ja turvapiirid. Esimeste testklientide hinnastus.">
+  <meta name="twitter:image" content="https://adhalla.ee/assets/og-adhalla.jpg">
+
+<link rel="stylesheet" href="adhalla-swipe-v36.css?v=3.6">
+
+  <script>
+  (function(){
+    const forced = new URLSearchParams(location.search).get("variant");
+    let v = forced === "A" || forced === "B" ? forced : sessionStorage.getItem("adhalla_ab_landing_v1");
+    if(v !== "A" && v !== "B"){
+      const random = new Uint32Array(1);
+      crypto.getRandomValues(random);
+      v = (random[0] % 2 === 0) ? "A" : "B";
+      sessionStorage.setItem("adhalla_ab_landing_v1", v);
+    }
+    document.documentElement.dataset.abVariant = v;
+    window.adhallaVariant = v;
+    window.dataLayer = window.dataLayer || [];
+    window.dataLayer.push({
+      event:"adhalla_ab_exposure",
+      experiment_id:"landing_v1",
+      experiment_variant:v
+    });
+  })();
+  </script>
+
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "@id": "https://adhalla.ee/#organization", "name": "Adhalla OÜ", "url": "https://adhalla.ee/", "logo": "https://adhalla.ee/assets/icon-512.png", "email": "info@adhalla.ee"}, {"@type": "Service", "@id": "https://adhalla.ee/#google-ads-service", "name": "Google Ads haldus ja automatiseerimine", "serviceType": "Google Ads haldus, AI-põhine reklaamihaldus ja turunduse automatiseerimine", "provider": {"@id": "https://adhalla.ee/#organization"}, "areaServed": {"@type": "Country", "name": "Estonia"}, "url": "https://adhalla.ee/"}, {"@type": "WebSite", "@id": "https://adhalla.ee/#website", "url": "https://adhalla.ee/", "name": "Adhalla", "inLanguage": "et-EE", "publisher": {"@id": "https://adhalla.ee/#organization"}}]}</script>
+<link rel="manifest" href="site.webmanifest">
 </head>
 <body>
+<div class="scroll-progress" id="scroll-progress"></div>
+<div class="ambient ambient-one" aria-hidden="true"></div>
+<div class="ambient ambient-two" aria-hidden="true"></div>
 
 <header class="nav shell">
   <a class="brand" href="index.html">
-    <img src="assets/adhalla-logo-placeholder.svg" alt="Adhalla logo">
+    <img src="assets/adhalla-logo.png" alt="Adhalla logo">
     <span>ADHALLA</span>
   </a>
   <nav class="nav-links" aria-label="Peamenüü">
@@ -36,29 +86,52 @@
   <div class="status"><div><span class="dot"></span> Arenduses</div><div>Esimesed päris kontode tehnilised testid käivad</div></div>
 </section>
 
-<section class="section shell" id="service">
+<section class="section reveal shell" id="service">
   <div class="section-head">
     <span class="kicker">KLIENDILE</span>
     <h2>Ütle, mida tahad saavutada. Süsteem aitab reklaami sinna suunas liigutada.</h2>
     <p>
-      Eesmärk ei ole anda AI-le vaba ligipääsu sinu rahale. Iga konto ümber ehitatakse piirangud,
-      kontrollid ja mõõtmise kiht, mille sees automatiseerimine tohib töötada.
+      Adhalla esimene ja peamine automatiseerimise siht on Google Ads. Eesmärk ei ole anda AI-le
+      vaba ligipääsu sinu rahale: iga konto ümber ehitatakse piirangud, kontrollid ja mõõtmise kiht,
+      mille sees automatiseerimine tohib töötada. Kui süsteem tõestab end, ei pea Adhalla pikem
+      potentsiaal jääma ainult reklaamihalduse piiridesse.
     </p>
   </div>
   <div class="grid three">
-    <article class="card tall"><div class="number">01</div><h3>Rohkem infot kui üks Ads konto</h3><p>Google Ads, GA4, GTM, veebileht, äriandmed ja tulevikus teised vajalikud allikad saavad moodustada ühe otsustuskihi.</p></article>
-    <article class="card tall"><div class="number">02</div><h3>AI analüüsib ja ehitab</h3><p>Reklaamtekstid, märksõnad, kampaaniad, testid ja optimeerimisettepanekud võivad tekkida automaatselt, kuid läbivad Adhalla turvakihi.</p></article>
-    <article class="card tall"><div class="number">03</div><h3>Sina valid kaasatuse</h3><p>Võid jälgida detailselt või seada ärilise eesmärgi — näiteks ROAS, tulu või kvaliteetsed päringud — ja sekkuda ainult siis, kui soovid.</p></article>
+    <article class="card reveal-child tall"><div class="number">01</div><h3>Rohkem infot kui üks Ads konto</h3><p>Google Ads, GA4, GTM, veebileht, äriandmed ja tulevikus teised vajalikud allikad saavad moodustada ühe otsustuskihi.</p></article>
+    <article class="card reveal-child tall"><div class="number">02</div><h3>AI analüüsib ja ehitab</h3><p>Reklaamtekstid, märksõnad, kampaaniad, testid ja optimeerimisettepanekud võivad tekkida automaatselt, kuid läbivad Adhalla turvakihi.</p></article>
+    <article class="card reveal-child tall"><div class="number">03</div><h3>Sina valid kaasatuse</h3><p>Võid jälgida detailselt või seada ärilise eesmärgi — näiteks ROAS, tulu või kvaliteetsed päringud — ja sekkuda ainult siis, kui soovid.</p></article>
   </div>
 </section>
 
-<section class="section shell">
+<section class="section reveal shell">
   <div class="callout"><p>Reklaami haldamine ei pea kallinema lihtsalt sellepärast, et rohkem analüüsi ja optimeerimist võtab inimesel rohkem tunde.</p></div>
 </section>
 
-<section class="section shell">
+
+<section class="section reveal shell expansion-section">
+  <div class="expansion-grid">
+    <div class="expansion-main">
+      <span class="kicker">FOOKUS PRAEGU</span>
+      <h2>Google Ads on alguspunkt, mitte tingimata lõpp-punkt.</h2>
+      <p>
+        Esimene süsteem ehitatakse Google Adsi ümber, sest seal saab mõõtmise, otsustamise,
+        turvapiirid ja automatiseerimise kõige konkreetsemalt päris klienditulemuste vastu proovile panna.
+      </p>
+    </div>
+    <div class="expansion-side">
+      <div class="orbit-label">TÄNA</div>
+      <strong>Google Ads</strong>
+      <div class="orbit-line"></div>
+      <div class="orbit-label">HILJEM, KUI SEE ON PÕHJENDATUD</div>
+      <span>mõõtmine · andmevood · kliendi tööprotsessid · muud otsustussüsteemid</span>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal shell">
   <div class="section-head">
-    <span class="kicker">PLANEERITAV HINNASTAMINE</span>
+    <span class="kicker">ESIMESTE TESTKLIENTIDE PLANEERITAV HINNASTAMINE</span>
     <h2>Automatiseeritud süsteemi hind, mitte lõputu töötundide arve.</h2>
   </div>
   <div class="price-grid">
@@ -67,7 +140,7 @@
       <strong>alates 500 €</strong>
       <p class="muted">Kui ettevõte ei vaja või ei soovi kogu andme- ja integratsioonikihti.</p>
     </div>
-    <div class="price featured">
+    <div class="price reveal-child featured">
       <span class="kicker">TÄISLAHENDUSE SEADISTUS</span>
       <strong>kuni ~2000 €</strong>
       <p class="muted">Põhjalikum ühendamine, mõõtmine ja süsteemi ettevalmistus ettevõtte tegeliku töövoo järgi.</p>
@@ -78,10 +151,10 @@
       <p class="muted">Planeeritav fikseeritud teenustasu + tegelik AI/API tokenikulu. Esialgne mudel arvestab vähemalt 6-kuulise koostööga.</p>
     </div>
   </div>
-  <p class="fine">Hinnad ja lõplik teenuseulatus võivad arendusfaasis muutuda.</p>
+  <p class="fine"><strong>Need on esialgsed esimeste testklientide hinnad.</strong> Hinnad, seadistusmudel, tokenikulu arvestus ja lõplik teenuseulatus võivad süsteemi testimise käigus muutuda.</p>
 </section>
 
-<section class="section shell">
+<section class="section reveal shell">
   <div class="split">
     <div><span class="kicker">MIS JÄÄB SINU VASTUTUSEKS</span><h2>Adhalla ei otsusta sinu eest, kas sinu äri on hea äri.</h2></div>
     <div class="copy">
@@ -91,14 +164,207 @@
   </div>
 </section>
 
-<section class="section shell" id="waitlist">
-  <div class="banner">
-    <div><span class="kicker">OOTENIMEKIRI</span><h2>Ole esimeste testklientide seas.</h2><p>Jäta nimi ja e-post. Võtame ühendust, kui süsteem on valmis järgmise päris ettevõtte kontrollitud testiks.</p></div>
-    <a class="button primary" href="vision.html#interest">Liitu visiooniga</a>
+
+
+
+<section class="section reveal shell seo-service-section">
+  <div class="section-head">
+    <span class="kicker">GOOGLE ADS HALDUS EESTIS</span>
+    <h2>Google Ads agentuuri või freelanceri alternatiiv, mis on ehitatud automatiseerimise ümber.</h2>
+    <p>
+      Kui otsid Eestis Google Ads haldust, Google reklaami spetsialisti või odavamat alternatiivi
+      tavapärasele digiturundusagentuurile, on Adhalla lähtekoht teistsugune: AI turundus ja
+      automatiseeritud turundus ei ole lisafunktsioon, vaid süsteemi tööviis. Esialgne fookus on
+      Google Adsil; mõõtmine, GA4, GTM, veebilehe andmed ja muud allikad annavad sellele otsustamiseks konteksti.
+    </p>
+  </div>
+
+  <div class="grid three">
+    <article class="card reveal-child">
+      <div class="number">GOOGLE ADS</div>
+      <h3>Reklaamihaldus</h3>
+      <p>Kampaaniate ehitamine, analüüs, testimine ja optimeerimine kontrollitud automatiseerimisega.</p>
+    </article>
+    <article class="card reveal-child">
+      <div class="number">AI TURUNDUS</div>
+      <h3>Automaatne otsustuskiht</h3>
+      <p>AI võib analüüsida ja ette valmistada tegevusi, kuid konto piirangud ja õigused jäävad süsteemselt kontrollituks.</p>
+    </article>
+    <article class="card reveal-child">
+      <div class="number">MÕÕTMINE</div>
+      <h3>Rohkem kui Ads'i enda number</h3>
+      <p>Google Ads, GA4, GTM ja muud põhjendatud andmeallikad aitavad vähendada ühe mõõdiku järgi pimesi optimeerimist.</p>
+    </article>
   </div>
 </section>
 
-<section class="section shell">
+<section class="section reveal shell faq-section">
+  <div class="section-head">
+    <span class="kicker">KORDUMA KIPPUVAD KÜSIMUSED</span>
+    <h2>Enne kui räägime.</h2>
+  </div>
+  <div class="grid two">
+    <article class="card reveal-child"><h3>Kas Adhalla on Google Ads agentuur?</h3><p>Alguses sisuliselt küll, kuid süsteem on ehitatud automatiseerimise ümber. Google Ads on esimene põhifookus, mitte tingimata Adhalla lõplik piir.</p></article>
+    <article class="card reveal-child"><h3>Kui palju Google Ads haldus maksab?</h3><p>Esimeste testklientide planeeritav hind on 250 € kuus + tegelik AI/API tokenikulu. Seadistus algab 500 eurost. Need hinnad võivad testimise käigus muutuda.</p></article>
+    <article class="card reveal-child"><h3>Kas AI saab kontol kõike ise muuta?</h3><p>Ei. Adhalla mõte on kontrollitud autonoomia: õigused, turvapiirid ja suuremate otsuste kinnitamise tase määratakse kliendi ning süsteemi järgi.</p></article>
+    <article class="card reveal-child"><h3>Kas Adhalla teeb kogu online-turundust?</h3><p>Praegune eesmärk on Google Ads võimalikult hästi tööle saada. Tulevikus võib süsteem laieneda ainult sinna, kus see annab päriselt mõõdetavat lisaväärtust.</p></article>
+  </div>
+</section>
+
+<div id="waitlist" class="ab-anchor" aria-hidden="true"></div>
+
+<section class="section reveal lead-zone ab-variant-section" id="waitlist-a" data-ab-only="A">
+  <div class="shell lead-layout">
+    <div>
+      <div class="section-head">
+        <span class="kicker">VARAJANE LIGIPÄÄS</span>
+        <h2>Kui see sobib sinu ettevõttele, räägime päris vajadusest.</h2>
+        <p>
+          Jäta kontakt ja lühike lähtekoht. See ei käivita automaatset müügiprotsessi —
+          Adhalla hindab esmalt, kas sinu konto sobib varajaseks kontrollitud testiks.
+        </p>
+      </div>
+      <div class="lead-benefits">
+        <div class="lead-benefit"><b>01</b><span>Esimeste testklientide plaan: 250 € / kuu + tegelik AI/API tokenikulu.</span></div>
+        <div class="lead-benefit"><b>02</b><span>Seadistus alates 500 €, põhjalikum integratsioon võib ulatuda umbes 2000 euroni.</span></div>
+        <div class="lead-benefit"><b>03</b><span>Hinnastus ja teenuse ulatus võivad testimise käigus muutuda.</span></div>
+      </div>
+    </div>
+
+    <div class="form-card">
+      <h3>Jäta esmane huvi</h3>
+      <form class="form adhalla-public-form" action="https://formsubmit.co/info@adhalla.ee" method="POST">
+        <input type="hidden" name="experiment_variant" value="A">
+        <input type="hidden" name="source" value="adhalla.ee early client">
+        <input type="hidden" name="_subject" value="Adhalla.ee uus testkliendi huvi — Variant A">
+        <input type="hidden" name="_next" value="https://adhalla.ee/aitah.html?variant=A&type=client">
+        <input type="hidden" name="_template" value="table">
+        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+        <label><span>Nimi</span><input name="name" autocomplete="name" required></label>
+        <label><span>E-post</span><input type="email" name="email" autocomplete="email" required></label>
+        <label><span>Ettevõte</span><input name="company" autocomplete="organization"></label>
+        <label>
+          <span>Mis on sinu peamine reklaamieesmärk?</span>
+          <select name="primary_goal">
+            <option value="">Vali soovi korral</option>
+            <option>Rohkem müüki / tulu</option>
+            <option>Parem ROAS / kasumlikkus</option>
+            <option>Rohkem kvaliteetseid päringuid</option>
+            <option>Stabiilsem ja kontrollitum reklaam</option>
+            <option>Praeguse süsteemi automatiseerimine</option>
+            <option>Muu</option>
+          </select>
+        </label>
+        <label><span>Mida tahaksid Adhallaga lahendada? <small>(valikuline)</small></span><textarea name="hope"></textarea></label>
+        <label class="consent"><input type="checkbox" required><span>Nõustun, et Adhalla OÜ kasutab neid andmeid minuga selle huvi teemal ühenduse võtmiseks.</span></label>
+        <button class="button primary full" type="submit">Saada huvi</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section class="section reveal lead-zone ab-variant-section" id="waitlist-b" data-ab-only="B">
+  <div class="shell scope-shell">
+    <div class="scope-intro scope-intro-v34">
+      <span class="kicker">ADHALLA SOBIVUSKAART</span>
+      <h2>8 valikut.</h2>
+    </div>
+
+    <div id="scope-app">
+      <div class="scope-progress" aria-label="Küsimustiku edenemine">
+        <div id="scope-progress-bar"></div>
+      </div>
+
+      <div class="swipe-stage swipe-stage-v34" id="swipe-stage">
+
+        <!-- Tinder-like outcome stamps -->
+        <div class="choice-stamp stamp-left-v34" id="stamp-left-v34" aria-hidden="true">
+          <div class="broken-logo-v34">
+            <img class="broken-a-v34" src="assets/adhalla-logo.png" alt="">
+            <img class="broken-b-v34" src="assets/adhalla-logo.png" alt="">
+          </div>
+        </div>
+
+        <div class="choice-stamp stamp-right-v34" id="stamp-right-v34" aria-hidden="true">
+          <div class="good-logo-v34">
+            <span class="good-glow-v34"></span>
+            <img src="assets/adhalla-logo.png" alt="">
+          </div>
+        </div>
+
+        <article class="swipe-card swipe-card-v34" id="swipe-card">
+          <div class="swipe-meta-v34">
+            <span id="scope-category">Suund</span>
+            <span id="scope-count">1 / 8</span>
+          </div>
+
+          <div class="swipe-options-v34">
+            <div class="swipe-half-v34 left-half-v34">
+              <span class="half-arrow-v34">←</span>
+              <strong id="scope-left">Stabiilsus</strong>
+            </div>
+
+            <div class="swipe-divider-v34" aria-hidden="true"></div>
+
+            <div class="swipe-half-v34 right-half-v34">
+              <strong id="scope-right">Kasv</strong>
+              <span class="half-arrow-v34 gold-arrow-v34">→</span>
+            </div>
+          </div>
+
+          <!-- Purely visual affordance; no explanatory sentence -->
+          <div class="swipe-affordance-v34" aria-hidden="true">
+            <span class="affordance-card-v34"></span>
+            <span class="affordance-dot-v34"></span>
+          </div>
+        </article>
+      </div>
+
+      <div class="swipe-controls swipe-controls-v34" id="swipe-controls">
+        <button class="swipe-btn" type="button" id="choose-left" aria-label="Vali vasakpoolne suund">←</button>
+        <button class="swipe-btn neutral" type="button" id="choose-neutral">oleneb</button>
+        <button class="swipe-btn ad-lean" type="button" id="choose-right" aria-label="Vali parempoolne suund">→</button>
+      </div>
+
+      <div class="swipe-hint" id="swipe-hint">8 kiiret valikut</div>
+
+      <div class="profile-panel" id="profile-panel">
+        <span class="kicker">SINU ESIALGNE ADHALLA PROFIIL</span>
+        <h3 class="profile-title" id="profile-title">Kontrollitud katsetaja</h3>
+        <p class="profile-note" id="profile-summary"></p>
+        <div class="profile-chips" id="profile-chips"></div>
+        <div class="warning" id="profile-tension" style="display:none"></div>
+        <button class="scope-restart" type="button" id="scope-restart">Tee valikud uuesti</button>
+      </div>
+
+      <div class="scope-form-wrap" id="scope-form-wrap">
+        <div class="form-card">
+          <h3>Jäta profiil Adhallale</h3>
+          <p class="muted">Kui koostöö muutub reaalseks teemaks, on meil juba esimene lähtekoht.</p>
+          <form class="form" id="scope-lead-form" data-placeholder-form action="https://formsubmit.co/info@adhalla.ee" method="POST">
+            <input type="hidden" name="experiment_variant" value="B">
+            <input type="hidden" name="scope_answers" id="scope-answers-field">
+            <input type="hidden" name="scope_profile" id="scope-profile-field">
+            <input type="hidden" name="attribution" value="">
+            <input type="hidden" name="_subject" value="Adhalla.ee uus testkliendi huvi — Variant B">
+            <input type="hidden" name="_next" value="https://adhalla.ee/aitah.html?variant=B&type=client">
+            <input type="hidden" name="_template" value="table">
+            <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+
+            <label><span>Nimi</span><input name="name" autocomplete="name" required></label>
+            <label><span>E-post</span><input type="email" name="email" autocomplete="email" required></label>
+            <label><span>Ettevõte</span><input name="company" autocomplete="organization"></label>
+            <label><span>Mida loodad Adhallast saada? <small>(valikuline)</small></span><textarea name="hope"></textarea></label>
+            <label class="consent"><input type="checkbox" required><span>Nõustun, et Adhalla OÜ kasutab neid andmeid minuga selle huvi teemal ühenduse võtmiseks.</span></label>
+            <button class="button primary full" type="submit">Saada profiil ja huvi</button>
+            
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+<section class="section reveal shell">
   <div class="section-head narrow">
     <span class="kicker">ADHALLA ON MIDAGI ENAMAT</span>
     <h2>Automatiseerimine võib muuta ka seda, mille eest inimesed tööl tasu saavad.</h2>
@@ -118,4 +384,5 @@
 </footer>
 
 <script src="script.js"></script>
+<script src="adhalla-swipe-v37.js?v=3.7"></script>
 </body></html>
