@@ -179,16 +179,14 @@
   <div class="grid two">
     <div class="form-card">
       <h3>Võimalik tulevane klient</h3>
-      <form class="form" data-placeholder-form action="https://formsubmit.co/93c7404982b59ee2784cebbfed268413" data-adhalla-public-form data-ajax-endpoint="https://formsubmit.co/ajax/info@adhalla.ee" method="POST">
+      <form class="form" data-placeholder-form action="https://formspree.io/f/xzebepaa" data-adhalla-public-form method="POST">
         <label><span>Nimi</span><input name="name" required></label>
         <label><span>E-post</span><input type="email" name="email" required></label>
         <label><span>Ettevõte</span><input name="company"></label>
         <label><span>Mida sa loodad sellest süsteemist saada?</span><textarea name="hope"></textarea></label>
         <input type="hidden" name="interest_type" value="future-client">
-        <input type="hidden" name="_subject" value="Adhalla.ee tulevase kliendi huvi">
-        <input type="hidden" name="_next" value="https://adhalla.ee/aitah.html?type=future-client">
-        <input type="hidden" name="_template" value="table">
-        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+        <input type="hidden" name="subject" value="Adhalla.ee tulevase kliendi huvi">
+        <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
         <label class="consent"><input type="checkbox" required><span>Nõustun, et Adhalla OÜ kasutab neid andmeid minuga selle huvi teemal ühenduse võtmiseks.</span></label>
         <button class="button primary full">Saada huvi</button>
         
@@ -196,16 +194,14 @@
     </div>
     <div class="form-card">
       <h3>Võimalik tulevane töötaja</h3>
-      <form class="form" data-placeholder-form action="https://formsubmit.co/93c7404982b59ee2784cebbfed268413" data-adhalla-public-form data-ajax-endpoint="https://formsubmit.co/ajax/info@adhalla.ee" method="POST">
+      <form class="form" data-placeholder-form action="https://formspree.io/f/xzebepaa" data-adhalla-public-form method="POST">
         <label><span>Nimi</span><input name="name" required></label>
         <label><span>E-post</span><input type="email" name="email" required></label>
         <label><span>Mis sind selles visioonis kõnetab?</span><textarea name="hope"></textarea></label>
         <label><span>Millist panust tahaksid ise proovida?</span><textarea name="contribution"></textarea></label>
         <input type="hidden" name="interest_type" value="future-worker">
-        <input type="hidden" name="_subject" value="Adhalla.ee tulevase töötaja huvi">
-        <input type="hidden" name="_next" value="https://adhalla.ee/aitah.html?type=future-worker">
-        <input type="hidden" name="_template" value="table">
-        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+        <input type="hidden" name="subject" value="Adhalla.ee tulevase töötaja huvi">
+        <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
         <label class="consent"><input type="checkbox" required><span>Nõustun, et Adhalla OÜ kasutab neid andmeid minuga tulevase töö- või koostööhuvi teemal ühenduse võtmiseks.</span></label>
         <button class="button primary full">Jäta oma mõte</button>
         
@@ -225,5 +221,5 @@
 </footer>
 
 <script src="script.js"></script>
-<script src="adhalla-form-submit-v3.js?v=2"></script>
+<script src="adhalla-formspree-v1.js?v=2"></script>
 </body></html>

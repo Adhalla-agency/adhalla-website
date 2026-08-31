@@ -233,13 +233,11 @@
 
     <div class="form-card">
       <h3>Jäta esmane huvi</h3>
-      <form class="form adhalla-public-form" action="https://formsubmit.co/93c7404982b59ee2784cebbfed268413" data-adhalla-public-form data-ajax-endpoint="https://formsubmit.co/ajax/info@adhalla.ee" method="POST">
+      <form class="form adhalla-public-form" action="https://formspree.io/f/xzebepaa" data-adhalla-public-form method="POST">
         <input type="hidden" name="experiment_variant" value="A">
         <input type="hidden" name="source" value="adhalla.ee early client">
-        <input type="hidden" name="_subject" value="Adhalla.ee uus testkliendi huvi — Variant A">
-        <input type="hidden" name="_next" value="https://adhalla.ee/aitah.html?variant=A&type=client">
-        <input type="hidden" name="_template" value="table">
-        <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+        <input type="hidden" name="subject" value="Adhalla.ee uus testkliendi huvi — Variant A">
+        <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
         <label><span>Nimi</span><input name="name" autocomplete="name" required></label>
         <label><span>E-post</span><input type="email" name="email" autocomplete="email" required></label>
         <label><span>Ettevõte</span><input name="company" autocomplete="organization"></label>
@@ -341,15 +339,13 @@
         <div class="form-card">
           <h3>Jäta profiil Adhallale</h3>
           <p class="muted">Kui koostöö muutub reaalseks teemaks, on meil juba esimene lähtekoht.</p>
-          <form class="form" id="scope-lead-form" data-placeholder-form action="https://formsubmit.co/93c7404982b59ee2784cebbfed268413" data-adhalla-public-form data-ajax-endpoint="https://formsubmit.co/ajax/info@adhalla.ee" method="POST">
+          <form class="form" id="scope-lead-form" data-placeholder-form action="https://formspree.io/f/xzebepaa" data-adhalla-public-form method="POST">
             <input type="hidden" name="experiment_variant" value="B">
             <input type="hidden" name="scope_answers" id="scope-answers-field">
             <input type="hidden" name="scope_profile" id="scope-profile-field">
             <input type="hidden" name="attribution" value="">
-            <input type="hidden" name="_subject" value="Adhalla.ee uus testkliendi huvi — Variant B">
-            <input type="hidden" name="_next" value="https://adhalla.ee/aitah.html?variant=B&type=client">
-            <input type="hidden" name="_template" value="table">
-            <input type="text" name="_honey" style="display:none" tabindex="-1" autocomplete="off">
+            <input type="hidden" name="subject" value="Adhalla.ee uus testkliendi huvi — Variant B">
+            <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
 
             <label><span>Nimi</span><input name="name" autocomplete="name" required></label>
             <label><span>E-post</span><input type="email" name="email" autocomplete="email" required></label>
@@ -385,5 +381,5 @@
 
 <script src="script.js"></script>
 <script src="adhalla-swipe-v37.js?v=3.7"></script>
-<script src="adhalla-form-submit-v3.js?v=2"></script>
+<script src="adhalla-formspree-v1.js?v=2"></script>
 </body></html>
