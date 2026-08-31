@@ -233,9 +233,7 @@
 
     <div class="form-card">
       <h3>Jäta esmane huvi</h3>
-      <form class="form adhalla-public-form" action="https://formspree.io/f/xzebepaa" data-adhalla-public-form method="POST">
-        <input type="hidden" name="experiment_variant" value="A">
-        <input type="hidden" name="source" value="adhalla.ee early client">
+      <form class="form adhalla-public-form" action="https://formspree.io/f/xzebepaa" data-adhalla-public-form data-experiment-variant="A" method="POST">
         <input type="hidden" name="subject" value="Adhalla.ee uus testkliendi huvi — Variant A">
         <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
         <label><span>Nimi</span><input name="name" autocomplete="name" required></label>
@@ -339,11 +337,7 @@
         <div class="form-card">
           <h3>Jäta profiil Adhallale</h3>
           <p class="muted">Kui koostöö muutub reaalseks teemaks, on meil juba esimene lähtekoht.</p>
-          <form class="form" id="scope-lead-form" data-placeholder-form action="https://formspree.io/f/xzebepaa" data-adhalla-public-form method="POST">
-            <input type="hidden" name="experiment_variant" value="B">
-            <input type="hidden" name="scope_answers" id="scope-answers-field">
-            <input type="hidden" name="scope_profile" id="scope-profile-field">
-            <input type="hidden" name="attribution" value="">
+          <form class="form" id="scope-lead-form" data-placeholder-form action="https://formspree.io/f/xzebepaa" data-adhalla-public-form data-experiment-variant="B" method="POST">
             <input type="hidden" name="subject" value="Adhalla.ee uus testkliendi huvi — Variant B">
             <input type="text" name="_gotcha" style="display:none" tabindex="-1" autocomplete="off">
 
@@ -351,6 +345,8 @@
             <label><span>E-post</span><input type="email" name="email" autocomplete="email" required></label>
             <label><span>Ettevõte</span><input name="company" autocomplete="organization"></label>
             <label><span>Mida loodad Adhallast saada? <small>(valikuline)</small></span><textarea name="hope"></textarea></label>
+            <input type="hidden" name="Valikud" id="scope-readable-answers-field">
+            <input type="hidden" name="Kokkuvõte" id="scope-readable-profile-field">
             <label class="consent"><input type="checkbox" required><span>Nõustun, et Adhalla OÜ kasutab neid andmeid minuga selle huvi teemal ühenduse võtmiseks.</span></label>
             <button class="button primary full" type="submit">Saada profiil ja huvi</button>
             
@@ -380,6 +376,6 @@
 </footer>
 
 <script src="script.js"></script>
-<script src="adhalla-swipe-v37.js?v=3.7"></script>
-<script src="adhalla-formspree-v1.js?v=2"></script>
+<script src="adhalla-swipe-v38.js?v=3.8"></script>
+<script src="adhalla-formspree-v2.js?v=2.1"></script>
 </body></html>

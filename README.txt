@@ -1,25 +1,26 @@
-# Adhalla Formspree transport V1
+Adhalla readable B-swipe email patch
 
-Formspree form:
-https://formspree.io/f/xzebepaa
+Replace/upload these three files in the public adhalla-website repository:
+- index.html
+- adhalla-swipe-v38.js
+- adhalla-formspree-v2.js
 
-Replace the included files in the public `adhalla-website` repository.
+No visual swipe changes.
 
-What changed:
-- FormSubmit removed from the included public form pages.
-- All forms now submit to the Formspree form ID `xzebepaa`.
-- Submission stays on `adhalla.ee` while the request is sent with AJAX.
-- On success the visitor is sent to `/aitah.html`.
-- A/B subjects remain EXACTLY:
-  - `Adhalla.ee uus testkliendi huvi — Variant A`
-  - `Adhalla.ee uus testkliendi huvi — Variant B`
-  so the Gmail filters already created can keep working.
-- Variant B still submits `scope_answers` and `scope_profile`.
-- Formspree's `_gotcha` honeypot is used.
-- The visitor email field remains named `email`, so Formspree can use it as Reply-To.
+B email now contains:
+- normal contact fields
+- Valikud: one readable line per swipe
+- Kokkuvõte: profile title + summary + optional tension note
 
-After upload:
-1. Let GitHub Pages redeploy.
-2. Test Variant A once on mobile.
-3. Test Variant B once on mobile and verify the swipe profile fields arrive.
-4. In Formspree, make sure the form's target email / Email workflow is `info@adhalla.ee`.
+Removed from B email:
+- raw scope_answers JSON
+- raw scope_profile JSON
+- dimension names
+- adhalla_fit per-answer metadata
+- conservative/adhalla internal option metadata
+- raw attribution JSON
+- experiment_variant body field (the subject still says Variant B)
+
+A/B analytics still knows the variant through a data attribute on the form.
+
+Do NOT delete adhalla-formspree-v1.js yet because contact.html and vision.html may still reference it.
