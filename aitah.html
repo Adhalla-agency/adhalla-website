@@ -1,6 +1,38 @@
 <!doctype html>
 <html lang="et">
 <head>
+<!-- Adhalla Consent Mode v2 defaults -->
+<script>
+window.dataLayer = window.dataLayer || [];
+window.gtag = window.gtag || function(){ dataLayer.push(arguments); };
+
+(function(){
+  var KEY = "adhalla_consent_v1";
+  var saved = null;
+
+  try {
+    saved = JSON.parse(localStorage.getItem(KEY));
+  } catch (_) {}
+
+  var analyticsGranted = !!(saved && saved.analytics === true);
+  var adsGranted = !!(saved && saved.ads === true);
+
+  gtag("consent", "default", {
+    analytics_storage: analyticsGranted ? "granted" : "denied",
+    ad_storage: adsGranted ? "granted" : "denied",
+    ad_user_data: adsGranted ? "granted" : "denied",
+    ad_personalization: adsGranted ? "granted" : "denied",
+    wait_for_update: 500
+  });
+
+  window.__adhallaConsentInitial = {
+    hasChoice: !!saved,
+    analytics: analyticsGranted,
+    ads: adsGranted
+  };
+})();
+</script>
+<!-- End Adhalla Consent defaults -->
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -20,6 +52,8 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <link rel="manifest" href="site.webmanifest">
   <meta name="theme-color" content="#170C22">
   <link rel="stylesheet" href="adhalla-swipe-v36.css?v=production1">
+<link rel="stylesheet" href="adhalla-consent-v1.css?v=1.0">
+<script src="adhalla-consent-v1.js?v=1.0" defer></script>
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->

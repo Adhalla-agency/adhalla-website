@@ -1,6 +1,38 @@
 <!doctype html>
 <html lang="et">
 <head>
+<!-- Adhalla Consent Mode v2 defaults -->
+<script>
+window.dataLayer = window.dataLayer || [];
+window.gtag = window.gtag || function(){ dataLayer.push(arguments); };
+
+(function(){
+  var KEY = "adhalla_consent_v1";
+  var saved = null;
+
+  try {
+    saved = JSON.parse(localStorage.getItem(KEY));
+  } catch (_) {}
+
+  var analyticsGranted = !!(saved && saved.analytics === true);
+  var adsGranted = !!(saved && saved.ads === true);
+
+  gtag("consent", "default", {
+    analytics_storage: analyticsGranted ? "granted" : "denied",
+    ad_storage: adsGranted ? "granted" : "denied",
+    ad_user_data: adsGranted ? "granted" : "denied",
+    ad_personalization: adsGranted ? "granted" : "denied",
+    wait_for_update: 500
+  });
+
+  window.__adhallaConsentInitial = {
+    hasChoice: !!saved,
+    analytics: analyticsGranted,
+    ads: adsGranted
+  };
+})();
+</script>
+<!-- End Adhalla Consent defaults -->
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -35,7 +67,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <meta name="twitter:image" content="https://adhalla.ee/assets/og-adhalla.jpg">
 
 <link rel="stylesheet" href="adhalla-swipe-v36.css?v=3.6">
+<link rel="stylesheet" href="adhalla-consent-v1.css?v=1.0">
 <link rel="manifest" href="site.webmanifest">
+<script src="adhalla-consent-v1.js?v=1.0" defer></script>
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -67,13 +101,18 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <p>Kui täidad kliendi-, töötaja- või kontaktivormi, võime koguda sinu nime, e-posti, ettevõtte nime ning vabatekstilisi vastuseid. Neid kasutatakse sinu päringule vastamiseks, huvi hindamiseks ja võimaliku koostöö ettevalmistamiseks.</p>
 
   <h2>Vormi tehniline edastus</h2>
-  <p>Veebivormide tehniliseks edastamiseks kasutame FormSubmit teenust (formsubmit.co), mis edastab vormi sisu Adhallale. Vorm saadetakse taustal, nii et kasutaja jääb Adhalla veebilehele. Seetõttu liiguvad vormi sisestatud andmed selle teenuse kaudu.</p>
+  <p>Veebivormide tehniliseks edastamiseks kasutame Formspree teenust. Vorm saadetakse taustal, nii et kasutaja jääb Adhalla veebilehele. Vormile sisestatud andmed liiguvad seetõttu Formspree teenuse kaudu Adhallani.</p>
 
   <h2>A/B test</h2>
   <p>Adhalla võib ühe külastussessiooni jooksul näidata kahte erinevat liitumisviisi. Variant salvestatakse brauseri sessionStorage'i, et sama sessiooni jooksul kogemus ei muutuks. Vormiga saadetakse kaasa ka variandi tähis, et hinnata, kumb kasutajakogemus toimib paremini.</p>
 
-  <h2>Analüütika</h2>
-  <p>Leht on ette valmistatud anonüümsete A/B sündmuste edastamiseks Google Tag Manageri / Google Analyticsi kaudu. Enne analüütika aktiveerimist rakendatakse vajalik nõusoleku- ja Consent Mode'i lahendus. Reklaami- või analüütikaküpsiseid ei tohiks aktiveerida enne vastava nõusoleku saamist.</p>
+  <h2>Küpsised, brauseri salvestus ja nõusolek</h2>
+  <p>Adhalla kasutab brauseri tehnilist salvestust selleks, et hoida meeles sinu küpsise-eelistust ning sama külastussessiooni A/B varianti. Neid funktsioone kasutatakse lehe tööks ja valiku järjepidevuseks.</p>
+  <p>Analüütika ja reklaamiga seotud Google'i salvestusõigused on esimesel külastusel vaikimisi keelatud. Kui annad vastava nõusoleku, edastab Adhalla sinu valiku Google Consent Mode v2 kaudu Google Tag Managerile ja sellega ühendatud teenustele. Analüütika ja reklaami nõusolekut saab anda või tagasi võtta eraldi.</p>
+  <p>Oma valikut saad igal ajal muuta veebilehel oleva nupu „Küpsiste seaded” kaudu.</p>
+
+  <h2>Analüütika ja A/B test</h2>
+  <p>Nõusoleku korral võib Adhalla kasutada Google Analyticsit selleks, et mõõta lehe kasutust, vormi teekonda ja A/B testi tulemusi. A/B variant ise salvestatakse ühe külastussessiooni ajaks brauseri sessionStorage'i, et kasutajakogemus sama sessiooni jooksul juhuslikult ei muutuks.</p>
 
   <h2>Säilitamine ja kustutamine</h2>
   <p>Hoiame päringuandmeid ainult nii kaua, kui see on päringu, huvilisti või võimaliku koostöö jaoks põhjendatud. Enda andmete kustutamist või parandamist saad taotleda aadressil info@adhalla.ee.</p>
