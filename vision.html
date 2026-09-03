@@ -1,38 +1,32 @@
 <!doctype html>
 <html lang="et">
 <head>
-<!-- Adhalla Consent Mode v2 defaults -->
+<!-- Adhalla privacy-first Advanced Consent Mode -->
 <script>
 window.dataLayer = window.dataLayer || [];
 window.gtag = window.gtag || function(){ dataLayer.push(arguments); };
-
 (function(){
-  var KEY = "adhalla_consent_v1";
+  var KEY = "adhalla_consent_v2";
   var saved = null;
-
-  try {
-    saved = JSON.parse(localStorage.getItem(KEY));
-  } catch (_) {}
-
+  try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (_) {}
   var analyticsGranted = !!(saved && saved.analytics === true);
-  var adsGranted = !!(saved && saved.ads === true);
+  var adsMeasurementGranted = !!(saved && saved.ads_measurement === true);
+
+  // Adhalla policy: measurement may be consented to; identity-style ad features stay off.
+  gtag("set", "allow_google_signals", false);
+  gtag("set", "allow_ad_personalization_signals", false);
+  gtag("set", "ads_data_redaction", true);
 
   gtag("consent", "default", {
     analytics_storage: analyticsGranted ? "granted" : "denied",
-    ad_storage: adsGranted ? "granted" : "denied",
-    ad_user_data: adsGranted ? "granted" : "denied",
-    ad_personalization: adsGranted ? "granted" : "denied",
+    ad_storage: adsMeasurementGranted ? "granted" : "denied",
+    ad_user_data: adsMeasurementGranted ? "granted" : "denied",
+    ad_personalization: "denied",
     wait_for_update: 500
   });
-
-  window.__adhallaConsentInitial = {
-    hasChoice: !!saved,
-    analytics: analyticsGranted,
-    ads: adsGranted
-  };
 })();
 </script>
-<!-- End Adhalla Consent defaults -->
+<!-- End Adhalla privacy-first consent defaults -->
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -67,9 +61,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <meta name="twitter:image" content="https://adhalla.ee/assets/og-adhalla.jpg">
 
 <link rel="stylesheet" href="adhalla-swipe-v36.css?v=3.6">
-<link rel="stylesheet" href="adhalla-consent-v1.css?v=1.0">
+<link rel="stylesheet" href="adhalla-consent-v2.css?v=2.0">
 <link rel="manifest" href="site.webmanifest">
-<script src="adhalla-consent-v1.js?v=1.0" defer></script>
+<script src="adhalla-consent-v2.js?v=2.0" defer></script>
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->

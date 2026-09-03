@@ -1,38 +1,32 @@
 <!doctype html>
 <html lang="et">
 <head>
-<!-- Adhalla Consent Mode v2 defaults -->
+<!-- Adhalla privacy-first Advanced Consent Mode -->
 <script>
 window.dataLayer = window.dataLayer || [];
 window.gtag = window.gtag || function(){ dataLayer.push(arguments); };
-
 (function(){
-  var KEY = "adhalla_consent_v1";
+  var KEY = "adhalla_consent_v2";
   var saved = null;
-
-  try {
-    saved = JSON.parse(localStorage.getItem(KEY));
-  } catch (_) {}
-
+  try { saved = JSON.parse(localStorage.getItem(KEY)); } catch (_) {}
   var analyticsGranted = !!(saved && saved.analytics === true);
-  var adsGranted = !!(saved && saved.ads === true);
+  var adsMeasurementGranted = !!(saved && saved.ads_measurement === true);
+
+  // Adhalla policy: measurement may be consented to; identity-style ad features stay off.
+  gtag("set", "allow_google_signals", false);
+  gtag("set", "allow_ad_personalization_signals", false);
+  gtag("set", "ads_data_redaction", true);
 
   gtag("consent", "default", {
     analytics_storage: analyticsGranted ? "granted" : "denied",
-    ad_storage: adsGranted ? "granted" : "denied",
-    ad_user_data: adsGranted ? "granted" : "denied",
-    ad_personalization: adsGranted ? "granted" : "denied",
+    ad_storage: adsMeasurementGranted ? "granted" : "denied",
+    ad_user_data: adsMeasurementGranted ? "granted" : "denied",
+    ad_personalization: "denied",
     wait_for_update: 500
   });
-
-  window.__adhallaConsentInitial = {
-    hasChoice: !!saved,
-    analytics: analyticsGranted,
-    ads: adsGranted
-  };
 })();
 </script>
-<!-- End Adhalla Consent defaults -->
+<!-- End Adhalla privacy-first consent defaults -->
 <!-- Google Tag Manager -->
 <script>(function(w,d,s,l,i){w[l]=w[l]||[];w[l].push({'gtm.start':
 new Date().getTime(),event:'gtm.js'});var f=d.getElementsByTagName(s)[0],
@@ -67,9 +61,9 @@ j=d.createElement(s),dl=l!='dataLayer'?'&l='+l:'';j.async=true;j.src=
   <meta name="twitter:image" content="https://adhalla.ee/assets/og-adhalla.jpg">
 
 <link rel="stylesheet" href="adhalla-swipe-v36.css?v=3.6">
-<link rel="stylesheet" href="adhalla-consent-v1.css?v=1.0">
+<link rel="stylesheet" href="adhalla-consent-v2.css?v=2.0">
 <link rel="manifest" href="site.webmanifest">
-<script src="adhalla-consent-v1.js?v=1.0" defer></script>
+<script src="adhalla-consent-v2.js?v=2.0" defer></script>
 </head>
 <body>
 <!-- Google Tag Manager (noscript) -->
@@ -107,12 +101,13 @@ height="0" width="0" style="display:none;visibility:hidden"></iframe></noscript>
   <p>Adhalla võib ühe külastussessiooni jooksul näidata kahte erinevat liitumisviisi. Variant salvestatakse brauseri sessionStorage'i, et sama sessiooni jooksul kogemus ei muutuks. Vormiga saadetakse kaasa ka variandi tähis, et hinnata, kumb kasutajakogemus toimib paremini.</p>
 
   <h2>Küpsised, brauseri salvestus ja nõusolek</h2>
-  <p>Adhalla kasutab brauseri tehnilist salvestust selleks, et hoida meeles sinu küpsise-eelistust ning sama külastussessiooni A/B varianti. Neid funktsioone kasutatakse lehe tööks ja valiku järjepidevuseks.</p>
-  <p>Analüütika ja reklaamiga seotud Google'i salvestusõigused on esimesel külastusel vaikimisi keelatud. Kui annad vastava nõusoleku, edastab Adhalla sinu valiku Google Consent Mode v2 kaudu Google Tag Managerile ja sellega ühendatud teenustele. Analüütika ja reklaami nõusolekut saab anda või tagasi võtta eraldi.</p>
-  <p>Oma valikut saad igal ajal muuta veebilehel oleva nupu „Küpsiste seaded” kaudu.</p>
+  <p>Adhalla kasutab brauseri tehnilist salvestust selleks, et hoida meeles sinu privaatsusvalikut ning sama külastussessiooni A/B varianti. Neid funktsioone kasutatakse lehe tööks ja valiku järjepidevuseks.</p>
+  <p>Analüütika ja reklaamiga seotud Google'i salvestusõigused on esimesel külastusel vaikimisi keelatud. Adhalla kasutab Advanced Consent Mode'i, mistõttu võivad Google'i consent-aware tagid keelatud olekus saata küpsisteta mõõtmissignaale. Kui reklaamiga seotud salvestus on keelatud, kasutab Adhalla täiendavat ads data redaction seadistust.</p>
+  <p>Soovi korral saad eraldi lubada leheanalüütika ja Google Ads konversioonimõõtmise. Adhalla hoiab reklaamide personaliseerimise ja remarketingu selle veebilehe mõõtmisarhitektuuris välja lülitatuna ning Google Signals funktsiooni välja lülitatuna.</p>
+  <p>Oma valikut saad igal ajal muuta veebilehel oleva nupu „Privaatsuse seaded” kaudu.</p>
 
   <h2>Analüütika ja A/B test</h2>
-  <p>Nõusoleku korral võib Adhalla kasutada Google Analyticsit selleks, et mõõta lehe kasutust, vormi teekonda ja A/B testi tulemusi. A/B variant ise salvestatakse ühe külastussessiooni ajaks brauseri sessionStorage'i, et kasutajakogemus sama sessiooni jooksul juhuslikult ei muutuks.</p>
+  <p>Nõusoleku korral võib Adhalla kasutada Google Analyticsit selleks, et mõõta lehe kasutust, vormi teekonda ja A/B testi tulemusi. Reklaamimõõtmise nõusoleku korral võib Adhalla kasutada Google Adsiga seotud mõõtmissignaale selleks, et hinnata reklaami ja päringu tulemuse seost. Adhalla eesmärk on optimeerida reklaami kavatsuse, käitumise ja tulemuse, mitte külastaja võimalikult põhjaliku reklaamiprofiili järgi.</p>
 
   <h2>Säilitamine ja kustutamine</h2>
   <p>Hoiame päringuandmeid ainult nii kaua, kui see on päringu, huvilisti või võimaliku koostöö jaoks põhjendatud. Enda andmete kustutamist või parandamist saad taotleda aadressil info@adhalla.ee.</p>
