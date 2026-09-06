@@ -64,7 +64,7 @@
   }
 })();
 
-/* V1.2 product refinement: client-facing copy/layout only. Existing GTM,
+/* V1.3 product refinement: client-facing copy/layout only. Existing GTM,
    consent, Formspree and swipe event wiring are intentionally untouched. */
 (function refineProductPage(){
   const cssHref = "adhalla-product-viking-v1.css?v=1.1";
@@ -83,7 +83,7 @@
     offer.innerHTML = `
       <img src="assets/adhalla-logo.png" alt="" aria-hidden="true">
       <span class="offer-sail"><strong>49 €</strong><small>TESTÜHENDUS</small></span>
-      <span class="offer-copy">Esimesed 10 kohta</span>`;
+      <span class="offer-copy">+ 14,99 € / kuu · esimesed 10</span>`;
     document.body.appendChild(offer);
   }
 
@@ -144,13 +144,13 @@
       if(footer){
         footer.insertAdjacentHTML("beforebegin", `
           <div class="tier-price founder-tier-price">
-            <strong>20 € / kuu</strong>
-            <span>14 päeva tasuta tellimusperioodi. Esimene automaatne kuumakse alles 14 päeva pärast.</span>
+            <strong>49 € / kuu</strong>
+            <span>Tavahind. 14 päeva tasuta tellimusperioodi; esimene automaatne kuumakse alles pärast prooviperioodi.</span>
           </div>
           <div class="founder-offer-inline">
             <b>ESIMESED 10 TESTKLIENTI</b>
-            <strong>Ühendamine 49 € <s>99 €</s></strong>
-            <span>Esimese maksena tasud ainult ühendamise. Pakkumine purjetab siin seni, kuni esimesed 10 kohta on täidetud; pärast seda taastub tavahind.</span>
+            <strong>14,99 € / kuu <s>49 €</s></strong>
+            <span>Lisaks ühendamine 49 € tavapärase 99 € asemel. Esimese maksena tasud ainult ühendamise; 14,99 € kuumakse algab alles pärast 14-päevast tasuta perioodi. Pakkumine purjetab siin seni, kuni esimesed 10 kohta on täidetud.</span>
           </div>`);
         footer.innerHTML = `<strong>Interpretation on kohe kasutatav</strong><span>Ühendust kontrollib ja vajadusel aitab teha inimene; see töö on ühendamistasu osa, mitte tasuta prooviperiood.</span>`;
       }
@@ -208,14 +208,14 @@
           <article class="connection-card"><span class="connection-code">03</span><h3>Esmasünkroniseerimine</h3><p>Pärast edukat ühendamist on siht umbes 20 minutit, kuni klient on süsteemis ja esimesed andmed hakkavad kogunema. Katkiste või keeruliste kontode puhul võib minna kauem.</p></article>
           <article class="connection-card"><span class="connection-code">04</span><h3>Ajaloo kaart</h3><p>Adhalla tõmbab kättesaadava ajaloo tagasi nii kaugele kui allikas seda lubab — eesmärgiga kuni 5 aastat — ning võrdleb perioode kuni värskeimate tulemusteni.</p></article>
           <article class="connection-card"><span class="connection-code">05</span><h3>Esimene põhjalik analüüs</h3><p>Planeeritud töövoos tekib esimene baseline-analüüs ligikaudu 30 minuti jooksul pärast edukat esmasünkroniseerimist. Suurema ajaloo puhul võib see võtta kauem.</p></article>
-          <article class="connection-card"><span class="connection-code">06</span><h3>14 päeva prooviperioodi</h3><p>Kliendivaade ja Interpretation tellimus on 14 päeva tasuta kasutuses. Kui tellimust ei lõpetata, läheb alles pärast seda kontolt automaatselt maha 20 € kuumakse.</p></article>
+          <article class="connection-card"><span class="connection-code">06</span><h3>14 päeva prooviperioodi</h3><p>Kliendivaade ja Interpretation tellimus on 14 päeva tasuta kasutuses. Seejärel on tavahind 49 € / kuu; esimese 10 testkliendi kuuhind on 14,99 € nii kaua, kuni sama Interpretation tellimus püsib aktiivne.</p></article>
         </div>
         <div class="onboarding-endpoint">
           <div><span class="kicker">INTERPRETATION LÕPUPUNKT</span><h3>Ühendatud konto + ajalooline baseline + korduv raportirütm.</h3><p>See on esimese taseme täielik väärtus ka ilma automatiseerimiseta. Kui klient tahab järgmise purje üles tõmmata, liigub ta Automation tasemele.</p></div>
           <div class="setup-pricing">
             <div><span>49 €</span><small>esimese 10 testkliendi ühendamine; tavahind 99 €</small></div>
             <div><span>14 päeva</span><small>tasuta Interpretation tellimus pärast edukat ühendamist</small></div>
-            <div><span>20 € / kuu</span><small>esimene automaatne kuumakse pärast 14 päeva</small></div>
+            <div><span>49 € / kuu</span><small>tavahind; esimese 10 testkliendi hind 14,99 € / kuu</small></div>
             <div><span>+60 €</span><small>iga puuduva konto loomine ja seadistuse juhendamine</small></div>
           </div>
         </div>
@@ -240,6 +240,6 @@
 
   const benefits = document.querySelectorAll("#waitlist-a .lead-benefit span");
   if(benefits[0]) benefits[0].textContent = "Esimese 10 testkliendi ühendamine 49 € tavapärase 99 € asemel.";
-  if(benefits[1]) benefits[1].textContent = "Pärast ühendamist 14 päeva tasuta; alles seejärel 20 € / kuu.";
+  if(benefits[1]) benefits[1].textContent = "Pärast ühendamist 14 päeva tasuta; seejärel 14,99 € / kuu esimesele 10 testkliendile (tavahind 49 € / kuu).";
   if(benefits[2]) benefits[2].textContent = "Automatiseerimise õigused lisatakse eraldi, mitte vaikimisi.";
 })();
