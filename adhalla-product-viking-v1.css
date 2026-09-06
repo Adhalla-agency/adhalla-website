@@ -1,0 +1,155 @@
+/* Adhalla product refinement: restrained Norse tone + onboarding/client-view UI */
+
+.connection-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:14px;
+}
+.connection-card{
+  position:relative;
+  padding:26px;
+  min-height:230px;
+  border:1px solid var(--product-line);
+  border-radius:20px;
+  background:
+    linear-gradient(160deg,rgba(255,255,255,.038),rgba(255,255,255,.015)),
+    radial-gradient(circle at 100% 0,rgba(155,93,229,.08),transparent 40%);
+}
+.connection-code{
+  display:block;
+  margin-bottom:34px;
+  color:var(--product-gold-soft);
+  font:700 .72rem/1 monospace;
+}
+.connection-card h3{margin:0 0 10px;font-size:1.1rem}
+.connection-card p{margin:0;color:var(--product-muted);line-height:1.6;font-size:.92rem}
+.connection-pills{display:flex;flex-wrap:wrap;gap:7px;margin-top:18px}
+.connection-pills span{
+  padding:7px 10px;
+  border:1px solid rgba(239,198,111,.18);
+  border-radius:999px;
+  color:#e9dfef;
+  background:rgba(239,198,111,.04);
+  font-size:.74rem;
+  letter-spacing:.04em;
+}
+
+.onboarding-endpoint{
+  display:grid;
+  grid-template-columns:1fr 1fr;
+  gap:18px;
+  margin-top:18px;
+  padding:34px;
+  border:1px solid rgba(217,164,65,.25);
+  border-radius:24px;
+  background:linear-gradient(135deg,rgba(109,53,166,.10),rgba(217,164,65,.055));
+}
+.onboarding-endpoint h3{margin:10px 0 12px;font-size:clamp(1.5rem,2.6vw,2.2rem);letter-spacing:-.03em}
+.onboarding-endpoint p{color:var(--product-muted);line-height:1.65;margin:0}
+.setup-pricing{display:grid;grid-template-columns:repeat(2,1fr);gap:10px}
+.setup-pricing div{
+  padding:18px;
+  border-radius:15px;
+  border:1px solid rgba(245,239,228,.09);
+  background:rgba(255,255,255,.025);
+}
+.setup-pricing span{display:block;color:var(--product-gold-soft);font-size:1.22rem;font-weight:800;margin-bottom:6px}
+.setup-pricing small{display:block;color:var(--product-muted);line-height:1.45}
+
+.portal-preview{
+  display:grid;
+  grid-template-columns:.9fr 1.1fr;
+  gap:24px;
+  align-items:center;
+  margin-top:18px;
+  padding:34px;
+  border:1px solid var(--product-line);
+  border-radius:24px;
+  background:rgba(255,255,255,.022);
+}
+.portal-copy h3{font-size:clamp(1.65rem,3vw,2.5rem);letter-spacing:-.035em;margin:10px 0 14px}
+.portal-copy p{color:var(--product-muted);line-height:1.7;margin:0}
+.portal-mock{
+  padding:18px;
+  border:1px solid rgba(245,239,228,.12);
+  border-radius:18px;
+  background:linear-gradient(160deg,#1d1028,#130b1b);
+  box-shadow:0 24px 60px rgba(0,0,0,.25);
+}
+.portal-top{display:flex;justify-content:space-between;color:var(--product-muted);font:700 .68rem monospace;letter-spacing:.08em;padding-bottom:14px;border-bottom:1px solid var(--product-line)}
+.portal-metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:14px 0}
+.portal-metrics div{padding:12px;border:1px solid rgba(245,239,228,.08);border-radius:12px;background:rgba(255,255,255,.022)}
+.portal-metrics b{display:block;color:var(--product-gold-soft);font:.76rem monospace;margin-bottom:5px}
+.portal-metrics span{font-size:.72rem;color:var(--product-muted)}
+.portal-calendar{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin:12px 0}
+.portal-calendar span{display:grid;place-items:center;height:42px;border:1px solid rgba(245,239,228,.08);border-radius:10px;color:var(--product-muted);font:.72rem monospace}
+.portal-calendar .has-report{color:#17101d;background:var(--product-gold-soft);border-color:var(--product-gold-soft);font-weight:800}
+.portal-report{display:flex;justify-content:space-between;gap:14px;padding:13px 14px;border-radius:12px;background:rgba(109,53,166,.15);border:1px solid rgba(155,93,229,.18);font-size:.74rem}
+.portal-report span{color:var(--product-gold-soft)}
+
+.tier-mark{
+  position:relative;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin:22px 0 4px;
+  min-height:48px;
+  color:var(--product-muted);
+  font-size:.72rem;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+}
+.tier-mark img{
+  width:45px;
+  height:45px;
+  object-fit:contain;
+  filter:drop-shadow(0 0 14px rgba(155,93,229,.15));
+}
+.tier-mark-active img{filter:drop-shadow(0 0 18px rgba(239,198,111,.22))}
+.assisted-mark{padding-right:8px}
+.captain-dot{
+  position:absolute;
+  left:36px;
+  top:3px;
+  width:8px;
+  height:8px;
+  border-radius:50%;
+  background:var(--product-gold-soft);
+  box-shadow:0 0 10px rgba(239,198,111,.65);
+}
+.captain-dot::after{
+  content:"";
+  position:absolute;
+  left:3px;
+  top:8px;
+  width:2px;
+  height:14px;
+  background:var(--product-gold-soft);
+  transform:rotate(-12deg);
+  transform-origin:top;
+}
+
+.tier-price{
+  margin:4px 0 22px;
+  padding:16px;
+  border:1px solid rgba(217,164,65,.20);
+  border-radius:14px;
+  background:rgba(217,164,65,.055);
+}
+.tier-price strong{display:block;color:var(--product-gold-soft);font-size:1.45rem;margin-bottom:6px}
+.tier-price span{display:block;color:var(--product-muted);font-size:.82rem;line-height:1.5}
+.tier-badge.coming{color:var(--product-gold-soft);border-color:rgba(217,164,65,.22);background:rgba(217,164,65,.045)}
+
+@media(max-width:980px){
+  .connection-grid{grid-template-columns:repeat(2,1fr)}
+  .onboarding-endpoint,.portal-preview{grid-template-columns:1fr}
+}
+@media(max-width:700px){
+  .connection-grid{grid-template-columns:1fr}
+  .connection-card{min-height:auto}
+  .onboarding-endpoint,.portal-preview{padding:24px}
+  .setup-pricing{grid-template-columns:1fr}
+  .portal-metrics{grid-template-columns:1fr}
+  .portal-calendar{grid-template-columns:repeat(5,1fr)}
+  .portal-report{flex-direction:column}
+}
