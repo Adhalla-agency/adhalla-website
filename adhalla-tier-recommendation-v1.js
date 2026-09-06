@@ -64,15 +64,27 @@
   }
 })();
 
-/* V1.1 product refinement: keeps GTM/forms/swipe wiring untouched and changes only
-   client-facing copy/layout on the redesign branch. */
+/* V1.2 product refinement: client-facing copy/layout only. Existing GTM,
+   consent, Formspree and swipe event wiring are intentionally untouched. */
 (function refineProductPage(){
-  const cssHref = "adhalla-product-viking-v1.css?v=1.0";
+  const cssHref = "adhalla-product-viking-v1.css?v=1.1";
   if(!document.querySelector(`link[href="${cssHref}"]`)){
     const link = document.createElement("link");
     link.rel = "stylesheet";
     link.href = cssHref;
     document.head.appendChild(link);
+  }
+
+  if(!document.querySelector(".founder-offer-float")){
+    const offer = document.createElement("a");
+    offer.className = "founder-offer-float";
+    offer.href = "#tiers";
+    offer.setAttribute("aria-label", "Ava Interpretation testkliendi pakkumine");
+    offer.innerHTML = `
+      <img src="assets/adhalla-logo.png" alt="" aria-hidden="true">
+      <span class="offer-sail"><strong>49 €</strong><small>TESTÜHENDUS</small></span>
+      <span class="offer-copy">Esimesed 10 kohta</span>`;
+    document.body.appendChild(offer);
   }
 
   const consoleRows = document.querySelectorAll(".console-row");
@@ -86,7 +98,7 @@
     const kicker = serviceHead.querySelector(".kicker");
     const p = serviceHead.querySelector("p");
     if(kicker) kicker.textContent = "KAART ENNE KURSSI";
-    if(p) p.textContent = "Adhalla eesmärk ei ole põllutöölise asendamine jutuka algoritmi vastu. Süsteem eraldab andmete kogumise, faktikihi, tõlgenduse ja tegevuse, et ükski mudel ei saaks lihtsalt enesekindlalt midagi välja mõelda.";
+    if(p) p.textContent = "Adhalla eraldab andmete kogumise, faktikihi, tõlgenduse ja tegevuse. Eesmärk ei ole anda jutukale mudelile rohkem enesekindlust, vaid teha selgeks, millal järeldus toetub päris tõendile ja millal veel mitte.";
   }
 
   const process = document.querySelector("#service .product-process");
@@ -99,7 +111,15 @@
   const memory = document.querySelector(".memory-panel");
   if(memory){
     const p = memory.querySelector("p");
-    if(p) p.textContent = "Ajalugu säilib soovi korral ka paketi lõppedes. Adhalla saab jätta alles selle, mida konto tegi, milliseid suundi prooviti, mis töötas ja milline info oli tol hetkel kättesaadav, et hilisem tagasitulek ei algaks nullist.";
+    if(p) p.textContent = "Ajalugu säilib soovi korral ka paketi lõppedes. Kliendivaate ligipääs lõpeb koos tellimusega, kuid sulle saadetud PDF-raportid jäävad alles. Soovi korral võivad alles jääda ka Adhalla süsteemis säilitatav ajalugu ja ühenduste konfiguratsioon, et tagasitulek ei algaks nullist. Lahkuda saab alati ning säilitamise asemel saab paluda andmed ja ühendused eemaldada.";
+  }
+
+  const guardrail = document.querySelector(".guardrail-panel");
+  if(guardrail){
+    const h3 = guardrail.querySelector("h3");
+    const p = guardrail.querySelector("p");
+    if(h3) h3.textContent = "Mõõdame tulemust, mitte identiteeti.";
+    if(p) p.textContent = "Adhalla eesmärk ei ole ehitada külastajatest isiklikke turundusprofiile. Me ei kogu selle lehe kaudu küpsistega andmeid retargeting-panga ehitamiseks ning usume, et tulemusi on võimalik saavutada ka vähem invasiivselt. Sama põhimõtet järgime kliendi mõõtmise juures siis, kui consent mode jääb Adhalla seadistada.";
   }
 
   const tiers = document.getElementById("tiers");
@@ -117,10 +137,22 @@
         <li>ajalooline baseline ja perioodide võrdlus</li>
         <li>nädala- või kuupõhised raportid ja soovitused</li>
         <li>ei muuda ise reklaamikontot</li>`;
+
+      const oldPrice = cards[0].querySelector(".tier-price");
+      if(oldPrice) oldPrice.remove();
       const footer = cards[0].querySelector(".tier-footer");
       if(footer){
-        footer.innerHTML = `<strong>Esimene päris toode</strong><span>14 päeva onboardingut tasuta. Ühekordne põhiühendus 99 €.</span>`;
-        footer.insertAdjacentHTML("beforebegin", `<div class="tier-price"><strong>49 € / kuu</strong><span>Esimesele 10 testkliendile 14,99 € / kuu nii kaua, kuni sama Interpretation tellimus püsib aktiivne.</span></div>`);
+        footer.insertAdjacentHTML("beforebegin", `
+          <div class="tier-price founder-tier-price">
+            <strong>20 € / kuu</strong>
+            <span>14 päeva tasuta tellimusperioodi. Esimene automaatne kuumakse alles 14 päeva pärast.</span>
+          </div>
+          <div class="founder-offer-inline">
+            <b>ESIMESED 10 TESTKLIENTI</b>
+            <strong>Ühendamine 49 € <s>99 €</s></strong>
+            <span>Esimese maksena tasud ainult ühendamise. Pakkumine purjetab siin seni, kuni esimesed 10 kohta on täidetud; pärast seda taastub tavahind.</span>
+          </div>`);
+        footer.innerHTML = `<strong>Interpretation on kohe kasutatav</strong><span>Ühendust kontrollib ja vajadusel aitab teha inimene; see töö on ühendamistasu osa, mitte tasuta prooviperiood.</span>`;
       }
     }
 
@@ -129,13 +161,13 @@
       if(badge){ badge.textContent = "COMING SOON"; badge.classList.add("coming"); }
       const top = cards[1].querySelector(".tier-top");
       if(top && !cards[1].querySelector(".tier-mark")){
-        top.insertAdjacentHTML("afterend", `<div class="tier-mark tier-mark-active"><img src="assets/adhalla-logo.png" alt="" aria-hidden="true"><span>puri töötab ka öösel</span></div>`);
+        top.insertAdjacentHTML("afterend", `<div class="tier-mark tier-mark-active"><img src="assets/adhalla-logo.png" alt="" aria-hidden="true"><span>puri töötab kokkulepitud kursil</span></div>`);
       }
       cards[1].querySelector("ul").innerHTML = `
         <li>kõik Interpretation paketist</li>
         <li>automaatsed kampaaniate loomised</li>
         <li>järjepidevad A/B testid</li>
-        <li>tulemused 24/7 järelvaate all</li>
+        <li>regulaarne tulemuste kontroll kokkulepitud intervalliga</li>
         <li>põhjendatud muudatuste elluviimine turvapiirides</li>`;
       const footer = cards[1].querySelector(".tier-footer");
       if(footer) footer.innerHTML = `<strong>Adhalla põhitoode</strong><span>Hind avalikustatakse pärast päris kontodel valideerimist.</span>`;
@@ -168,30 +200,30 @@
         <div class="section-head">
           <span class="kicker">PARDALE TULEK / ONBOARDING</span>
           <h2>Ühendused paika. Siis hakkab Adhalla kaarti joonistama.</h2>
-          <p>Interpretation tasemel on eesmärk saada kliendi konto read-only kujul süsteemi, võtta ajalugu kokku ja luua esimene usaldusväärne lähtepunkt. Testfaasis aitab Adhalla inimene ühendused üle kontrollida; tulevikus muutub see järjest rohkem iseteeninduseks.</p>
+          <p>Interpretation algab tasulisest ühendamisest: inimene kontrollib kliendi Google Adsi, GA4 ja/või GTM ligipääsud, aitab need Adhalla süsteemiga ühendada ning veendub, et vajalikud kontod on olemas. Kui ühendamine on tasutud ja kliendi kasutaja loodud, algab 14-päevane tasuta tellimusperiood.</p>
         </div>
         <div class="connection-grid">
           <article class="connection-card"><span class="connection-code">01</span><h3>Vali ühendused</h3><p>Võid alustada ühest või mitmest allikast.</p><div class="connection-pills"><span>Google Ads</span><span>GA4</span><span>GTM</span></div></article>
-          <article class="connection-card"><span class="connection-code">02</span><h3>Anna ligipääs</h3><p>Olemasolevad kontod ühendatakse Adhalla haldus- või read-only õigustega. Kui mõni konto puudub, saab selle loomise tellida eraldi.</p></article>
+          <article class="connection-card"><span class="connection-code">02</span><h3>Ühendamine inimesega</h3><p>Adhalla inimene kontrollib õigused, aitab ühendused teha ja kinnitab, et süsteem saab vajalikku infot lugeda. Tavahind 99 €; esimese 10 testkliendi ühendamine 49 €.</p></article>
           <article class="connection-card"><span class="connection-code">03</span><h3>Esmasünkroniseerimine</h3><p>Pärast edukat ühendamist on siht umbes 20 minutit, kuni klient on süsteemis ja esimesed andmed hakkavad kogunema. Katkiste või keeruliste kontode puhul võib minna kauem.</p></article>
           <article class="connection-card"><span class="connection-code">04</span><h3>Ajaloo kaart</h3><p>Adhalla tõmbab kättesaadava ajaloo tagasi nii kaugele kui allikas seda lubab — eesmärgiga kuni 5 aastat — ning võrdleb perioode kuni värskeimate tulemusteni.</p></article>
           <article class="connection-card"><span class="connection-code">05</span><h3>Esimene põhjalik analüüs</h3><p>Planeeritud töövoos tekib esimene baseline-analüüs ligikaudu 30 minuti jooksul pärast edukat esmasünkroniseerimist. Suurema ajaloo puhul võib see võtta kauem.</p></article>
-          <article class="connection-card"><span class="connection-code">06</span><h3>Rütm jääb jooksma</h3><p>Edasi lepitakse kokku nädalane või kuine raportirütm. Testfaasis saab raport tulla e-postile/PDF-ina; kliendiportaal on järgmine tootekihistus.</p></article>
+          <article class="connection-card"><span class="connection-code">06</span><h3>14 päeva prooviperioodi</h3><p>Kliendivaade ja Interpretation tellimus on 14 päeva tasuta kasutuses. Kui tellimust ei lõpetata, läheb alles pärast seda kontolt automaatselt maha 20 € kuumakse.</p></article>
         </div>
         <div class="onboarding-endpoint">
           <div><span class="kicker">INTERPRETATION LÕPUPUNKT</span><h3>Ühendatud konto + ajalooline baseline + korduv raportirütm.</h3><p>See on esimese taseme täielik väärtus ka ilma automatiseerimiseta. Kui klient tahab järgmise purje üles tõmmata, liigub ta Automation tasemele.</p></div>
           <div class="setup-pricing">
-            <div><span>14 päeva</span><small>tasuta onboarding / ühenduste korrastamine</small></div>
-            <div><span>99 €</span><small>ühekordne põhiühendus, kui kontod on olemas</small></div>
+            <div><span>49 €</span><small>esimese 10 testkliendi ühendamine; tavahind 99 €</small></div>
+            <div><span>14 päeva</span><small>tasuta Interpretation tellimus pärast edukat ühendamist</small></div>
+            <div><span>20 € / kuu</span><small>esimene automaatne kuumakse pärast 14 päeva</small></div>
             <div><span>+60 €</span><small>iga puuduva konto loomine ja seadistuse juhendamine</small></div>
-            <div><span>al 500 €</span><small>täislahendus, kui tracking, kontod või andmekiht vajavad päris ehitust</small></div>
           </div>
         </div>
         <div class="portal-preview">
           <div class="portal-copy"><span class="kicker">KLIENDIVAADE · ARENDUSES</span><h3>Raportid ei pea kaduma Gmaili otsingusse.</h3><p>Pikem siht on eraldi sisselogimisega kliendivaade: viimase nädala põhinumbrid, varasemad raportid plokkidena, kalender raportipäevadega ning võimalus avada iga suurem analüüs PDF-ina. Kliendi kasutaja näeb ainult oma ettevõtte read-only andmeid.</p></div>
           <div class="portal-mock" aria-hidden="true">
             <div class="portal-top"><span>CLIENT / 0007</span><span>READ ONLY</span></div>
-            <div class="portal-metrics"><div><b>7D</b><span>live snapshot</span></div><div><b>30D</b><span>monthly view</span></div><div><b>HISTORY</b><span>baseline + reports</span></div></div>
+            <div class="portal-metrics"><div><b>7D</b><span>latest snapshot</span></div><div><b>30D</b><span>monthly view</span></div><div><b>HISTORY</b><span>baseline + reports</span></div></div>
             <div class="portal-calendar"><span>01</span><span>08</span><span class="has-report">15</span><span>22</span><span class="has-report">29</span></div>
             <div class="portal-report"><strong>29 AUG · Monthly interpretation</strong><span>open report ↗</span></div>
           </div>
@@ -207,7 +239,7 @@
   }
 
   const benefits = document.querySelectorAll("#waitlist-a .lead-benefit span");
-  if(benefits[0]) benefits[0].textContent = "14 päeva tasuta onboardingut ja ühenduste kontrolli.";
-  if(benefits[1]) benefits[1].textContent = "Interpretation tavahind 49 € / kuu; esimestele 10 testkliendile 14,99 € / kuu.";
+  if(benefits[0]) benefits[0].textContent = "Esimese 10 testkliendi ühendamine 49 € tavapärase 99 € asemel.";
+  if(benefits[1]) benefits[1].textContent = "Pärast ühendamist 14 päeva tasuta; alles seejärel 20 € / kuu.";
   if(benefits[2]) benefits[2].textContent = "Automatiseerimise õigused lisatakse eraldi, mitte vaikimisi.";
 })();
