@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="et">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="theme-color" content="#170C22">
+  <title>Adhalla | kliendiportaal</title>
+  <link rel="icon" type="image/png" href="../assets/adhalla-logo.png">
+  <link rel="stylesheet" href="styles.css?v=0.1">
+</head>
+<body>
+  <section class="auth-gate" id="authGate">
+    <div class="auth-card">
+      <a class="brand" href="../index.html"><img src="../assets/adhalla-logo.png" alt="Adhalla"><span>ADHALLA</span></a>
+      <div class="eyebrow">KLIENDIPORTAAL · V1</div>
+      <h1>Üks koht, kus turunduse ajalugu ei kao.</h1>
+      <p>Logi sisse ettevõtte Google kontoga. Adhalla näitab ainult sellele kontole määratud ettevõtte infot.</p>
+      <button class="google-button" id="googleSignIn" disabled>G&nbsp;&nbsp; Logi sisse Google kontoga</button>
+      <button class="demo-button" id="openDemo">Ava 0000 Adhalla demo</button>
+      <p class="note" id="authNote">Demorežiim on aktiivne kuni Firebase'i projekt on ühendatud.</p>
+    </div>
+  </section>
+
+  <div class="app" id="appShell" hidden>
+    <aside class="sidebar">
+      <a class="brand" href="../index.html"><img src="../assets/adhalla-logo.png" alt="Adhalla"><span>ADHALLA</span></a>
+      <div class="client-chip"><b id="clientNumber">0000</b><div><strong id="clientName">Adhalla OÜ</strong><small id="clientTier">Interpretation · demo</small></div></div>
+      <nav><a href="#overview" class="active">01&nbsp; Ülevaade</a><a href="#timeline">02&nbsp; Ajalugu</a><a href="#reports">03&nbsp; Raportid</a><a href="#sources">04&nbsp; Andmeallikad</a></nav>
+      <div class="side-foot"><small>Viimati töödeldud</small><strong id="lastProcessed">—</strong><button id="signOut">Logi välja</button></div>
+    </aside>
+
+    <main>
+      <header class="topbar"><div><div class="eyebrow">CLIENT SAFE VIEW</div><h2>Turunduse ülevaade</h2></div><div class="user"><span id="userAvatar">A</span><div><strong id="userName">Adhalla demo</strong><small id="userEmail">demo@adhalla.ee</small></div></div></header>
+
+      <section class="toolbar">
+        <div class="presets" id="rangePresets"><button data-days="7">7 päeva</button><button data-days="30" class="active">30 päeva</button><button data-days="90">90 päeva</button><button data-days="all">Kogu ajalugu</button></div>
+        <div class="dates"><label>Alates <input id="dateFrom" type="date"></label><span>→</span><label>Kuni <input id="dateTo" type="date"></label></div>
+      </section>
+
+      <section id="overview">
+        <article class="state-card"><div><div class="eyebrow">ADHALLA TÕLGENDUS</div><h1 id="stateTitle">—</h1><p id="stateSummary">—</p></div><div class="confidence"><small>Kindlus</small><strong id="confidenceValue">—</strong><i><b id="confidenceBar"></b></i></div></article>
+        <div class="kpis" id="kpiGrid"></div>
+        <div class="grid-two">
+          <article class="panel"><div class="panel-head"><div><div class="eyebrow">TULEMUSE JOON</div><h3 id="trendTitle">Kvalifitseeritud kontaktid</h3></div><select id="trendMetric"><option value="qualified">Kvalifitseeritud kontaktid</option><option value="leads">Kõik kontaktid</option><option value="spend">Kulu</option></select></div><svg id="trendChart" viewBox="0 0 860 260"></svg><small id="chartRangeLabel"></small></article>
+          <article class="panel"><div class="eyebrow">MIS MUUTUS?</div><div id="latestInsight"></div></article>
+        </div>
+        <div class="grid-three"><article class="panel"><div class="eyebrow">MIS TÖÖTAB</div><h3>Praegune tugevus</h3><p id="workingText">—</p></article><article class="panel"><div class="eyebrow">MIS PIIRAB</div><h3>Praegune pudelikael</h3><p id="constraintText">—</p></article><article class="panel"><div class="eyebrow">JÄRGMINE SAMM</div><h3>Adhalla soovitus</h3><p id="nextActionText">—</p></article></div>
+      </section>
+
+      <section id="timeline" class="block"><div class="section-head"><div><div class="eyebrow">BUSINESS MEMORY</div><h2>Kalender, mis mäletab miks midagi muutus.</h2></div><div class="legend"><span class="report">● raport</span><span class="pivot">● pivot</span><span class="signal">● signaal</span><span class="tracking">● mõõtmine</span><span class="context">● kontekst</span></div></div><div class="calendar"><div class="calendar-head"><button id="calendarPrev">←</button><h3 id="calendarTitle">—</h3><button id="calendarNext">→</button></div><div class="weekdays"><span>E</span><span>T</span><span>K</span><span>N</span><span>R</span><span>L</span><span>P</span></div><div class="calendar-grid" id="calendarGrid"></div></div></section>
+
+      <section id="reports" class="block"><div class="section-head"><div><div class="eyebrow">FROZEN HISTORY</div><h2>Raportid jäävad alles sellisena, nagu neid tol hetkel mõisteti.</h2></div><p>Iga PDF on konkreetse kuupäeva tõlgendus. Hilisem info ei kirjuta vana raportit ümber.</p></div><div id="reportList" class="report-list"></div></section>
+
+      <section id="sources" class="block"><div class="section-head"><div><div class="eyebrow">DATA HEALTH</div><h2>Millele see vaade toetub?</h2></div></div><div id="sourceGrid" class="sources"></div></section>
+      <footer><span>Adhalla · mõõdame tulemust, mitte identiteeti.</span><span id="dataThrough">Andmed kuni —</span></footer>
+    </main>
+  </div>
+
+  <dialog id="eventDialog"><button id="dialogClose">×</button><div class="eyebrow" id="dialogType"></div><h2 id="dialogTitle"></h2><small id="dialogDate"></small><p id="dialogSummary"></p><div class="impact" id="dialogImpact"></div><a href="#reports" id="dialogReportLink">Ava seotud raport</a></dialog>
+  <script type="module" src="app.js?v=0.1"></script>
+</body>
+</html>
