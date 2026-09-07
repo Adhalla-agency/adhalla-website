@@ -1,0 +1,31 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function accessDoc() {
+      return firestore.get(/databases/(default)/documents/portalUsers/$(request.auth.uid)).data;
+    }
+
+    function canReadClient(clientId) {
+      return signedIn()
+        && firestore.exists(/databases/(default)/documents/portalUsers/$(request.auth.uid))
+        && accessDoc().enabled == true
+        && (
+          accessDoc().role in ['adhalla_admin', 'adhalla_operator']
+          || clientId in accessDoc().allowed_clients
+        );
+    }
+
+    match /clients/{clientId}/reports/{allPaths=**} {
+      allow read: if canReadClient(clientId);
+      allow write: if false;
+    }
+
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
