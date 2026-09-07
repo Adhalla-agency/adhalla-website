@@ -1,0 +1,13 @@
+{
+  "$schema":"https://json-schema.org/draft/2020-12/schema",
+  "title":"Adhalla Client Safe Portal Export",
+  "type":"object",
+  "required":["client","daily","timeline","reports","sources"],
+  "properties":{
+    "client":{"type":"object","required":["id","name","dataThrough","lastProcessed","state"],"properties":{"id":{"type":"string","pattern":"^[0-9]{4}$"},"name":{"type":"string"},"tier":{"type":"string"},"dataThrough":{"type":"string","format":"date"},"lastProcessed":{"type":"string","format":"date-time"},"state":{"type":"object","required":["title","summary","confidence","working","constraint","next"],"properties":{"title":{"type":"string"},"summary":{"type":"string"},"confidence":{"type":"integer","minimum":0,"maximum":100},"working":{"type":"string"},"constraint":{"type":"string"},"next":{"type":"string"}}}}},
+    "daily":{"type":"array"},
+    "timeline":{"type":"array"},
+    "reports":{"type":"array"},
+    "sources":{"type":"array"}
+  }
+}
