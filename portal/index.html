@@ -1,0 +1,63 @@
+<!doctype html>
+<html lang="et">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta name="robots" content="noindex,nofollow">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <meta name="theme-color" content="#170C22">
+  <title>Minu ettevõte | Adhalla</title>
+  <link rel="icon" type="image/png" href="../assets/adhalla-logo.png">
+  <link rel="stylesheet" href="styles.css?v=0.2">
+  <link rel="stylesheet" href="workspace.css?v=0.2">
+</head>
+<body>
+  <section class="auth-gate" id="authGate" aria-labelledby="welcomeTitle">
+    <div class="auth-card">
+      <a class="brand" href="/"><img src="../assets/adhalla-logo.png" alt=""><span>ADHALLA</span></a>
+      <div class="eyebrow">SINU ETTEVÕTTE TÖÖRUUM</div>
+      <h1 id="welcomeTitle">Selgus algab sinu ettevõttest.</h1>
+      <p>Loo oma tööruum ja kirjelda, kellele pakud väärtust ning kuhu tahad jõuda.</p>
+      <button class="google-button" id="googleSignIn">Jätka Google kontoga</button>
+      <p class="note" id="authNote" role="status">Sinu ettevõtte info on nähtav ainult sinu tööruumis.</p>
+      <p class="note">Sisselogimiseks kasutame Google Firebase'i. Sinu sisestatud ettevõtteinfo salvestatakse Adhalla tööruumi. <a href="../privacy.html">Privaatsusteave</a></p>
+      <noscript><p>Portaali kasutamiseks luba brauseris JavaScript.</p></noscript>
+    </div>
+  </section>
+  <div class="app" id="appShell" hidden>
+    <aside class="sidebar">
+      <a class="brand" href="/"><img src="../assets/adhalla-logo.png" alt=""><span>ADHALLA</span></a>
+      <div class="client-chip"><div><strong>Minu tööruum</strong><small>Ettevõtte ülevaade</small></div></div>
+      <nav aria-label="Tööruum"><a href="#business" class="active">Ettevõtte info</a><a href="#sources">Andmeallikad</a></nav>
+      <div class="side-foot"><small>Adhalla · varajane ligipääs</small><strong>Kasvame koos sinu ettevõttega.</strong></div>
+    </aside>
+    <main class="workspace-main">
+      <header class="workspace-head">
+        <div><div class="eyebrow">MINU ETTEVÕTE</div><h1 id="businessName">Minu ettevõte</h1></div>
+        <div class="account"><div class="user"><div><strong id="userName"></strong><small id="userEmail"></small></div></div><button id="signOut" class="sign-out">Logi välja</button></div>
+      </header>
+      <section class="state-card" aria-label="Ettevõtte mõistmine ja andmete kindlus">
+        <div><div class="eyebrow">ETTEVÕTTE MÕISTMINE</div><h2>Alustame sinu kontekstist.</h2><p>Täidetud põhiväljad: <strong id="understanding">0 / 6</strong>. Need aitavad Adhallal sinu ettevõtte eesmärke ja olukorda mõista.</p><p class="progress-note">See näitab põhiinfo täielikkust. Sisulise hinnangu saab anda pärast andmete ühendamist.</p></div>
+        <div class="confidence"><small>Andmete kindlus</small><strong id="confidence">Andmeallikas ühendamata</strong><p class="progress-note">Hinnangut veel ei ole.</p></div>
+      </section>
+      <section class="panel business-panel" id="business" aria-labelledby="businessTitle">
+        <div class="eyebrow">ESIMENE SAMM</div><h2 id="businessTitle">Räägi oma ettevõttest</h2>
+        <p>Alustamiseks piisab ettevõtte nimest. Ülejäänut saad igal ajal täiendada.</p>
+        <form id="workspaceForm" class="workspace-form">
+          <label>Ettevõtte nimi <input id="name" name="name" autocomplete="organization" maxlength="160" required></label>
+          <label>Veebileht <input id="website" name="website" inputmode="url" autocomplete="url" maxlength="500" placeholder="sinufirma.ee"></label>
+          <label class="wide">Millega ettevõte tegeleb? <textarea id="description" name="description" maxlength="2000" placeholder="Kirjelda ettevõtet paari lausega."></textarea></label>
+          <label>Mida pakud? <textarea id="offering" name="offering" maxlength="2000" placeholder="Peamised tooted või teenused."></textarea></label>
+          <label>Kes on sinu klient? <textarea id="customer" name="customer" maxlength="2000" placeholder="Keda aitad ja millise vajadusega?"></textarea></label>
+          <label class="wide">Mis on praegu kõige olulisem eesmärk? <textarea id="objective" name="objective" maxlength="2000" placeholder="Näiteks rohkem sobivaid päringuid või selgem ülevaade reklaami tulemustest."></textarea></label>
+          <button type="submit" id="saveWorkspace" class="save-button" disabled>Salvesta ettevõtte info</button>
+        </form>
+        <p class="workspace-status" id="message" role="status" aria-live="polite"></p><small id="lastSaved">Veel salvestamata</small>
+      </section>
+      <section class="setup-state" id="sources"><div class="eyebrow">JÄRGMINE SAMM</div><h2>Ühenda ettevõtte andmed</h2><p>Google Analyticsi, Google Adsi ja Tag Manageri ühendamine jõuab siia järgmises uuenduses. Praegu saad oma ettevõtte info salvestada ja seda hiljem jätkata.</p><p>Ühendatud andmete põhjal ilmuvad siia ülevaade, tõlgendus ja soovitused.</p></section>
+      <footer><span>Adhalla · sinu ettevõtte tööruum</span><a href="../privacy.html">Privaatsus</a></footer>
+    </main>
+  </div>
+  <script type="module" src="workspace.js?v=0.2"></script>
+</body>
+</html>
