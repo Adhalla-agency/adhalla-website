@@ -1,4 +1,5 @@
 import {firebaseConfig} from './firebase-config.js';
+import {createArtifactFeed, renderArtifacts} from './workspace-data.js?v=0.3';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 import {getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js';
@@ -6,17 +7,19 @@ import {getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp} from 
 const $ = id => document.getElementById(id);
 const auth = getAuth(initializeApp(firebaseConfig));
 const database = getFirestore(auth.app);
+const artifacts = createArtifactFeed((workspaceId, kind, next, failed) =>
+  onSnapshot(doc(database, 'workspaces', workspaceId, kind, 'latest'), {includeMetadataChanges:true}, next, failed), renderArtifacts);
 const fields = ['name','website','description','offering','customer','objective'];
 let user = null, savedWorkspace = null, unsubscribe = null, epoch = 0, canSave = false, dirty = false;
 function message(text) { $('message').textContent = text; }
 function clearWorkspace() {
+  artifacts.stop();
   canSave = false;
   dirty = false;
   savedWorkspace = null;
   $('workspaceForm').reset();
   $('businessName').textContent = 'Minu ettevõte';
   $('understanding').textContent = '0 / 6';
-  $('confidence').textContent = 'Andmeallikas ühendamata';
   $('lastSaved').textContent = 'Veel salvestamata';
 }
 function render(workspace, populate = true) {
@@ -56,10 +59,12 @@ onAuthStateChanged(auth, current => {
   $('userEmail').textContent = current.email || '';
   $('saveWorkspace').disabled = true;
   message('Laadin sinu tööruumi…');
+  let artifactsStarted = false;
   unsubscribe = onSnapshot(doc(database, 'workspaces', current.uid), snapshot => {
     if (thisEpoch !== epoch) return;
     render(snapshot.exists() ? snapshot.data() : null, !dirty && !snapshot.metadata.hasPendingWrites);
     canSave = true;
+    if (snapshot.exists() && !artifactsStarted) { artifactsStarted = true; artifacts.start(current.uid); }
     $('saveWorkspace').disabled = false;
     message(snapshot.exists() ? '' : 'Alusta oma ettevõtte põhiinfost. Sinu tööruum on teistest eraldatud.');
   }, () => {
@@ -89,3 +94,4 @@ $('workspaceForm').addEventListener('submit', async event => {
   } catch { if (currentEpoch === epoch) message('Salvestamine ei õnnestunud. Kontrolli ühendust ja ligipääsu.'); }
   finally { if (currentEpoch === epoch && canSave) $('saveWorkspace').disabled = false; }
 });
+
