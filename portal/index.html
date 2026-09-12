@@ -9,7 +9,7 @@
   <title>Minu ettevõte | Adhalla</title>
   <link rel="icon" type="image/png" href="../assets/adhalla-logo.png">
   <link rel="stylesheet" href="styles.css?v=0.2">
-  <link rel="stylesheet" href="workspace.css?v=0.2">
+  <link rel="stylesheet" href="workspace.css?v=0.3">
 </head>
 <body>
   <section class="auth-gate" id="authGate" aria-labelledby="welcomeTitle">
@@ -28,7 +28,7 @@
     <aside class="sidebar">
       <a class="brand" href="/"><img src="../assets/adhalla-logo.png" alt=""><span>ADHALLA</span></a>
       <div class="client-chip"><div><strong>Minu tööruum</strong><small>Ettevõtte ülevaade</small></div></div>
-      <nav aria-label="Tööruum"><a href="#business" class="active">Ettevõtte info</a><a href="#sources">Andmeallikad</a></nav>
+      <nav aria-label="Tööruum"><a href="#business" class="active">Ettevõtte info</a><a href="#sources">Andmed ja kindlus</a><a href="#interpretation">Tõlgendus</a></nav>
       <div class="side-foot"><small>Adhalla · varajane ligipääs</small><strong>Kasvame koos sinu ettevõttega.</strong></div>
     </aside>
     <main class="workspace-main">
@@ -38,7 +38,7 @@
       </header>
       <section class="state-card" aria-label="Ettevõtte mõistmine ja andmete kindlus">
         <div><div class="eyebrow">ETTEVÕTTE MÕISTMINE</div><h2>Alustame sinu kontekstist.</h2><p>Täidetud põhiväljad: <strong id="understanding">0 / 6</strong>. Need aitavad Adhallal sinu ettevõtte eesmärke ja olukorda mõista.</p><p class="progress-note">See näitab põhiinfo täielikkust. Sisulise hinnangu saab anda pärast andmete ühendamist.</p></div>
-        <div class="confidence"><small>Andmete kindlus</small><strong id="confidence">Andmeallikas ühendamata</strong><p class="progress-note">Hinnangut veel ei ole.</p></div>
+        <div class="confidence"><small>Andmete kindlus</small><strong id="confidence">Kinnitatud andmeid veel pole</strong><p class="progress-note" id="confidenceNote">Kindlust saab hinnata pärast esimeste andmete saabumist.</p></div>
       </section>
       <section class="panel business-panel" id="business" aria-labelledby="businessTitle">
         <div class="eyebrow">ESIMENE SAMM</div><h2 id="businessTitle">Räägi oma ettevõttest</h2>
@@ -54,10 +54,28 @@
         </form>
         <p class="workspace-status" id="message" role="status" aria-live="polite"></p><small id="lastSaved">Veel salvestamata</small>
       </section>
-      <section class="setup-state" id="sources"><div class="eyebrow">JÄRGMINE SAMM</div><h2>Ühenda ettevõtte andmed</h2><p>Google Analyticsi, Google Adsi ja Tag Manageri ühendamine jõuab siia järgmises uuenduses. Praegu saad oma ettevõtte info salvestada ja seda hiljem jätkata.</p><p>Ühendatud andmete põhjal ilmuvad siia ülevaade, tõlgendus ja soovitused.</p></section>
+      <section class="setup-state" id="sources" aria-labelledby="dataTitle">
+        <div class="eyebrow">ANDMED JA KINDLUS</div><h2 id="dataTitle">Mida me praegu teame?</h2>
+        <p id="dataEmpty">Kinnitatud andmevaadet veel pole. Pärast sinu ettevõtte andmeallika ja ligipääsu kontrollimist ilmuvad siia päris andmed koos piirangutega.</p>
+        <div id="dataContent" hidden>
+          <p id="sourceSummary"></p><p id="dataUpdated" class="artifact-time"></p>
+          <div id="dataFacts" class="fact-list"></div>
+          <div class="evidence-columns"><div><h3>Ettevõtte mõistmine</h3><ul id="dataUnderstanding"></ul><h3>Puuduv info</h3><ul id="dataMissing"></ul></div><div><h3>Milliseid hinnanguid saab anda?</h3><ul id="dataGates"></ul><ul id="dataCautions"></ul></div></div>
+        </div>
+      </section>
+      <section class="setup-state" id="interpretation" aria-labelledby="interpretationTitle">
+        <div class="eyebrow">TÕLGENDUS JA PRIORITEEDID</div><h2 id="interpretationTitle">Mida need andmed tähendavad?</h2>
+        <p id="interpretationEmpty">Kättesaadavat tõlgendust veel pole. Siin kuvatakse kontrollitud tõlgendus, kui andmed ja teenuse ligipääs on kinnitatud.</p>
+        <div id="interpretationContent" hidden>
+          <p id="reportUpdated" class="artifact-time"></p><p>AI tõlgendus läbib tõendite ja struktuuri kontrolli. Järeldusi tuleb lugeda koos puuduva info ja andmete piirangutega.</p>
+          <h3>Tõendatud faktid</h3><ul id="reportFacts"></ul><h3>Tõlgendus</h3><ul id="reportInferences"></ul>
+          <h3>Soovitatud prioriteedid</h3><div id="reportRecommendations"></div><h3>Mida on vaja täpsustada?</h3><ul id="reportMissing"></ul>
+        </div>
+      </section>
       <footer><span>Adhalla · sinu ettevõtte tööruum</span><a href="../privacy.html">Privaatsus</a></footer>
     </main>
   </div>
-  <script type="module" src="workspace.js?v=0.2"></script>
+  <script type="module" src="workspace.js?v=0.3"></script>
 </body>
 </html>
+
