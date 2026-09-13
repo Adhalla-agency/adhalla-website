@@ -8,6 +8,11 @@ import {getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp} from 
 const $ = id => document.getElementById(id);
 const auth = getAuth(initializeApp(firebaseConfig));
 const database = getFirestore(auth.app);
+fetch('./plans.json?v=0.6',{cache:'no-store',credentials:'omit'}).then(r=>{if(!r.ok)throw Error();return r.json();}).then(catalog=>{
+  const a=catalog.plans?.interpretation?.monthly_eur,b=catalog.plans?.automation?.monthly_eur;
+  if(!Number.isFinite(a)||!Number.isFinite(b)||a<0||b<0)return;
+  $('planExplanation').textContent=`Interpretation · €${a}/kuu: andmed, korduvad tõlgendused, soovitused ja kampaaniaettepanekud. Automatiseerimise juhtimine eeldab Automation paketti · €${b}/kuu. Tegevused vajavad lisaks serveris kinnitatud õigusi ja turvapiire.`;
+}).catch(()=>{});
 const actions = createActionClient();
 const artifacts = createArtifactFeed((workspaceId, kind, next, failed) =>
   onSnapshot(doc(database, 'workspaces', workspaceId, kind, 'latest'), {includeMetadataChanges:true}, next, failed),
