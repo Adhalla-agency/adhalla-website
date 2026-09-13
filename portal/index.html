@@ -9,7 +9,7 @@
   <title>Minu ettevõte | Adhalla</title>
   <link rel="icon" type="image/png" href="../assets/adhalla-logo.png">
   <link rel="stylesheet" href="styles.css?v=0.2">
-  <link rel="stylesheet" href="workspace.css?v=0.3">
+  <link rel="stylesheet" href="workspace.css?v=0.4">
 </head>
 <body>
   <section class="auth-gate" id="authGate" aria-labelledby="welcomeTitle">
@@ -56,6 +56,7 @@
       </section>
       <section class="setup-state" id="sources" aria-labelledby="dataTitle">
         <div class="eyebrow">ANDMED JA KINDLUS</div><h2 id="dataTitle">Mida me praegu teame?</h2>
+        <button id="refreshWorkspace" class="sign-out">Värskenda vaadet</button>
         <p id="dataEmpty">Kinnitatud andmevaadet veel pole. Pärast sinu ettevõtte andmeallika ja ligipääsu kontrollimist ilmuvad siia päris andmed koos piirangutega.</p>
         <div id="dataContent" hidden>
           <p id="sourceSummary"></p><p id="dataUpdated" class="artifact-time"></p>
@@ -72,10 +73,10 @@
           <h3>Soovitatud prioriteedid</h3><div id="reportRecommendations"></div><h3>Mida on vaja täpsustada?</h3><ul id="reportMissing"></ul>
         </div>
       </section>
+      <section class="setup-state" aria-labelledby="activityTitle"><h2 id="activityTitle">Sinu vastused ja taotlused</h2><div id="latestActivity" aria-live="polite"></div></section>
       <footer><span>Adhalla · sinu ettevõtte tööruum</span><a href="../privacy.html">Privaatsus</a></footer>
     </main>
   </div>
-  <script type="module" src="workspace.js?v=0.3"></script>
+  <script type="module" src="workspace.js?v=0.4"></script>
 </body>
 </html>
-

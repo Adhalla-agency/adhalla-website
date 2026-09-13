@@ -41,3 +41,19 @@ test('offline cache and access failures remove protected content',()=>{
   assert.deepEqual(c.last(),{data:null,report:null});
 });
 
+test('activity receipts require the current binding and disappear on sign out or lost access',()=>{
+  const listeners=[], renders=[];
+  const feed=createArtifactFeed((uid,kind,next,error)=>{listeners.push({kind,next,error});return ()=>{};},(data,report,activity)=>renders.push(activity));
+  feed.start('synthetic-workspace');
+  listeners[0].next(snapshot({binding_version:'current'}));
+  listeners[1].next(snapshot({binding_version:'current',status:'validated'}));
+  listeners[2].next(snapshot({binding_version:'current',status:'recorded'}));
+  listeners[3].next(snapshot({binding_version:'other',status:'requested'}));
+  assert.equal(renders.at(-1).request,null);assert.equal(renders.at(-1).response.status,'recorded');
+  listeners[3].next(snapshot({binding_version:'current',status:'requested'}));
+  assert.equal(renders.at(-1).request.status,'requested');
+  listeners[1].error();assert.equal(renders.at(-1).response,null);
+  listeners[3].next(snapshot({binding_version:'current',status:'requested'},true));
+  assert.equal(renders.at(-1).request,null);
+  feed.stop();assert.deepEqual(renders.at(-1),{response:null,request:null});
+});
