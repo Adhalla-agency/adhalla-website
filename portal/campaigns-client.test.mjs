@@ -23,3 +23,16 @@ test('uncertain retry retains the exact request identity',async()=>{
  assert.equal(bodies[0].request_id,bodies[1].request_id);
 });
 test('line fields preserve explicit entries without empty values',()=>assert.deepEqual(lines('a\n\n b '),['a','b']));
+
+import {normalizeBrief,errorMessage} from './campaigns-client.js';
+test('normalization preserves financial choices and accepts ordinary domain and currency input',()=>{
+ const value={currency:' eur ',landing_page:'example.test/service',daily_budget:'10.00',max_cpc:null,bidding_strategy:'MAXIMIZE_CLICKS'};
+ assert.deepEqual(normalizeBrief(value),{...value,currency:'EUR',landing_page:'https://example.test/service'});
+ assert.equal(value.currency,' eur ');
+});
+test('field errors and version conflicts retain exact status without leaking response values',async()=>{
+ const api=createCampaignClient(async()=>({ok:false,status:400,json:async()=>({error:'positive_decimal',field:'daily_budget',private:'never echo'})}));
+ api.start({getIdToken:async()=> 'fictional-token'});
+ await assert.rejects(api.write('/internal/clients/0000/brief',{}),e=>e.field==='daily_budget'&&e.status===400&&e.message.includes('Päevane eelarve')&&!e.message.includes('never echo'));
+ assert.match(errorMessage(409),/Sinu tekst on alles/);
+});
