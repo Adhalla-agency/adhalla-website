@@ -1,5 +1,6 @@
 import {firebaseConfig} from './firebase-config.js';
-import {createArtifactFeed, renderArtifacts} from './workspace-data.js?v=0.3';
+import {createArtifactFeed, renderArtifacts} from './workspace-data.js?v=0.4';
+import {createActionClient, recommendationControls} from './workspace-actions.js?v=0.4';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 import {getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js';
@@ -7,13 +8,16 @@ import {getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp} from 
 const $ = id => document.getElementById(id);
 const auth = getAuth(initializeApp(firebaseConfig));
 const database = getFirestore(auth.app);
+const actions = createActionClient();
 const artifacts = createArtifactFeed((workspaceId, kind, next, failed) =>
-  onSnapshot(doc(database, 'workspaces', workspaceId, kind, 'latest'), {includeMetadataChanges:true}, next, failed), renderArtifacts);
+  onSnapshot(doc(database, 'workspaces', workspaceId, kind, 'latest'), {includeMetadataChanges:true}, next, failed),
+  (data, report, activity) => renderArtifacts(data, report, activity, (card, report, recommendation) => recommendationControls(actions, card, report, recommendation)));
 const fields = ['name','website','description','offering','customer','objective'];
 let user = null, savedWorkspace = null, unsubscribe = null, epoch = 0, canSave = false, dirty = false;
 function message(text) { $('message').textContent = text; }
 function clearWorkspace() {
   artifacts.stop();
+  actions.stop();
   canSave = false;
   dirty = false;
   savedWorkspace = null;
@@ -55,6 +59,7 @@ onAuthStateChanged(auth, current => {
   $('authGate').hidden = !!current;
   $('appShell').hidden = !current;
   if (!current) return;
+  actions.start(current);
   $('userName').textContent = current.displayName || 'Minu konto';
   $('userEmail').textContent = current.email || '';
   $('saveWorkspace').disabled = true;
@@ -73,6 +78,9 @@ onAuthStateChanged(auth, current => {
     $('saveWorkspace').disabled = true;
     message('Tööruum pole kättesaadav või ligipääs on eemaldatud. Proovi uuesti sisse logida.');
   });
+});
+$('refreshWorkspace').addEventListener('click', () => {
+  if (user && savedWorkspace) { artifacts.start(user.uid); message('Kontrollin salvestatud andmeid ja ligipääsu…'); }
 });
 $('workspaceForm').addEventListener('submit', async event => {
   event.preventDefault();
@@ -94,4 +102,3 @@ $('workspaceForm').addEventListener('submit', async event => {
   } catch { if (currentEpoch === epoch) message('Salvestamine ei õnnestunud. Kontrolli ühendust ja ligipääsu.'); }
   finally { if (currentEpoch === epoch && canSave) $('saveWorkspace').disabled = false; }
 });
-

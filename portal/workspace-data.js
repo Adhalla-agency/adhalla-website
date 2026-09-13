@@ -1,25 +1,33 @@
 // Public artifacts are authorized by Firestore. Never read private bindings here.
 export function createArtifactFeed(subscribe, render) {
-  let generation = 0, stops = [], data = null, report = null;
+  let generation = 0, stops = [], data = null, report = null, response = null, request = null;
   const present = () => render(data, data && report?.status === 'validated' &&
-    report.binding_version === data.binding_version ? report : null);
+    report.binding_version === data.binding_version ? report : null, {
+      response:data && report?.status === 'validated' && report.binding_version === data.binding_version && response?.binding_version === data.binding_version ? response : null,
+      request:data && request?.binding_version === data.binding_version ? request : null});
   function stop() {
     generation++;
     stops.forEach(unsubscribe => unsubscribe()); stops = [];
-    data = report = null; present();
+    data = report = response = request = null; present();
   }
   function start(workspaceId) {
     stop();
     const current = generation;
-    for (const kind of ['dataViews', 'interpretations']) {
+    for (const kind of ['dataViews', 'interpretations', 'recommendationResponses', 'actionRequests']) {
       stops.push(subscribe(workspaceId, kind, snapshot => {
         if (current !== generation) return;
         const value = snapshot.exists() && !snapshot.metadata.fromCache ? snapshot.data() : null;
-        if (kind === 'dataViews') data = value; else report = value;
+        if (kind === 'dataViews') data = value;
+        else if (kind === 'interpretations') report = value;
+        else if (kind === 'recommendationResponses') response = value;
+        else request = value;
         present();
       }, () => {
         if (current !== generation) return;
-        if (kind === 'dataViews') data = null; else report = null;
+        if (kind === 'dataViews') data = null;
+        else if (kind === 'interpretations') report = null;
+        else if (kind === 'recommendationResponses') response = null;
+        else request = null;
         present();
       }));
     }
@@ -48,7 +56,7 @@ function rows(target, items, label) {
   for (const item of items || []) target.append(textElement('li', item[label]));
 }
 
-export function renderArtifacts(data, report) {
+export function renderArtifacts(data, report, activity = {}, mountActions = null) {
   const $ = id => document.getElementById(id);
   $('dataContent').hidden = !data;
   $('dataEmpty').hidden = !!data;
@@ -59,6 +67,14 @@ export function renderArtifacts(data, report) {
   $('sourceSummary').textContent = '';
   $('confidence').textContent = 'Kinnitatud andmeid veel pole';
   $('confidenceNote').textContent = 'Kindlust saab hinnata pärast esimeste andmete saabumist.';
+  if ($('latestActivity')) {
+    $('latestActivity').replaceChildren();
+    const decisions = {accept:'Nõustun',defer:'Hiljem',reject:'Ei nõustu'};
+    const services = {analysis_review:'Tõlgenduse ülevaatus',setup_help:'Seadistamise abi',implementation_review:'Muudatuse läbivaatamine'};
+    if (activity.response?.status === 'recorded') $('latestActivity').append(textElement('p',`Viimane salvestatud vastus: ${decisions[activity.response.decision] || 'Salvestatud'}.`));
+    if (activity.request?.status === 'requested') $('latestActivity').append(textElement('p',`Viimane teenusetaotlus: ${services[activity.request.service] || 'Ülevaatus'} · Ootab Adhalla kinnitust.`));
+    if (!activity.response && !activity.request) $('latestActivity').append(textElement('p','Salvestatud vastuseid ega teenusetaotlusi veel pole.'));
+  }
   if (data) {
     const collected = timestamp(data.snapshot_generated_at);
     const stale = !collected || Date.now() - collected.getTime() > 36 * 3600000;
@@ -93,8 +109,8 @@ export function renderArtifacts(data, report) {
     for (const recommendation of [...(report.recommendations || [])].sort((a,b) => a.priority - b.priority)) {
       const card = textElement('article', '', 'recommendation');
       card.append(textElement('small', `Prioriteet ${recommendation.priority}`), textElement('h3', recommendation.title), textElement('p', recommendation.rationale));
+      if (mountActions) mountActions(card, report, recommendation);
       $('reportRecommendations').append(card);
     }
   }
 }
-
