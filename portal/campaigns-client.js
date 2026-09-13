@@ -34,4 +34,5 @@ export const fields=[
  ['negative_keywords','Välistavad märksõnad','list'],['constraints','Piirangud ja keelatud lubadused','text'],['strategy_notes','Strateegia märkmed','text']];
 export const lines=value=>value.split('\n').map(x=>x.trim()).filter(Boolean);
 export const states={unassigned:'Määramata',in_progress:'Töös',approved:'Kinnitatud',generating:'Koostamisel',awaiting_action:'Ootab järgmist sammu',
+ creating_paused:'Peatatud kampaania loomisel',reconciliation_required:'Vajab tulemuse kontrolli',running:'Koostamisel',
  awaiting_input:'Ootab lisainfot',completed:'Valmis',failed:'Ebaõnnestus',queued:'Tööjärjekorras',limited:'Mudeli kasutuspiir'};

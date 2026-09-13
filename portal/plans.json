@@ -1,0 +1,11 @@
+{
+  "schema_version": 1,
+  "plans": {
+    "interpretation": {
+      "monthly_eur": 20
+    },
+    "automation": {
+      "monthly_eur": 300
+    }
+  }
+}
