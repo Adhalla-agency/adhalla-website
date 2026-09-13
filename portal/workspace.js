@@ -62,6 +62,10 @@ onAuthStateChanged(auth, current => {
   actions.start(current);
   $('userName').textContent = current.displayName || 'Minu konto';
   $('userEmail').textContent = current.email || '';
+  const internalLink=$('internalProduct');
+  internalLink.hidden=true;
+  if(current.email==='admin@adhalla.ee') current.getIdToken(true).then(token=>{if(thisEpoch!==epoch)throw Error('Account changed');return fetch('https://adhalla-workspace-api-184522982163.europe-north1.run.app/v1/internal/clients/0000/overview',
+    {headers:{Authorization:'Bearer '+token},credentials:'omit',redirect:'error',cache:'no-store'});}).then(response=>{if(thisEpoch===epoch&&response.ok)internalLink.hidden=false;}).catch(()=>{});
   $('saveWorkspace').disabled = true;
   message('Laadin sinu tööruumi…');
   let artifactsStarted = false;
