@@ -50,7 +50,19 @@ export const help={
  constraints:'Absoluutsed piirid: näiteks ära luba garanteeritud tulemusi, ära nimeta konkurente reklaamis või ära reklaami teatud teenust. Need lähevad töötajale ülevaatuseks. Kui piirangut ei saa praeguste kontrollidega tagada, automaatne loomine peatub. Eelistused kirjuta strateegia märkmetesse.',
  strategy_notes:'Taust, varasemad õppetunnid, hooajalisus ja soovitud toon. Need on soovitused plaanile; eelarve- ja tegevusõigused tulevad eraldi kontrollidest.'
 };
-export function normalizeBrief(value){const b={...value};b.currency=b.currency.trim().toUpperCase();if(b.landing_page&&!/^[a-z][a-z0-9+.-]*:/i.test(b.landing_page))b.landing_page='https://'+b.landing_page;return b;}
+export function normalizeBrief(value){const b={...value};for(const key of ['max_cpc','target_cpa','target_roas'])if(typeof b[key]==='string'&&['','-','–','—','n/a','ei kohaldu'].includes(b[key].trim().toLowerCase()))b[key]=null;b.currency=b.currency.trim().toUpperCase();if(b.landing_page&&!/^[a-z][a-z0-9+.-]*:/i.test(b.landing_page))b.landing_page='https://'+b.landing_page;return b;}
+// A small-budget planning example, never a minimum bid, forecast or automatic setting.
+export function cpcGuidance(budget,cap,currency='EUR'){
+ if(!(budget>0&&cap>0))return '';
+ if(currency!=='EUR')return 'Hinda piirhinda konto valuuta, turuandmete ja tulemuste järgi.';
+ if(budget>20)return 'Suurema eelarve puhul hinda piirhinda turuandmete ja tulemuste järgi; kindlat klikkide kordajat siin ei rakendata.';
+ if(cap*5<=budget)return '';
+ return 'Väikese proovikampaania planeerimisnäide: kui klikk maksaks '+cap.toFixed(2)+' €, vajaks 5 klikki ligikaudu '+(cap*5).toFixed(2)+' € päevaeelarvet. Võid kaaluda suuremat eelarvet või madalamat piirhinda, kui turg seda võimaldab. See ei ole klikkide prognoos ega kohustuslik eelarve.';
+}
+export function approvalPresentation(request){
+ const approved=!!request.authority||['approved','generating','awaiting_action','creating_paused','completed'].includes(request.status);
+ return {approved,attention:['failed','limited','awaiting_input','reconciliation_required'].includes(request.status)};
+}
 export function errorMessage(status,detail={}){
  const label=fields.find(([key])=>key===detail.field)?.[1]||'Lähteülesanne';
  if([401,403].includes(status))return 'Ligipääs puudub või selle toimingu paketiõigus pole lubatud. Sisestatud väljad jäid sellesse vaatesse alles.';
