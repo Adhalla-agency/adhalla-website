@@ -1,10 +1,10 @@
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation} from './campaigns-client.js?v=0.9';
+import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation} from './campaigns-client.js?v=0.10';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id), client=createCampaignClient();
 const rootRoute='/internal/clients/0000/';
-let statusCampaign=null;
+let statusCampaign=null,researchSending=null,researchFeedback={};
 let campaignId='campaign-01',route=rootRoute+'campaigns/'+campaignId+'/',catalog=[],editing=false,submitting=false,selectionEpoch=0;
 let state=null, worker=false, dirty=false, proposalDirty=false, userEpoch=0, selected=null, timer=null, draftBase=null, saving=false;
 let automationPrice=null;fetch('./plans.json',{cache:'no-cache'}).then(r=>r.json()).then(x=>{automationPrice=x.plans?.automation?.monthly_eur;if(state)renderResearch();}).catch(()=>{});
@@ -55,7 +55,7 @@ function render(populate=false){
  $('generate').textContent='Esita Adhallale';$('generate').disabled=!state.brief||dirty;
  $('history').replaceChildren();for(const kind of ['brief','proposal']){const label=node('p',kind==='brief'?'Lähteülesande versioonid':'Ettepaneku versioonid');$('history').append(label);for(const version of state.history[kind]||[]){const b=node('button',version.slice(0,8));b.type='button';b.onclick=async()=>{try{const r=await client.read(route+kind+'/'+version);const box=$('historyDetail');box.replaceChildren(node('strong',(kind==='brief'?'Lähteülesanne':'Ettepanek')+' · '+version.slice(0,8)));const value=r[kind];for(const[k,v]of Object.entries(value)){if(k==='schema_version')continue;box.append(node('p',(labels[k]||k)+': '+(Array.isArray(v)?v.map(x=>typeof x==='string'?x:Object.values(x).flat().join(' · ')).join('\n'):v??'Teadmata')));}box.hidden=false;}catch(e){say(e.message);}};$('history').append(b);}}
 }
-function clearProtected(){statusCampaign=null;$('campaignStatusDialog').close();$('newCampaignDialog').close();$('campaignStatusDetail').replaceChildren();$('copyCampaign').replaceChildren();catalog=[];editing=false;campaignId='campaign-01';route=rootRoute+'campaigns/'+campaignId+'/';selectionEpoch++;$('campaignCards').replaceChildren();state=null;selected=null;draftBase=null;dirty=false;proposalDirty=false;proposalInputs=null;$('product').hidden=true;$('gate').hidden=false;$('briefForm').reset();for(const id of ['proposalFields','workerSummary','historyDetail','history','evidence','clientRequests'])$(id)?.replaceChildren();closeReview();$('approvalControls').hidden=true;$('researchResults').replaceChildren();}
+function clearProtected(){researchSending=null;researchFeedback={};for(const key of ['keywords','competitors']){$('research-feedback-'+key)?.replaceChildren();$('research-results-'+key)?.replaceChildren();}statusCampaign=null;$('campaignStatusDialog').close();$('newCampaignDialog').close();$('campaignStatusDetail').replaceChildren();$('copyCampaign').replaceChildren();catalog=[];editing=false;campaignId='campaign-01';route=rootRoute+'campaigns/'+campaignId+'/';selectionEpoch++;$('campaignCards').replaceChildren();state=null;selected=null;draftBase=null;dirty=false;proposalDirty=false;proposalInputs=null;$('product').hidden=true;$('gate').hidden=false;$('briefForm').reset();for(const id of ['proposalFields','workerSummary','historyDetail','history','evidence','clientRequests'])$(id)?.replaceChildren();closeReview();$('approvalControls').hidden=true;$('researchResults').replaceChildren();}
 async function refresh(populate=false){const epoch=userEpoch,scope=selectionEpoch;try{const [result,list]=await Promise.all([client.read(route+'overview'),client.read(rootRoute+'campaigns')]);if(epoch!==userEpoch||scope!==selectionEpoch)return;catalog=list;state=result;if(!state.brief)editing=true;$('gate').hidden=true;$('product').hidden=false;render(populate);if(worker)await loadQueue();}catch(e){if(epoch===userEpoch&&scope===selectionEpoch){if([401,403].includes(e.status))clearProtected();say(e.message);if(!state)$('gateMessage').textContent=e.message;}}}
 async function loadQueue(){const clients=await client.read('/worker/clients');const chooser=$('adminClient');chooser.replaceChildren();for(const item of clients){const option=node('option',item.name+' · '+item.client_id+(item.protected?' · kaitstud':''));option.value=item.client_id;option.disabled=!item.campaign_workspace;chooser.append(option);}$('clientProgress').textContent=clients.length+(clients.length===1?' klient registris. ':' klienti registris. ')+(state.brief?'Lähteülesanne salvestatud.':'Lähteülesanne veel salvestamata.')+' Puudu: '+(state.brief?.missing_information?.length??'täitmata')+'. Väliskliendi kampaaniatööruum avaneb pärast tema eraldi seostamist.';const records=await client.read('/worker/requests');const list=$('workerSummary');list.replaceChildren();if(!records.length){list.append(node('p','Ühtegi taotlust veel pole. Esita lähteülesanne kliendivaates.'));selected=null;$('approvalControls').hidden=true;closeReview();return;}
  for(const r of records){const b=node('button',`Adhalla · ${r.client_id} · ${campaignLabel(r.campaign_id||'campaign-01')} · ${states[r.status]||r.status} · ${r.request_id.slice(0,8)}`);const visual=approvalPresentation(r);b.className='ticket-card'+(visual.approved?' ticket-approved':'')+(visual.attention?' ticket-attention':'');if(visual.approved)b.prepend(node('span','✓ Kinnitatud · '));b.type='button';b.onclick=()=>review(r);list.append(b);}if(selected){const current=records.find(x=>x.request_id===selected.request_id);if(current&&JSON.stringify(current)!==JSON.stringify(selected))review(current);}}
@@ -106,9 +106,9 @@ function renderCards(){
  const box=$('campaignCards');box.replaceChildren();
  for(const item of catalog){
   const card=node('article');card.className='campaign-tile';const sent=!!item.request_id&&item.submitted_version===item.brief_version;
-  if(sent)card.classList.add('campaign-sent');
+  const presentation=campaignPresentation(item);card.classList.add('campaign-'+presentation.tone);
   card.append(node('small',item.label),node('h3',item.summary||'Uue kampaania lähteülesanne'));
-  const badge=node('p',sent?'✓ Adhallale esitatud · '+(states[item.status]||item.status):item.request_id?'Muudatused salvestatud · ootavad esitamist':item.brief_version?'Salvestatud · veel esitamata':'Veel salvestamata');badge.className='campaign-badge';card.append(badge);
+  const badge=node('p',presentation.text);badge.className='campaign-badge';card.append(badge);
   const actions=node('div');actions.className='campaign-actions';
   const edit=node('button',sent?'Muuda kampaania sisu':item.brief_version?'Muuda sisu':'Täida lähteülesanne');edit.type='button';edit.className='secondary';edit.disabled=saving||submitting;edit.onclick=()=>selectCampaign(item.campaign_id,true);actions.append(edit);
   if(item.brief_version&&!sent){const submit=node('button',item.request_id?'Esita muudatused Adhallale':'Esita Adhallale');submit.type='button';submit.disabled=submitting||saving||dirty;submit.onclick=()=>submitCampaign(item.campaign_id);actions.append(submit);}
@@ -151,13 +151,37 @@ window.addEventListener('beforeunload',e=>{if(dirty||proposalDirty){e.preventDef
 function updateCpc(){const budget=Number($('brief-daily_budget').value.replace(',','.')),cap=Number($('brief-max_cpc').value.replace(',','.'));const manual=strategy.value==='MANUAL_CPC';if(manual)$('cpcOptions').open=true;$('cpcOptionsLabel').textContent=manual?'Manuaalse CPC algpakkumine':'Lisavalik: klikihinna ülempiir';$('cpcExplanation').textContent=cpcGuidance(budget,cap,$('brief-currency').value.trim().toUpperCase())+(cap>0?' Liiga madal ülempiir võib takistada reklaamide kuvamist.':'');}
 const cpcOptions=node('details');cpcOptions.id='cpcOptions';cpcOptions.className='optional-cpc';const cpcTitle=node('summary','Lisavalik: klikihinna ülempiir');cpcTitle.id='cpcOptionsLabel';const cpcWrap=$('brief-max_cpc').parentElement;cpcWrap.before(cpcOptions);cpcOptions.append(cpcTitle,cpcWrap);cpcWrap.prepend(node('small','Maximize Clicksi puhul võid selle tühjaks jätta.'));
 const cpcHint=node('small');cpcHint.id='cpcExplanation';$('brief-max_cpc').after(cpcHint);
-for(const key of ['keywords','competitors']){const button=node('button',key==='keywords'?'✦ Leia märksõnad Keyword Plannerist':'✦ Paku konkurente');button.id='research-'+key;button.type='button';button.className='secondary';button.onclick=async()=>{try{await client.write(route+'research',{client_id:'0000',kind:key,brief:briefValue()});say('AI uuring on tellitud. Tulemused ilmuvad siia tavaliselt järgmise 5–10 minuti jooksul. Välju ei muudeta enne sinu valikut.');await refresh(false);}catch(e){say(e.message);if(e.field){$('brief-'+e.field)?.setAttribute('aria-invalid','true');$('brief-'+e.field)?.focus();}}};$('brief-'+key).after(button);}
+for(const key of ['keywords','competitors']){
+ const button=node('button',key==='keywords'?'✦ Leia märksõnad Keyword Plannerist':'✦ Paku konkurente');button.id='research-'+key;button.type='button';button.className='secondary';
+ const feedback=node('p');feedback.id='research-feedback-'+key;feedback.className='research-feedback';feedback.setAttribute('role','status');feedback.setAttribute('aria-live','polite');button.setAttribute('aria-describedby',feedback.id);
+ const results=node('div');results.id='research-results-'+key;results.className='research-results';
+ button.onclick=async()=>{
+  if(researchSending)return;
+  const epoch=userEpoch,scope=selectionEpoch,feedbackKey=campaignId+':'+key;
+  researchSending=feedbackKey;researchFeedback[feedbackKey]={text:'Saadan uuringut…',job:state?.research?.request_id};renderResearch();
+  try{const job=await client.write(route+'research',{client_id:'0000',kind:key,brief:briefValue()});if(epoch!==userEpoch||scope!==selectionEpoch)return;researchFeedback[feedbackKey]=null;state.research=job;renderResearch();await refresh(false);}
+  catch(e){if(epoch===userEpoch&&scope===selectionEpoch){researchFeedback[feedbackKey]={text:e.message,job:state?.research?.request_id};renderResearch();if(e.field)$('brief-'+e.field)?.setAttribute('aria-invalid','true');}}
+  finally{if(researchSending===feedbackKey)researchSending=null;if(epoch===userEpoch&&scope===selectionEpoch&&state)renderResearch();}
+ };
+ $('brief-'+key).after(button,feedback,results);
+}
+
 const negatives=node('div');negatives.className='suggested-negatives';negatives.append(node('small','Näited, mitte automaatsed välistused: '));for(const term of ['tasuta','koolitus','tööpakkumised','praktika','ise tegemine']){const b=node('button','+ '+term);b.type='button';b.className='secondary';b.onclick=()=>{const el=$('brief-negative_keywords');el.value=[...new Set([...lines(el.value),term])].join('\n');markDirty();};negatives.append(b);}$('brief-negative_keywords').after(negatives);
 $('personalPrefill').onclick=()=>{const b=state.personal_business_draft||{},v=briefValue();for(const [target,source]of [['offer','offering'],['objective','objective'],['audience','customer'],['landing_page','website']])if(!v[target]&&b[source])v[target]=b[source];fillBrief(v);markDirty();say('Sinu portaali ettevõtteväljad lisati tühjadele väljadele. Kontrolli, et need kirjeldavad Adhallat (0000), ning salvesta.');};
 function renderResearch(){
- const job=state.research,pending=['queued','running'].includes(job?.status);for(const key of ['keywords','competitors'])$('research-'+key).disabled=!state.research_enabled||pending;
+ const job=state.research,pending=['queued','running'].includes(job?.status);
+ for(const key of ['keywords','competitors']){
+  const button=$('research-'+key), feedback=$('research-feedback-'+key),local=researchFeedback[campaignId+':'+key];
+  button.disabled=!state.research_enabled||pending||!!researchSending;
+  button.setAttribute('aria-busy',String(!!researchSending||pending&&job.kind===key));
+  const sameJob=local&&local.job===job?.request_id;
+  feedback.textContent=sameJob?local.text:job?.kind===key?researchPresentation(job):pending?'Teine uuring on töös. Selle lõppedes saad tellida järgmise.':!state.research_enabled?'AI uuring vajab Automation paketti'+(automationPrice?' · '+automationPrice+' €/kuu':'')+'.':'';
+  feedback.classList.toggle('research-attention',job?.kind===key&&['limited','failed','access_removed'].includes(job.status)||!!sameJob&&!researchSending);
+  if(job?.kind!==key)$('research-results-'+key).replaceChildren();
+ }
  $('researchPlan').textContent=state.research_enabled?'AI uuringud on sisekliendi arendusõigusega avatud. Uuring ei anna reklaamide loomise luba.':'AI uuringud on Automation paketis'+(automationPrice?' · '+automationPrice+' €/kuu':'')+'. Paketiõigust kontrollib ka server.';
- const box=$('researchResults');const checked=box.dataset.job===job?.request_id?new Set([...box.querySelectorAll('input:checked')].map(el=>el.value)):new Set();box.dataset.job=job?.request_id||'';box.replaceChildren();if(!job)return;box.append(node('p','AI uuring: '+(states[job.status]||job.status)));
+ if(!job||!['keywords','competitors'].includes(job.kind))return;
+ const box=$('research-results-'+job.kind);const checked=box.dataset.job===job.request_id?new Set([...box.querySelectorAll('input:checked')].map(el=>el.value)):new Set();box.dataset.job=job.request_id||'';box.replaceChildren();
  if(job.status!=='completed')return;const result=job.result;box.append(node('h3',job.kind==='keywords'?'Google Keyword Planneri ideed':'AI pakutud konkurendikandidaadid · kontrollimata'),node('p',result.explanation));
  if(job.kind==='keywords')box.append(node('small','Kuni 100 ideed valitud asukohtade ja keele jaoks. Mahud ning lehe ülaosa pakkumised on ajaloolised hinnangud, mitte lubatud klikihind või garanteeritud tulemus.'));
  else box.append(node('small','Need ei ole kontrollitud 10 peamist konkurenti. Kontrolli ettevõtete olemasolu ja asjakohasust enne kasutamist.'));
@@ -165,6 +189,6 @@ function renderResearch(){
  for(const idea of values){const label=node('label');label.className='research-choice';const c=node('input');c.type='checkbox';c.value=idea.text;c.checked=checked.has(idea.text);label.append(c,node('span',idea.text+(idea.avg_monthly_searches!==undefined?' · '+idea.avg_monthly_searches+' otsingut/kuu':'')));if(idea.low_top_of_page_bid_micros>0)label.append(node('small','Lehe ülaosa pakkumine: '+(idea.low_top_of_page_bid_micros/1e6).toFixed(2)+'–'+(idea.high_top_of_page_bid_micros/1e6).toFixed(2)+' '+result.currency));box.append(label);choices.push(c);}
  if(!values.length){box.append(node('p','Planner ei tagastanud ideid. Täpsusta pakkumist ja sihtimist.'));return;}
  const all=node('button','Vali kõik');all.type='button';all.className='secondary';all.onclick=()=>choices.forEach(c=>c.checked=true);
- const apply=node('button','Lisa valitud vormi');apply.type='button';apply.onclick=()=>{const field=job.kind==='keywords'?'keywords':'competitors',limit=field==='keywords'?100:20,el=$('brief-'+field);const next=[...new Set([...lines(el.value),...choices.filter(c=>c.checked).map(c=>c.value)])];if(next.length>limit){say('Valikus võib olla kuni '+limit+' rida. Vähenda valikut.');return;}el.value=next.join('\n');markDirty();say('Valik lisatud. Vaata üle ja salvesta lähteülesanne.');};box.append(all,apply);
+ const apply=node('button','Lisa valitud vormi');apply.type='button';apply.onclick=()=>{const field=job.kind==='keywords'?'keywords':'competitors',limit=field==='keywords'?100:20,el=$('brief-'+field);const next=[...new Set([...lines(el.value),...choices.filter(c=>c.checked).map(c=>c.value)])];if(next.length>limit){$('research-feedback-'+job.kind).textContent='Valikus võib olla kuni '+limit+' rida. Vähenda valikut.';return;}el.value=next.join('\n');markDirty();$('research-feedback-'+job.kind).textContent='✓ Valik lisatud vormi. Vaata üle ja salvesta lähteülesanne.';};box.append(all,apply);
 }
 onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),current=>{userEpoch++;clearInterval(timer);client.start(current);clearProtected();mode(false);if(!current){$('gateMessage').textContent='Logi Google kontoga sisse portaali kaudu.';return;}refresh(true);timer=setInterval(()=>{if(!document.hidden)refresh(false);},30000);});
