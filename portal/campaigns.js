@@ -1,5 +1,5 @@
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation} from './campaigns-client.js?v=0.10';
+import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation,quotaPresentation} from './campaigns-client.js?v=0.11';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id), client=createCampaignClient();
@@ -75,7 +75,8 @@ function review(r){selected=r;$('approvalControls').hidden=false;$('approveCheck
  if(r.creation)detail.append(node('p','Loodud: '+r.creation.campaign_name+' · PEATATUD. Reklaame pole käivitatud.'));
  if(r.status==='reconciliation_required')detail.append(node('p','Google vastus jäi ebakindlaks. Uus loomine on lukus, kuni töötaja on tulemuse Google Adsis kontrollinud. Automaatselt uuesti ei proovita.'));
  if(r.reason){const reasons={model_generation_failed:'Mudeli vastuse saamine ebaõnnestus.',proposal_validation_failed:'AI plaan ei läbinud reklaamteksti või tõendite kontrolli.',proposal_persistence_failed:'Valideeritud plaani salvestamine või selle õigusekontroll ebaõnnestus.'};if(reasons[r.reason])detail.append(node('p',reasons[r.reason]));}
- if(['awaiting_input','failed','limited'].includes(r.status))detail.append(node('p','See katse on peatatud. Kontrolli lähteülesannet, värskeid andmeid ja kasutuspiire ning muuda vajadusel kampaania sisu ning esita sama taotluse uus versioon. Automaatset korduskatset ei tehta.'));
+ if(r.status==='limited')detail.append(node('p',quotaPresentation(r)));
+ if(['awaiting_input','failed'].includes(r.status))detail.append(node('p','See katse vajab Adhalla kontrolli. Aegunud kinnitust ei uuendata ega ebaõnnestunud või ebakindlat toimingut korrata automaatselt.'));
 }
 function closeReview(){selected=null;$('requestDialog').close();$('requestReview')?.remove();$('approvalControls').hidden=true;}
 $('requestDialog').addEventListener('cancel',()=>{selected=null;$('approvalControls').hidden=true;});

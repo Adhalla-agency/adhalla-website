@@ -74,7 +74,14 @@ export function errorMessage(status,detail={}){
 export const lines=value=>value.split('\n').map(x=>x.trim()).filter(Boolean);
 export const states={superseded:'Koondatud kampaania põhitaotlusega',draft:'Lähteülesanne',rejected:'Tagasi lükatud',unassigned:'Määramata',in_progress:'Töös',approved:'Kinnitatud',generating:'Koostamisel',awaiting_action:'Ootab järgmist sammu',
  creating_paused:'Peatatud kampaania loomisel',reconciliation_required:'Vajab tulemuse kontrolli',running:'Koostamisel',
- awaiting_input:'Ootab lisainfot',completed:'Valmis',failed:'Ebaõnnestus',queued:'Tööjärjekorras',limited:'Mudeli kasutuspiir'};
+ awaiting_input:'Ootab lisainfot',completed:'Valmis',failed:'Ebaõnnestus',queued:'Tööjärjekorras',limited:'Ootab AI kasutuspiiri vabanemist'};
+
+export function quotaPresentation(job){
+ if(job.quota_reason==='invalid_budget_state')return 'AI kasutuspiiri arvestus vajab Adhalla kontrolli. Uut katset ei alustata.';
+ const reason=job.quota_reason==='daily_attempt_limit'?'Päevane AI katsete piir on täis.':job.quota_reason==='monthly_model_budget'?'Kuine AI eelarve on täis. Päevavahetus kuupiiri ei lähtesta.':'AI päeva- või kuupiir on täis.';
+ const retry=job.retry_at?' Järgmine võimalik algus: '+new Date(job.retry_at).toLocaleString('et-EE')+'.':'';
+ return reason+retry+' Töö jääb järjekorda ja jätkub automaatselt vaba mahu ning kehtivate õiguste korral. Uuesti esitada pole vaja.';
+}
 
 export function campaignPresentation(item){
  const sent=!!item.request_id&&item.submitted_version===item.brief_version;
@@ -89,7 +96,7 @@ export function researchPresentation(job,now=Date.now()){
  if(job.status==='queued')return age>10*60*1000?'Uuring on endiselt järjekorras. See pole veel alanud; uut tellimust pole vaja esitada.':'Uuring tellitud · ootab töötlemist. Tulemus ilmub siia nupu alla; välju enne sinu valikut ei muudeta.';
  if(job.status==='running')return 'Uuring käib. Tulemused ilmuvad siia nupu alla.';
  if(job.status==='completed')return '✓ Uuring valmis. Vali allpool sobivad tulemused ja lisa need vormi.';
- if(job.status==='limited')return 'Uuring peatus päeva- või kuupiirangu tõttu. Uuringul on kampaania koostamisest eraldi päevapiir; kuine AI eelarve on ühine. Tulemust ei loodud.';
+ if(job.status==='limited')return quotaPresentation(job)+' Uuringul on kampaania koostamisest eraldi päevapiir; kuine AI eelarve on ühine.';
  if(job.status==='failed')return 'Uuring ebaõnnestus. Tulemust ei saadud; sinu väljad jäid alles. Võid tellida uue katse, kui kasutuspiir seda lubab.';
  if(job.status==='access_removed')return 'Uuringu õigus või kehtivus muutus. Tulemust ei lisatud; vajalik on ligipääsu kontroll.';
  return 'Uuringu seis: '+(states[job.status]||'vajab kontrolli');
