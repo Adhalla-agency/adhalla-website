@@ -1,6 +1,6 @@
 import {firebaseConfig} from './firebase-config.js';
-import {weeklyView} from './weekly.js?v=0.15';
-import {createCampaignClient} from './campaigns-client.js?v=0.15';
+import {weeklyView} from './weekly.js?v=0.16';
+import {createCampaignClient} from './campaigns-client.js?v=0.16';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id),api=createCampaignClient(),route='/internal/clients/0000/metrics';
