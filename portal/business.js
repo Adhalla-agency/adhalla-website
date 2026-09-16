@@ -1,8 +1,10 @@
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient} from './campaigns-client.js?v=0.14';
+import {weeklyView} from './weekly.js?v=0.15';
+import {createCampaignClient} from './campaigns-client.js?v=0.15';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id),api=createCampaignClient(),route='/internal/clients/0000/metrics';
+const weekly=weeklyView($('weekly'),api);
 let epoch=0,timer=null,current=null,submitting=false;
 const node=(tag,text,cls='')=>{const e=document.createElement(tag);e.textContent=text;e.className=cls;return e;};
 const number=(v,currency)=>v===null||v===undefined?'—':new Intl.NumberFormat('et-EE',currency?{style:'currency',currency,maximumFractionDigits:2}:{maximumFractionDigits:2}).format(v);
@@ -31,4 +33,4 @@ function render(data){current=data;const job=data.job,pending=job&&['queued','ru
 }
 async function refresh(){const capture=epoch;try{const data=await api.read(route);if(capture!==epoch)return;$('business').hidden=false;$('gate').hidden=true;if(!$('start').value){const p=data.report?.period||data.default_period;if(p){$('start').value=p.start;$('end').value=p.end;}}render(data);}catch(e){if(capture!==epoch)return;if([401,403].includes(e.status)){clear();$('gateMessage').textContent='Selle ettevõtte vaatamiseks puudub ligipääs.';}else $('readStatus').textContent=e.message;}}
 $('dates').onsubmit=async e=>{e.preventDefault();if(submitting)return;const capture=epoch;submitting=true;$('loadMetrics').disabled=true;$('readStatus').textContent='Saadan andmepäringu…';try{const job=await api.write(route,{client_id:'0000',start:$('start').value,end:$('end').value});if(capture!==epoch)return;submitting=false;render({...current,job});await refresh();}catch(error){if(capture!==epoch)return;submitting=false;$('loadMetrics').disabled=false;$('readStatus').textContent=error.code==='metrics_limit'?'Tänane 12 andmelugemise piir on täis. Jätka homme.':error.code==='metrics_pending'?'Üks andmelugemine on juba töös. Oota selle lõppu.':error.message;}};
-onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),user=>{epoch++;api.start(user);clear();if(user)refresh();else $('gateMessage').textContent='Logi Google kontoga portaali kaudu sisse.';});
+onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),user=>{epoch++;api.start(user);clear();weekly.reset();if(user){refresh();weekly.load();}else $('gateMessage').textContent='Logi Google kontoga portaali kaudu sisse.';});
