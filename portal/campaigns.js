@@ -1,5 +1,5 @@
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation,quotaPresentation} from './campaigns-client.js?v=0.14';
+import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation,quotaPresentation} from './campaigns-client.js?v=0.15';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id), client=createCampaignClient();
