@@ -18,9 +18,23 @@ const artifacts = createArtifactFeed((workspaceId, kind, next, failed) =>
   onSnapshot(doc(database, 'workspaces', workspaceId, kind, 'latest'), {includeMetadataChanges:true}, next, failed),
   (data, report, activity) => renderArtifacts(data, report, activity, (card, report, recommendation) => recommendationControls(actions, card, report, recommendation)));
 const fields = ['name','website','description','offering','customer','objective'];
+let registered=false,registering=false;
 let user = null, savedWorkspace = null, unsubscribe = null, epoch = 0, canSave = false, dirty = false;
 function message(text) { $('message').textContent = text; }
+async function registerWorkspace(){
+ if(!user||registered||registering||!savedWorkspace)return;
+ const capture=epoch,owner=user;registering=true;
+ try{const token=await owner.getIdToken(true);if(capture!==epoch)return;
+  const response=await fetch('https://adhalla-workspace-api-184522982163.europe-north1.run.app/v1/workspaces/'+encodeURIComponent(owner.uid)+'/register',{
+   method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:'{}',credentials:'omit',redirect:'error',cache:'no-store'});
+  if(!response.ok)throw Error();const {data}=await response.json();if(capture!==epoch)return;
+  registered=true;$('businessOverview').hidden=!data.client_id;
+  $('promotionStatus').textContent=data.client_id?'Sinu kliendinumber: '+data.client_id+'. Mõõdikud ja nädalakokkuvõtted leiad „Äri ülevaate” lehelt.':'Tööruum on Adhalla ülevaatuse nimekirjas. Püsikliendi ligipääs aktiveeritakse pärast kinnitamist.';
+ }catch{if(capture===epoch)$('promotionStatus').textContent='Ettevõtte info on alles. Adhalla ülevaatuse järjekorda lisamine ei õnnestunud; vajuta „Värskenda vaadet”.';}
+ finally{if(capture===epoch)registering=false;}
+}
 function clearWorkspace() {
+  registered=false;registering=false;$('businessOverview').hidden=true;$('promotionStatus').textContent='';
   artifacts.stop();
   actions.stop();
   canSave = false;
@@ -78,6 +92,7 @@ onAuthStateChanged(auth, current => {
     if (thisEpoch !== epoch) return;
     render(snapshot.exists() ? snapshot.data() : null, !dirty && !snapshot.metadata.hasPendingWrites);
     canSave = true;
+    if(snapshot.exists()&&!snapshot.metadata.hasPendingWrites&&!snapshot.metadata.fromCache)registerWorkspace();
     if (snapshot.exists() && !artifactsStarted) { artifactsStarted = true; artifacts.start(current.uid); }
     $('saveWorkspace').disabled = false;
     message(snapshot.exists() ? '' : 'Alusta oma ettevõtte põhiinfost. Sinu tööruum on teistest eraldatud.');
@@ -89,6 +104,7 @@ onAuthStateChanged(auth, current => {
   });
 });
 $('refreshWorkspace').addEventListener('click', () => {
+  registered=false;registerWorkspace();
   if (user && savedWorkspace) { artifacts.start(user.uid); message('Kontrollin salvestatud andmeid ja ligipääsu…'); }
 });
 $('workspaceForm').addEventListener('submit', async event => {

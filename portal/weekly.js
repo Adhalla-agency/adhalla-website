@@ -2,7 +2,8 @@
 export function weeklyView(root,api){
  let data=null,epoch=0,timer=null,shown=null,saving=false;
  const n=(tag,text='',cls='')=>{const e=document.createElement(tag);e.textContent=text;e.className=cls;return e;};
- const route='/internal/clients/0000/weekly';
+ let base='/internal/clients/0000',clientId='0000';
+ function setScope(path,id){reset();base=path;clientId=id;}
  function reset(){epoch++;clearTimeout(timer);timer=null;data=null;shown=null;saving=false;root.replaceChildren();}
  function references(parent,refs,report){const detail=n('details'),summary=n('summary','Millistel andmetel see põhineb?');detail.append(summary);
   const facts=report.evidence.observed_facts.concat(report.evidence.configuration_facts);
@@ -35,12 +36,12 @@ export function weeklyView(root,api){
   for(const q of report.questions){const label=n('label',q.question),input=n('textarea');input.rows=3;input.maxLength=1500;input.value=value.answers?.answers.find(a=>a.id===q.id)?.answer||'';fields[q.id]=input;label.append(input,n('small',q.why));form.append(label);}
   const button=n('button','Salvesta vastused'),status=n('p',value.answers?'Vastused on salvestatud.':'');status.setAttribute('role','status');form.append(button,status);root.append(form);
   form.onsubmit=async event=>{event.preventDefault();if(saving)return;saving=true;button.disabled=true;status.textContent='Salvestan…';const capture=epoch;
-   try{const result=await api.write('/internal/clients/0000/weekly_answers',{client_id:'0000',report_id:report.run_id,report_version:report.version,base_version:data.answers?.version||null,answers:Object.fromEntries(Object.entries(fields).map(([id,e])=>[id,e.value.trim()]))});if(capture!==epoch)return;data.answers=result;status.textContent='Vastused salvestatud. Adhalla arvestab nendega järgmises kokkuvõttes.';}
+   try{const result=await api.write(base+'/weekly_answers',{client_id:clientId,report_id:report.run_id,report_version:report.version,base_version:data.answers?.version||null,answers:Object.fromEntries(Object.entries(fields).map(([id,e])=>[id,e.value.trim()]))});if(capture!==epoch)return;data.answers=result;status.textContent='Vastused salvestatud. Adhalla arvestab nendega järgmises kokkuvõttes.';}
    catch(error){if(capture!==epoch)return;status.textContent=error.message;}
    finally{if(capture===epoch){saving=false;button.disabled=false;}}
   };
  }
- async function load(id){const capture=epoch;try{const value=await api.read(route+(id?'/'+id:''));if(capture!==epoch)return;render(value);clearTimeout(timer);if(!value.report&&value.schedule_enabled&&value.job?.status!=='failed')timer=setTimeout(()=>load(),30000);}
+ async function load(id){const capture=epoch;try{const value=await api.read(base+'/weekly'+(id?'/'+id:''));if(capture!==epoch)return;render(value);clearTimeout(timer);if(!value.report&&value.schedule_enabled&&value.job?.status!=='failed')timer=setTimeout(()=>load(),30000);}
   catch(error){if(capture!==epoch)return;root.replaceChildren(n('h2','Nädalaülevaade'),n('p',error.message));}}
- return {reset,load};
+ return {reset,load,setScope};
 }
