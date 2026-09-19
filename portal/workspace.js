@@ -1,4 +1,5 @@
 import {firebaseConfig} from './firebase-config.js';
+import {confirmationState,matchesSavedProfile} from './business-profile-client.js?v=0.19';
 import {createArtifactFeed, renderArtifacts} from './workspace-data.js?v=0.4';
 import {createActionClient, recommendationControls} from './workspace-actions.js?v=0.4';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
@@ -20,7 +21,41 @@ const artifacts = createArtifactFeed((workspaceId, kind, next, failed) =>
 const fields = ['name','website','description','offering','customer','objective'];
 let registered=false,registering=false;
 let user = null, savedWorkspace = null, unsubscribe = null, epoch = 0, canSave = false, dirty = false;
+let businessConfirmation=null,confirmationBusy=false,confirmationEpoch=0;
 function message(text) { $('message').textContent = text; }
+function currentBusinessValues(){
+ const values=Object.fromEntries(fields.map(key=>[key,$(key).value.trim()]));
+ if(values.website&&!/^https?:\/\//i.test(values.website))values.website='https://'+values.website;
+ return values;
+}
+function renderConfirmation(){
+ const changed=dirty||!!(businessConfirmation?.draft&&!matchesSavedProfile(businessConfirmation,currentBusinessValues()));
+ const state=confirmationState(businessConfirmation,changed,confirmationBusy);
+ $('confirmBusiness').disabled=state.disabled||!user||!savedWorkspace;
+ $('businessConfirmationStatus').textContent=state.text;
+}
+async function profileRequest(owner,body){
+ const token=await owner.getIdToken(true);
+ const response=await fetch('https://adhalla-workspace-api-184522982163.europe-north1.run.app/v1/workspaces/'+encodeURIComponent(owner.uid)+'/business_profile'+(body?'/confirm':''),{
+  method:body?'POST':'GET',headers:{Authorization:'Bearer '+token,...(body?{'Content-Type':'application/json'}:{})},
+  ...(body?{body:JSON.stringify(body)}:{}),credentials:'omit',redirect:'error',cache:'no-store'});
+ if(!response.ok){const error=Error('Ettevõtteinfo kinnitamine ei õnnestunud.');error.status=response.status;throw error;}
+ return (await response.json()).data;
+}
+async function refreshConfirmation(){
+ if(!user||!savedWorkspace||confirmationBusy)return;
+ const captured=epoch,version=++confirmationEpoch,owner=user;
+ try{const view=await profileRequest(owner);if(captured!==epoch||version!==confirmationEpoch)return;businessConfirmation=view;renderConfirmation();}
+ catch{if(captured===epoch&&version===confirmationEpoch){businessConfirmation=null;renderConfirmation();$('businessConfirmationStatus').textContent='Kinnituse kontroll ei õnnestunud. Salvestatud info on alles; proovi „Värskenda vaadet”.';}}
+}
+$('confirmBusiness').onclick=async()=>{
+ if(!user||confirmationBusy||dirty||!businessConfirmation?.can_confirm||!matchesSavedProfile(businessConfirmation,currentBusinessValues()))return;
+ const captured=epoch,owner=user,view=businessConfirmation;
+ confirmationBusy=true;++confirmationEpoch;renderConfirmation();
+ try{await profileRequest(owner,{request_id:crypto.randomUUID(),base_version:view.confirmed?.version||null,draft_digest:view.draft_digest});}
+ catch(error){if(captured===epoch)message(error.status===409?'Ettevõtteinfo muutus. Vaata praegune salvestatud sisu uuesti üle.':'Kinnitus ei õnnestunud. Kontrollin salvestatud seisu.');}
+ finally{if(captured===epoch){confirmationBusy=false;await refreshConfirmation();renderConfirmation();}}
+};
 async function registerWorkspace(){
  if(!user||registered||registering||!savedWorkspace)return;
  const capture=epoch,owner=user;registering=true;
@@ -34,6 +69,7 @@ async function registerWorkspace(){
  finally{if(capture===epoch)registering=false;}
 }
 function clearWorkspace() {
+  businessConfirmation=null;confirmationBusy=false;++confirmationEpoch;
   registered=false;registering=false;$('businessOverview').hidden=true;$('promotionStatus').textContent='';
   artifacts.stop();
   actions.stop();
@@ -44,6 +80,7 @@ function clearWorkspace() {
   $('businessName').textContent = 'Minu ettevõte';
   $('understanding').textContent = '0 / 6';
   $('lastSaved').textContent = 'Veel salvestamata';
+  renderConfirmation();
 }
 function render(workspace, populate = true) {
   savedWorkspace = workspace;
@@ -53,6 +90,7 @@ function render(workspace, populate = true) {
   const completed = fields.filter(key => typeof business[key] === 'string' && business[key].trim()).length;
   $('understanding').textContent = `${completed} / 6`;
   $('lastSaved').textContent = workspace?.updated_at?.toDate ? `Salvestatud ${workspace.updated_at.toDate().toLocaleString('et-EE')}` : 'Veel salvestamata';
+  renderConfirmation();
 }
 $('googleSignIn').addEventListener('click', async () => {
   $('googleSignIn').disabled = true;
@@ -69,7 +107,7 @@ $('signOut').addEventListener('click', async () => {
   try { await signOut(auth); }
   catch { message('Väljalogimine ei õnnestunud. Palun proovi uuesti.'); }
 });
-$('workspaceForm').addEventListener('input', () => { dirty = true; });
+$('workspaceForm').addEventListener('input', () => { dirty = true; renderConfirmation(); });
 onAuthStateChanged(auth, current => {
   const thisEpoch = ++epoch;
   unsubscribe?.(); unsubscribe = null;
@@ -92,7 +130,7 @@ onAuthStateChanged(auth, current => {
     if (thisEpoch !== epoch) return;
     render(snapshot.exists() ? snapshot.data() : null, !dirty && !snapshot.metadata.hasPendingWrites);
     canSave = true;
-    if(snapshot.exists()&&!snapshot.metadata.hasPendingWrites&&!snapshot.metadata.fromCache)registerWorkspace();
+    if(snapshot.exists()&&!snapshot.metadata.hasPendingWrites&&!snapshot.metadata.fromCache){registerWorkspace();refreshConfirmation();}
     if (snapshot.exists() && !artifactsStarted) { artifactsStarted = true; artifacts.start(current.uid); }
     $('saveWorkspace').disabled = false;
     message(snapshot.exists() ? '' : 'Alusta oma ettevõtte põhiinfost. Sinu tööruum on teistest eraldatud.');
@@ -105,6 +143,7 @@ onAuthStateChanged(auth, current => {
 });
 $('refreshWorkspace').addEventListener('click', () => {
   registered=false;registerWorkspace();
+  refreshConfirmation();
   if (user && savedWorkspace) { artifacts.start(user.uid); message('Kontrollin salvestatud andmeid ja ligipääsu…'); }
 });
 $('workspaceForm').addEventListener('submit', async event => {
@@ -123,7 +162,7 @@ $('workspaceForm').addEventListener('submit', async event => {
     const target = doc(database,'workspaces',user.uid);
     if (savedWorkspace) await updateDoc(target,{business,updated_at:serverTimestamp()});
     else await setDoc(target,{schema_version:1,owner_uid:user.uid,member_uids:[user.uid],status:'active',business,created_at:serverTimestamp(),updated_at:serverTimestamp()});
-    if (currentEpoch === epoch) { dirty = false; message('Ettevõtte info on salvestatud.'); }
+    if (currentEpoch === epoch) { dirty = false; message('Ettevõtte info on salvestatud.');await refreshConfirmation(); }
   } catch { if (currentEpoch === epoch) message('Salvestamine ei õnnestunud. Kontrolli ühendust ja ligipääsu.'); }
   finally { if (currentEpoch === epoch && canSave) $('saveWorkspace').disabled = false; }
 });
