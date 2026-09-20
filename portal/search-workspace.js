@@ -1,0 +1,55 @@
+export const version='search-2026-09-19';
+export const decisions={budget:'Päevaeelarve',locations:'Asukohad',initial_keywords:'Esialgsed märksõnad',initial_negatives:'Välistused (ka tühi valik)',restrictions:'Reklaami piirangud',strategy_notes:'Strateegia märkmed',political_advertising:'Poliitreklaami vastus'};
+export const searchLabels={'search.campaign_class':'Kampaania liik','search.subject':'Lühinimi','search.country':'Riigikood','search.conversion_goal':'Mõõdetav eesmärk','search.start_date':'Alguskuupäev','search.separate_opt_in':'Eraldi kampaania nõusolek',...Object.fromEntries(Object.entries(decisions).map(([k,v])=>['confirm.'+k,v+' ülevaatus']))};
+export function emptySearch(){return {playbook_version:version,campaign_type:'SEARCH',campaign_class:null,subject:'',country:'',conversion_goal:null,start_date:null,end_date:null,separate_opt_in:false,confirmed_inputs:[],risk_profile:'unknown'};}
+const n=(tag,text)=>{const x=document.createElement(tag);if(text!==undefined)x.textContent=text;return x;};
+function field(parent,label,value,{choices,kind='text',max}={}){const wrap=n('label',label),el=n(choices?'select':kind==='textarea'?'textarea':'input');if(choices)for(const [key,text]of choices){const o=n('option',text);o.value=key;el.append(o);}else if(kind!=='textarea')el.type=kind;if(max)el.maxLength=max;el.value=value??'';wrap.append(el);parent.append(wrap);return el;}
+export function mountSearch(parent,changed){
+ const box=n('section');box.className='wide';const label=n('h3','Kampaania ülesehitus');box.append(label,n('p','Vali, millist pakkumist reklaamime ja millist tulemust mõõdame. Uus kampaania koostatakse esmalt peatatud olekus.'));
+ const enableLabel=n('label'),enable=n('input');enable.type='checkbox';enableLabel.append(enable,document.createTextNode(' Kasuta uut Search kampaaniaplaani'));box.append(enableLabel);
+ const body=n('div');body.className='brief-grid';box.append(body);parent.prepend(box);
+ const inputs={campaign_class:field(body,'Kampaania liik','',{choices:[['','Vali…'],['Service','Teenus'],['Product','Toode'],['Brand','Bränd · eraldi nõusolek'],['Competitor','Konkurendid · eraldi nõusolek']]}),
+ subject:field(body,'Kampaania lühinimi','',{max:60}),country:field(body,'Riigikood (näiteks EE)','',{max:2}),
+ conversion_goal:field(body,'Mõõdetav eesmärk','',{choices:[['','Vali…'],['purchase','Ost'],['form_submission','Vormi saatmine'],['booking','Broneering'],['registration','Registreerumine'],['qualified_lead','Sobiv müügipäring'],['call','Telefonikõne'],['quote_request','Hinnapäring']]}),
+ start_date:field(body,'Alguskuupäev',null,{kind:'date'}),end_date:field(body,'Lõppkuupäev · valikuline',null,{kind:'date'}),
+ risk_profile:field(body,'Kas pakkumine kuulub piiratud valdkonda?','unknown',{choices:[['unknown','Pole veel hinnatud'],['standard','Tavaline toode või teenus'],['finance','Finantsteenus'],['credit','Krediit'],['health','Tervis'],['gambling','Hasartmäng'],['political','Poliitika'],['other_restricted','Muu piiratud valdkond']]})};
+ const optLabel=n('label'),opt=n('input');opt.type='checkbox';optLabel.className='wide';optLabel.append(opt,document.createTextNode(' Soovin eraldi Brand/Competitor kampaaniat ja olen valinud sellele eraldi päevaeelarve.'));body.append(optLabel);
+ const confirmations=n('details');confirmations.className='wide';confirmations.append(n('summary','Kinnita üle vaadatud valikud'),n('p','Need on sinu otsused. Muudetud väljade varasem ülevaatus lähtestatakse; tühjad valikulised väljad võib teadlikult kinnitada.'));const checks={};for(const[k,v]of Object.entries(decisions)){const l=n('label'),c=n('input');c.type='checkbox';l.append(c,document.createTextNode(' '+v+' on üle vaadatud'));confirmations.append(l);checks[k]=c;}body.append(confirmations);
+ const note=n('p');body.append(note);let separate=false;
+ const update=()=>{body.hidden=!enable.checked;const isSeparate=['Brand','Competitor'].includes(inputs.campaign_class.value);optLabel.hidden=!isSeparate;note.textContent=isSeparate&&!separate?'Eraldi brändi- või konkurendikampaania saab esitada pärast kampaania 01 edukat loomist.':'';};
+ enable.onchange=()=>{update();changed();};for(const el of Object.values(inputs))el.onchange=()=>{if(el===inputs.campaign_class)opt.checked=false;update();changed();};
+ return {fill(brief,{fresh=false,separateAvailable=false}={}){const s=brief.search||emptySearch();enable.checked=brief.schema_version===2||fresh;separate=separateAvailable;for(const[k,el]of Object.entries(inputs))el.value=s[k]??'';opt.checked=s.separate_opt_in;for(const[k,c]of Object.entries(checks))c.checked=s.confirmed_inputs.includes(k);update();},
+ read(){if(!enable.checked)return {};return {schema_version:2,search:{...emptySearch(),...Object.fromEntries(Object.entries(inputs).map(([k,el])=>[k,el.value||(['subject','country'].includes(k)?'':null)])),country:inputs.country.value.trim().toUpperCase(),subject:inputs.subject.value.trim(),separate_opt_in:opt.checked,confirmed_inputs:Object.keys(checks).filter(k=>checks[k].checked)}};},
+ invalidate(key){const maps={daily_budget:'budget',currency:'budget',max_cpc:'budget',locations:'locations',keywords:'initial_keywords',negative_keywords:'initial_negatives',constraints:'restrictions',strategy_notes:'strategy_notes',eu_political_ads:'political_advertising'};if(checks[maps[key]])checks[maps[key]].checked=false;}};
+}
+
+export function renderSearchProposal(root,original){
+ const value=structuredClone(original);const name=field(root,'Kampaania nimi',value.campaign_name);name.readOnly=true;
+ const rationale=field(root,'Plaani põhjendus',value.rationale,{kind:'textarea',max:2000});
+ const roles=[['offer','Pakkumine'],['intent','Otsingu kavatsus'],['business','Ettevõte'],['differentiator','Eristuvus'],['benefit','Kasu'],['call_to_action','Üleskutse'],['practical_detail','Praktiline teave']];
+ const groups=value.ad_groups.map(g=>{
+  const box=n('section');box.className='ad-group';root.append(box);box.append(n('h3',g.name));
+  const name=field(box,'Reklaamirühma nimi',g.name,{max:100}),intent=field(box,'Millisele otsingu soovile see vastab?',g.intent,{max:600});
+  box.append(n('h4','Pealkirjade valik · kuni 30 märki'));
+  const headlines=g.headlines.map((s,i)=>({text:field(box,'Pealkiri '+(i+1),s,{max:30}),role:field(box,'Pealkirja ülesanne',g.headline_roles[i],{choices:roles})}));
+  box.append(n('h4','Kirjeldused · kuni 90 märki'));const descriptions=g.descriptions.map((s,i)=>field(box,'Kirjeldus '+(i+1),s,{max:90}));
+  const ads=g.ads.map((ad,index)=>{const card=n('details');card.append(n('summary','Reklaam '+(index+1)+' · '+ad.angle));box.append(card);const angle=field(card,'Sõnumi rõhuasetus',ad.angle,{max:400}),path1=field(card,'Kuvatava aadressi osa 1',ad.path1,{max:15}),path2=field(card,'Kuvatava aadressi osa 2',ad.path2,{max:15});
+   function choices(label,pool,selected){card.append(n('h4',label));return pool.map((text,i)=>{const l=n('label'),c=n('input');c.type='checkbox';c.checked=selected.includes(i);l.append(c,document.createTextNode(' '+(i+1)+'. '+text));card.append(l);return c;});}
+   const h=choices('Vali 10–15 pealkirja',g.headlines,ad.headline_indices),d=choices('Vali 2–4 kirjeldust',g.descriptions,ad.description_indices);
+   const pinsBox=n('details');pinsBox.append(n('summary','Fikseeritud asukohad · valikuline'));card.append(pinsBox);pinsBox.append(n('p','Vaikimisi ära fikseeri. Kasuta kindlat asukohta ainult selge strateegilise põhjusega. Valitud pealkiri või kirjeldus peab kuuluma sellesse reklaami.'));
+   const pinReason=field(pinsBox,'Fikseerimise põhjus',ad.pinning_reason||'',{max:400}),pinFields=[];
+   for(const[asset,pool,positions]of [['headline',g.headlines,['HEADLINE_1','HEADLINE_2','HEADLINE_3']],['description',g.descriptions,['DESCRIPTION_1','DESCRIPTION_2']]])for(const[text,index]of pool.map((x,i)=>[x,i])){const selected=ad.pins?.find(p=>p.asset===asset&&p.index===index)?.position||'',input=field(pinsBox,(asset==='headline'?'Pealkiri ':'Kirjeldus ')+(index+1),selected,{choices:[['','Vaba paigutus'],...positions.map(p=>[p,p.replace('HEADLINE_','Pealkirja koht ').replace('DESCRIPTION_','Kirjelduse koht ')])]});pinFields.push({asset,index,input});}
+   return ()=>({...ad,pins:pinFields.filter(p=>p.input.value).map(p=>({asset:p.asset,index:p.index,position:p.input.value})),pinning_reason:pinReason.value.trim(),angle:angle.value.trim(),path1:path1.value.trim(),path2:path2.value.trim(),headline_indices:h.flatMap((c,i)=>c.checked?[i]:[]),description_indices:d.flatMap((c,i)=>c.checked?[i]:[])});
+  });
+  const keywords=g.keywords.map(k=>({text:field(box,'Märksõna',k.text,{max:80}),match:field(box,'Vaste',k.match,{choices:[['PHRASE','Fraas'],['EXACT','Täpne']]})}));
+  return ()=>({...g,name:name.value.trim(),intent:intent.value.trim(),headlines:headlines.map(x=>x.text.value.trim()),headline_roles:headlines.map(x=>x.role.value),descriptions:descriptions.map(x=>x.value.trim()),ads:ads.map(read=>read()),keywords:keywords.map(k=>({text:k.text.value.trim(),match:k.match.value}))});
+ });
+ const negative=field(root,'Välistused · üks rea kohta',value.negative_keywords.join('\n'),{kind:'textarea'});
+ const assetBox=n('details');assetBox.append(n('summary','Lisalingid ja lisateave'));root.append(assetBox);
+ const links=value.assets.sitelinks.map(x=>{const b=n('div');assetBox.append(b);return Object.fromEntries(Object.entries(x).map(([k,v])=>[k,field(b,({text:'Lingi tekst',description1:'Kirjeldus 1',description2:'Kirjeldus 2',url:'Kinnitatud lehe aadress'})[k],v)]));});
+ const callouts=field(assetBox,'Lühieelised · üks rea kohta',value.assets.callouts.join('\n'),{kind:'textarea'});
+ const snippets=value.assets.structured_snippets.map(s=>({header:field(assetBox,'Teabeloendi pealkiri',s.header),values:field(assetBox,'Teabeloendi väärtused · üks rea kohta',s.values.join('\n'),{kind:'textarea'})}));
+ if(value.assumptions.length){root.append(n('h3','Eeldused ja lahtised küsimused'));for(const a of value.assumptions)root.append(n('p',a));}
+ const lines=s=>s.split('\n').map(x=>x.trim()).filter(Boolean);
+ return ()=>({...value,rationale:rationale.value.trim(),ad_groups:groups.map(read=>read()),negative_keywords:lines(negative.value),assets:{sitelinks:links.map(x=>Object.fromEntries(Object.entries(x).map(([k,e])=>[k,e.value.trim()]))),callouts:lines(callouts.value),structured_snippets:snippets.map(s=>({header:s.header.value.trim(),values:lines(s.values.value)}))}});
+}
