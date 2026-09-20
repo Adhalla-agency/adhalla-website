@@ -1,0 +1,34 @@
+const node=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
+const names={name:'Ettevõte',website:'Veebileht',description:'Tegevus',offering:'Pakkumine',customer:'Klient',objective:'Eesmärk',products_services:'Tooted ja teenused',positioning:'Positsioneerimine',business_facts:'Ettevõtte faktid',locations:'Piirkonnad',value_propositions:'Väärtuspakkumine',conversion_paths:'Kliendi teekond',relevant_pages:'Olulised lehed',phone:'Ettevõtte telefon',phone_country:'Telefoni riik',logo_url:'Logo'};
+const sources={google_ads:'Google Ads',ga4:'Google Analytics 4',gtm:'Google Tag Manager'};
+const stamp=value=>value?new Date(value).toLocaleString('et-EE'):'Kontrolli aeg puudub';
+function section(root,title){const d=node('details');d.className='knowledge-group';d.append(node('summary',title));root.append(d);return d;}
+function profile(root,p){const d=section(root,'Ettevõtte kinnitatud põhiinfo');d.append(node('p','Allikas: kliendi kinnitus. Need on ettevõtte enda väited, mitte sõltumatult kontrollitud mõõtmised.'));for(const[k,v]of Object.entries({...p?.business,...p?.details})){if(!names[k]||!v||(Array.isArray(v)&&!v.length))continue;d.append(node('h3',names[k]),node('p',Array.isArray(v)?v.join(' · '):String(v)));}if(!p)d.append(node('p','Ettevõtteinfo kinnitamine on veel pooleli.'));}
+export function knowledgePending(p=null,message='Pärast tööruumi sidumist lisanduvad siia ühenduste kontrollid ja salvestatud kontekstivastused.'){
+ const root=document.getElementById('companyKnowledge'),summary=document.getElementById('knowledgeSummary');root.replaceChildren();profile(root,p);root.append(node('p',message));summary.replaceChildren(node('p',p?'Ettevõtte põhiinfo on kinnitatud. Andmeallikate kindlust pole selles vaates veel kontrollitud.':'Kinnita ettevõtte põhiinfo, et Adhalla saaks seda kasutada.'));
+}
+export function renderKnowledge(data){
+ const root=document.getElementById('companyKnowledge'),summary=document.getElementById('knowledgeSummary');
+ const open=[...root.querySelectorAll('details')].filter(x=>x.open).map(x=>x.querySelector('summary').textContent);
+ root.replaceChildren(node('p','See on ettevõtte praegune infopagas. See uueneb salvestatud kinnituste, vastuste ja allikakontrollidega. Varasemad perioodid säilivad raportites.'));profile(root,data.profile);
+ const answers=section(root,'Kliendi vastused ja ärikontekst · '+data.answers.length);
+ for(const a of data.answers){answers.append(node('h3',a.question),node('p',a.answer),node('small',a.answered?'Kliendi antud kontekst · ei anna tegevusõigusi':'Vastus ei lahenda veel seda küsimust.'));}
+ if(!data.answers.length)answers.append(node('p','Täiendavaid vastuseid pole veel salvestatud.'));
+ const links=section(root,'Ühendused ja viimased kontrollid');for(const s of data.sources){links.append(node('h3',sources[s.source]),node('p',s.status==='available'?(s.stale?'Varasem lugemine õnnestus · vajab uut kontrolli':'✓ Viimane lugemine õnnestus'):'Värske lugemine pole kinnitatud'),node('small',stamp(s.checked_at)));}
+ const m=data.measurement,measurement=section(root,'Mõõtmine ja konversioonide seadistus');measurement.append(node('p','Seadistuse kontroll: '+stamp(m.checked_at)),node('p','GTM-i avaldamata tööruumi seadistus ja avaldatud seadistus on eraldi. Kumbki ei tõenda iseenesest sündmuse tegelikku kohalejõudmist.'));
+ for(const w of m.gtm_workspaces||[])measurement.append(node('p',`${w.label}: ${w.tag_count} märgendit, ${w.trigger_count} käivitajat, ${w.variable_count} muutujat; ${w.unpublished_changes} avaldamata muudatust.`));
+ if(m.gtm_live_status==='available')measurement.append(node('p',`Avaldatud GTM: ${m.gtm_live_counts.tag_count} märgendit, ${m.gtm_live_counts.trigger_count} käivitajat, ${m.gtm_live_counts.variable_count} muutujat.`));
+ else measurement.append(node('p','Avaldatud GTM-i seadistus pole kinnitatud.'));
+ for(const e of m.gtm_configured_events||[])measurement.append(node('p',`GTM-is seadistatud sündmus: ${e.event} · ${e.paused?'märgend peatatud':'märgend lubatud'} · ${e.firing_trigger_count} käivitajat. Tegelik käivitumine vajab kontrolli.`));
+ for(const c of m.conversions)measurement.append(node('p',`${c.label} · ${c.ga4_event||c.category||'sündmus täpsustamata'} · ${c.primary?'peamine konversioon':'täiendav konversioon'} · ${c.status||'olek teadmata'}. GA4 seos: ${c.bound_ga4_matches?'vastab seotud andmeallikale':'kinnitamata'}.`));
+ if(m.events.length)measurement.append(node('h3','GA4-s mõõdetud sündmused'),node('p',m.period?m.period.start+' – '+m.period.end:''));
+ for(const e of m.events)measurement.append(node('p',`${e.event}: ${e.event_count} sündmust, ${e.key_events} võtmesündmust.`));
+ const limits=section(root,'Kindlus, piirangud ja lahtised küsimused');for(const u of data.summary.unknowns)limits.append(node('p',u));
+ const conclusions=section(root,'Viimased andmetel põhinevad järeldused');conclusions.append(node('p','Need on kontrolli läbinud AI hinnangud märgitud perioodile, mitte ettevõtte kinnitatud püsifaktid. Nädala ja kuu erinevad hinnangud säilivad eraldi.'));
+ for(const f of data.findings||[]){conclusions.append(node('p',f.text),node('small',(f.cadence==='monthly'?'Kuu':'Nädal')+' · '+f.period.start+' – '+f.period.end+' · '+stamp(f.generated_at)));const refs=node('details');refs.append(node('summary','Hinnangu tõendid'),node('p',f.evidence_refs.join(' · ')));conclusions.append(refs);}
+ if(!data.findings?.length)conclusions.append(node('p','Salvestatud andmepõhiseid järeldusi veel pole.'));
+ const archive=section(root,'Salvestatud hinnangud ja perioodid');archive.append(node('p','Perioodi järeldused ei muutu automaatselt ettevõtte püsifaktideks. Loe neid koos vastava perioodi tõendite ja piirangutega.'));for(const r of data.reports){const a=node('a',(r.cadence==='monthly'?'Kuuülevaade':'Nädalaülevaade')+' · '+r.period.start+' – '+r.period.end);a.href='data.html?client='+data.client_id+'&source=all&cadence='+r.cadence+'&run='+encodeURIComponent(r.run_id)+'&start='+r.period.start+'&end='+r.period.end;const row=node('p');row.append(a);archive.append(row);}
+ const s=data.summary;summary.replaceChildren(node('p',`Kinnitatud põhiinfo: ${s.confirmed_fields}/${s.total_fields}. Sisulisi kontekstivastuseid: ${s.context_answers}. Viimati loetavaid Google’i allikaid: ${s.readable_sources}/3.`),node('p','Info täielikkus ei võrdu tulemuste kindlusega. Kliendi vastused aitavad plaani suunata; mõõdetud äritulemused vajavad eraldi tõendeid.'));
+ for(const text of s.unknowns.slice(0,4))summary.append(node('p',text));
+ for(const d of root.querySelectorAll('details'))d.open=open.includes(d.querySelector('summary').textContent);
+}

@@ -1,5 +1,5 @@
-import {reportLink,renderReport} from './report-content.js?v=0.22';
-import {reportEvents,calendar} from './timeline.js?v=0.22';
+import {reportLink,renderReport} from './report-content.js?v=0.23';
+import {reportEvents,calendar} from './timeline.js?v=0.23';
 const n=(t,s)=>{const e=document.createElement(t);if(s!==undefined)e.textContent=s;return e;};
 const labels={impressions:'Näitamised',clicks:'Klikid',cost:'Reklaamikulu',conversions:'Konversioonid',conversion_value:'Omistatud konversiooniväärtus'};
 export async function channelReports(root,api,base){
@@ -16,7 +16,9 @@ export async function channelReports(root,api,base){
    const prose=n('section');renderReport(prose,report,{cadence:select.value.split('/')[0],source:'google_ads'});body.append(prose);const link=n('a','Ava selle perioodi mõõdikud ja raport →');link.href=reportLink(report,select.value.split('/')[0],{clientId:base.split('/').at(-1),worker:base.startsWith('/worker/'),source:'google_ads'});body.append(link);const detail=n('details');detail.className='advanced-section';detail.append(n('summary','Allikad ja piirangud'));for(const f of facts.filter(f=>f.id.startsWith('google_ads.')))detail.append(n('p',f.statement+': '+String(f.value)));body.append(detail);
   }
   select.onchange=async()=>{const current=++read;try{const value=await api.read(base+'/'+select.value);if(root.dataset.epoch===epoch&&current===read)render(value.report);}catch(e){if(current===read)body.replaceChildren(n('p',e.message));}};
-  // Latest weekly is the default; monthly remains a distinct historical choice.
-  const latest=week.report||month.report;select.value=(week.report?'weekly/':'monthly/')+(latest?.run_id||'');render(latest);
+  const backlog=n('div');backlog.className='report-backlog';label.after(backlog);
+  for(const e of events){const button=n('button',(e.type==='monthly'?'Kuuülevaade · ':'Nädalaülevaade · ')+e.period.start+' – '+e.period.end);button.type='button';button.onclick=()=>{select.value=e.type+'/'+e.run_id;select.onchange();};backlog.append(button);}
+  const candidates=[{report:week.report,cadence:'weekly'},{report:month.report,cadence:'monthly'}].filter(x=>x.report).sort((a,b)=>b.report.period.end.localeCompare(a.report.period.end));
+  const latest=candidates[0];select.value=latest?latest.cadence+'/'+latest.report.run_id:'';render(latest?.report);
  }catch(e){if(root.dataset.epoch===epoch)root.replaceChildren(n('h2','Google Ads · raportid'),n('p',e.message));}
 }
