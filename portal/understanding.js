@@ -1,4 +1,4 @@
-import './dialogs.js?v=0.25';
+import './dialogs.js?v=0.25.1';
 const n=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const labels={current_state:'Praegune olukord',trajectory:'Suund ja muutused',key_findings:'Olulised tähelepanekud',explanations:'Mis võib seda selgitada?',unknowns:'Mida me veel ei tea?'};
 const certainty={observed:'Andmetes nähtav või kliendi kinnitatud',possible:'Võimalik selgitus · pole tõestatud',unknown:'Praegu teadmata'};
@@ -12,7 +12,7 @@ export function renderAssessment(root,value){
 export function understandingWorkflow(root,api,base,clientId){
  let alive=true,dialog=null,timer=null,value=null,pending=false,epoch=0;
  const open=n('button','Tõlgenda');open.type='button';open.className='interpret-action';root.append(open);
- function close(){epoch++;clearTimeout(timer);dialog?.close();dialog?.remove();dialog=null;}
+ function close(){epoch++;clearTimeout(timer);const opened=dialog;dialog=null;opened?.close();opened?.remove();}
  function render(){if(!alive||!dialog)return;const title=n('div');title.className='modal-top';const exit=n('button','Sulge');exit.type='button';exit.onclick=close;title.append(n('h2','Adhalla tõlgendus'),exit);dialog.replaceChildren(title);
   if(!value){dialog.append(n('p','Laadin salvestatud tõlgendust…'));return;}
   const report=value.report;
@@ -29,6 +29,6 @@ export function understandingWorkflow(root,api,base,clientId){
   refresh.onclick=async()=>{if(pending||!value.can_refresh)return;pending=true;refresh.disabled=true;status.textContent='Saadan tõlgenduse värskendamise taotluse…';let error=null;try{await api.write(base+'/understanding',{client_id:clientId});if(alive&&dialog)await load();}catch(e){error=e.message;if(alive&&dialog)await load(false);}finally{pending=false;if(alive&&dialog){render();if(error){const message=n('p',error);message.setAttribute('role','alert');dialog.querySelector('footer').append(message);}}}};dialog.append(footer);
  }
  async function load(redraw=true){const generation=epoch;try{const result=await api.read(base+'/understanding');if(!alive||generation!==epoch)return;value=result;if(redraw)render();clearTimeout(timer);if(dialog&&['queued','running','waiting_provider','limited'].includes(value.job?.status))timer=setTimeout(()=>load(),15000);}catch(e){if(alive&&dialog&&generation===epoch){dialog.append(n('p',e.message));}}}
- open.onclick=()=>{close();dialog=n('dialog');dialog.className='product-modal interpretation-modal';dialog.setAttribute('aria-label','Adhalla tõlgendus');document.body.append(dialog);dialog.addEventListener('close',()=>{clearTimeout(timer);},{once:true});render();dialog.showModal();load();};
+ open.onclick=()=>{close();dialog=n('dialog');dialog.className='product-modal interpretation-modal';dialog.setAttribute('aria-label','Adhalla tõlgendus');document.body.append(dialog);const opened=dialog;opened.addEventListener('close',()=>{if(dialog===opened)close();},{once:true});render();dialog.showModal();load();};
  return{destroy(){alive=false;close();open.remove();}};
 }

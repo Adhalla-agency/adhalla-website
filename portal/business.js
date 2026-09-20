@@ -1,11 +1,11 @@
-import './dialogs.js?v=0.25';
-import {reportDialog,reportLink} from './report-content.js?v=0.25';
+import './dialogs.js?v=0.25.1';
+import {reportDialog,reportLink} from './report-content.js?v=0.25.1';
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient} from './campaigns-client.js?v=0.25';
-import {weeklyView} from './weekly.js?v=0.25';
-import {calendar,reportEvents} from './timeline.js?v=0.25';
-import {questionsWorkflow} from './question-dialog.js?v=0.25';
-import {navigation} from './navigation.js?v=0.25';
+import {createCampaignClient} from './campaigns-client.js?v=0.25.1';
+import {weeklyView} from './weekly.js?v=0.25.1';
+import {calendar,reportEvents} from './timeline.js?v=0.25.1';
+import {questionsWorkflow} from './question-dialog.js?v=0.25.1';
+import {navigation} from './navigation.js?v=0.25.1';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id),api=createCampaignClient(),views={weekly:weeklyView($('weekly'),api),monthly:weeklyView($('monthly'),api,{cadence:'monthly'})};

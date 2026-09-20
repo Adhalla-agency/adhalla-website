@@ -1,4 +1,4 @@
-import {renderAssessment} from './understanding.js?v=0.25';
+import {renderAssessment} from './understanding.js?v=0.25.1';
 const node=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const names={name:'Ettevõte',website:'Veebileht',description:'Tegevus',offering:'Pakkumine',customer:'Klient',objective:'Eesmärk',products_services:'Tooted ja teenused',positioning:'Positsioneerimine',business_facts:'Ettevõtte faktid',locations:'Piirkonnad',value_propositions:'Väärtuspakkumine',conversion_paths:'Kliendi teekond',relevant_pages:'Olulised lehed',phone:'Ettevõtte telefon',phone_country:'Telefoni riik',logo_url:'Logo'};
 const sources={google_ads:'Google Ads',ga4:'Google Analytics 4',gtm:'Google Tag Manager'};
@@ -6,6 +6,7 @@ const stamp=value=>value?new Date(value).toLocaleString('et-EE'):'Kontrolli aeg 
 function section(root,title){const d=node('details');d.className='knowledge-group';d.append(node('summary',title));root.append(d);return d;}
 function profile(root,p){const d=section(root,'Ettevõtte kinnitatud põhiinfo');d.append(node('p','Allikas: kliendi kinnitus. Need on ettevõtte enda väited, mitte sõltumatult kontrollitud mõõtmised.'));for(const[k,v]of Object.entries({...p?.business,...p?.details})){if(!names[k]||!v||(Array.isArray(v)&&!v.length))continue;d.append(node('h3',names[k]),node('p',Array.isArray(v)?v.join(' · '):String(v)));}if(!p)d.append(node('p','Ettevõtteinfo kinnitamine on veel pooleli.'));}
 export function knowledgePending(p=null,message='Pärast tööruumi sidumist lisanduvad siia ühenduste kontrollid ja salvestatud kontekstivastused.'){
+ document.getElementById('companyAssessment')?.closest('section')?.remove();
  const root=document.getElementById('companyKnowledge');root.replaceChildren();profile(root,p);root.append(node('p',message));
 }
 export function renderKnowledge(data){
