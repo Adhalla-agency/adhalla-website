@@ -1,5 +1,5 @@
-import {automationControls} from './automation-controls.js?v=0.20';
-import {managementReview} from './management-review.js?v=0.20';
+import {automationControls} from './automation-controls.js?v=0.22';
+import {managementReview} from './management-review.js?v=0.22';
 const node=(tag,text)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;return el;};
 const labels={pause_keywords:'Märksõna peatamine',add_keywords:'Märksõna lisamine',add_negatives:'Välistuse lisamine',create_ads:'Uus reklaam',edit_ads:'Reklaami uuendamine',adjust_budget:'Eelarve muutmine',change_bidding_strategy:'Pakkumisstrateegia katse',activate_campaign:'Kampaania käivitamine'};
 const states={proposed:'Ettepanek · kinnitamata',approved:'Kinnitatud · ootab töötlemist',completed:'Tehtud',rejected:'Tagasi lükatud',blocked:'Õigus või alusandmed vajavad kontrolli',failed:'Tegevus ei alanud',reconciliation_required:'Tulemus vajab kontrolli · kordus lukus',rolled_back:'Tagasi pööratud',rollback_approved:'Tagasipööre kinnitatud'};
@@ -35,7 +35,7 @@ export function managementView(root,api){
   if(isWorker){const confirm=node('input');confirm.type='checkbox';const label=node('label');label.append(confirm,document.createTextNode(' Olen kliendi, täpse muudatuse, tõendid ja mõju üle vaadanud.'));dialog.append(label);
    for(const[command,text]of plan.status==='proposed'?[['approve','Kinnita see muudatus'],['reject','Lükka tagasi']]:plan.status==='completed'?[['rollback','Taotle täpset tagasipööret']]:[]){const b=node('button',text);b.type='button';dialog.append(b);b.onclick=async()=>{if(sending)return;if(command!=='reject'&&!confirm.checked){message.textContent='Vaata muudatus üle ja märgi kinnitus.';return;}sending=true;b.disabled=true;try{await api.write(path+'optimization',{client_id:cid,command,version:plan.version,payload:{plan_id:plan.plan_id}});if(capture!==epoch)return;dialog.close();dialog.remove();await load();}catch(e){if(capture===epoch){message.textContent=e.status===403?'Selle tegevuse jaoks puudub praegu vajalik paketiõigus, kliendi luba või serveri tegevusõigus.':e.message;sending=false;b.disabled=false;}}};}
   }
-  document.body.append(dialog);dialog.showModal();
+  dialog.className='product-modal';dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();
  }
  return {reset,setScope(path,id,worker){if(path!==route||id!==clientId||worker!==isWorker){reset();route=path;clientId=id;isWorker=worker;load();}},load};
 }

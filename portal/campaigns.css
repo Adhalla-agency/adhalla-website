@@ -25,3 +25,4 @@
 .research-feedback:empty{display:none}.research-attention{color:#8b4c16;background:#fff3e4}
 .research-results{max-height:440px;overflow:auto;margin-top:10px}.research-results:empty{display:none}
 .research-results button{margin:10px 8px 8px 0}.research-results .research-choice{align-items:flex-start;flex-wrap:wrap}
+dialog{background:#fff;color:#291737}dialog :is(h2,h3,h4,label,summary){color:#291737}dialog :is(p,small){color:#665c6e}dialog>button{position:static;font-size:1rem;color:#291737}

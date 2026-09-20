@@ -1,7 +1,7 @@
-import {questionsWorkflow} from './question-dialog.js?v=0.21';
-import {createCampaignClient} from './campaigns-client.js?v=0.21';
+import {questionsWorkflow} from './question-dialog.js?v=0.22';
+import {createCampaignClient} from './campaigns-client.js?v=0.22';
 import {firebaseConfig} from './firebase-config.js';
-import {confirmationState,matchesSavedProfile,detailLists,emptyDetails,discoveryText} from './business-profile-client.js?v=0.21';
+import {confirmationState,matchesSavedProfile,detailLists,emptyDetails,discoveryText} from './business-profile-client.js?v=0.22';
 import {createArtifactFeed, renderArtifacts} from './workspace-data.js?v=0.4';
 import {createActionClient, recommendationControls} from './workspace-actions.js?v=0.4';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
@@ -214,4 +214,4 @@ async function saveWorkspace(event) {
 }
 $('workspaceForm').addEventListener('submit',saveWorkspace);
 
-function renderChannelGate(){const link=$('internalProduct'),ready=!!businessConfirmation?.confirmed;link.hidden=false;link.classList.toggle('channel-pending',!ready);link.setAttribute('aria-disabled',String(!ready||!permanentId));link.textContent=ready?'Google Ads':'◷ Google Ads';link.title=!ready?'Esmalt kinnita ettevõtte info.':!permanentId?'Adhalla peab esmalt kinnitama sinu klienditööruumi.':'Ava kampaaniad';link.href=permanentId?'campaigns.html?client='+permanentId+'&release=0.21':'#business';link.onclick=e=>{if(!ready||!permanentId){e.preventDefault();message(!ready?'Vaata ettevõtte info üle ja kinnita see, et avada reklaamide tööruum.':'Ettevõtte info on kinnitatud. Adhalla seob sinu tööruumi enne reklaamide seadistamist.');}};$('dataReports').hidden=!permanentId;const more=$('businessReview');if(more)more.hidden=!ready&&!discoveryJob?.candidate&&!fields.slice(2).some(k=>$(k).value.trim());}
+function renderChannelGate(){const link=$('internalProduct'),ready=!!businessConfirmation?.confirmed;link.hidden=false;link.classList.toggle('channel-pending',!ready);link.setAttribute('aria-disabled',String(!ready||!permanentId));link.textContent=ready?'Google Ads':'◷ Google Ads';link.title=!ready?'Esmalt kinnita ettevõtte info.':!permanentId?'Adhalla peab esmalt kinnitama sinu klienditööruumi.':'Ava kampaaniad';link.href=permanentId?'campaigns.html?client='+permanentId+'&release=0.22':'#business';link.onclick=e=>{if(!ready||!permanentId){e.preventDefault();message(!ready?'Vaata ettevõtte info üle ja kinnita see, et avada reklaamide tööruum.':'Ettevõtte info on kinnitatud. Adhalla seob sinu tööruumi enne reklaamide seadistamist.');}};$('dataReports').hidden=!permanentId;const more=$('businessReview');if(more)more.hidden=!ready&&!discoveryJob?.candidate&&!fields.slice(2).some(k=>$(k).value.trim());}
