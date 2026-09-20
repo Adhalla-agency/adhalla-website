@@ -1,9 +1,11 @@
-import './dialogs.js?v=0.24';
+import './dialogs.js?v=0.25';
+import {understandingWorkflow} from './understanding.js?v=0.25';
 // Optional context only. No answer is an approval or an execution command.
 export function questionsWorkflow(root,api,base,clientId,{auto=true}={}){
  let alive=true,busy=false,dialog=null,latest=null,index=0,values={};
  const n=(t,s)=>{const e=document.createElement(t);if(s)e.textContent=s;return e;};
  const next=n('button','Järgmine küsimus'),status=n('span');next.type='button';next.className='quiet';status.setAttribute('role','status');root.replaceChildren(next,status);
+ const understanding=understandingWorkflow(root,api,base,clientId);
  function close(){dialog?.close();dialog?.remove();dialog=null;}
  function modal(title){close();dialog=n('dialog');dialog.className='product-modal question-modal';dialog.setAttribute('aria-label',title);const top=n('div');top.className='modal-top';const x=n('button','Sulge');x.type='button';x.onclick=close;top.append(n('h2',title),x);dialog.append(top,n('p','Vastamine on vabatahtlik. Võid akna sulgeda ja tavapäraselt jätkata.'));document.body.append(dialog);dialog.showModal();const opened=dialog;opened.addEventListener('close',()=>opened.remove(),{once:true});return dialog;}
  function key(){return 'adhalla-questions:'+clientId+':'+latest?.report?.run_id;}
@@ -41,5 +43,5 @@ export function questionsWorkflow(root,api,base,clientId,{auto=true}={}){
  const timer=auto?setInterval(checkWeekly,300000):null;
  const visible=()=>{if(!document.hidden)checkWeekly();};
  document.addEventListener('visibilitychange',visible);window.addEventListener('focus',checkWeekly);
- return {destroy(){alive=false;clearInterval(timer);document.removeEventListener('visibilitychange',visible);window.removeEventListener('focus',checkWeekly);close();root.replaceChildren();}};
+ return {destroy(){alive=false;understanding.destroy();clearInterval(timer);document.removeEventListener('visibilitychange',visible);window.removeEventListener('focus',checkWeekly);close();root.replaceChildren();}};
 }
