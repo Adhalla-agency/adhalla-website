@@ -23,16 +23,17 @@ export function mountSearch(parent,changed){
  invalidate(key){const maps={daily_budget:'budget',currency:'budget',max_cpc:'budget',locations:'locations',keywords:'initial_keywords',negative_keywords:'initial_negatives',constraints:'restrictions',strategy_notes:'strategy_notes',eu_political_ads:'political_advertising'};if(checks[maps[key]])checks[maps[key]].checked=false;}};
 }
 
-export function renderSearchProposal(root,original){
+export function renderSearchProposal(root,original,{regenerate=()=>{},changed=()=>{}}={}){
  const value=structuredClone(original);const name=field(root,'Kampaania nimi',value.campaign_name);name.readOnly=true;
  const rationale=field(root,'Plaani põhjendus',value.rationale,{kind:'textarea',max:2000});
  const roles=[['offer','Pakkumine'],['intent','Otsingu kavatsus'],['business','Ettevõte'],['differentiator','Eristuvus'],['benefit','Kasu'],['call_to_action','Üleskutse'],['practical_detail','Praktiline teave']];
- const groups=value.ad_groups.map(g=>{
+ function creative(el,target){const wrapper=el.parentElement,box=n('div');box.className='creative-item';wrapper.before(box);box.append(wrapper);const tools=n('div');tools.className='toolbar';const reject=n('button','× Eemalda'),generate=n('button','Paku uus');reject.type=generate.type='button';reject.setAttribute('aria-label','Eemalda '+wrapper.firstChild.textContent);reject.onclick=()=>{el.value='';box.classList.add('rejected');changed();};generate.onclick=()=>regenerate(target);tools.append(reject,generate);box.append(tools);el.addEventListener('input',()=>box.classList.remove('rejected'));return el;}
+ const groups=value.ad_groups.map((g,groupIndex)=>{
   const box=n('section');box.className='ad-group';root.append(box);box.append(n('h3',g.name));
   const name=field(box,'Reklaamirühma nimi',g.name,{max:100}),intent=field(box,'Millisele otsingu soovile see vastab?',g.intent,{max:600});
   box.append(n('h4','Pealkirjade valik · kuni 30 märki'));
-  const headlines=g.headlines.map((s,i)=>({text:field(box,'Pealkiri '+(i+1),s,{max:30}),role:field(box,'Pealkirja ülesanne',g.headline_roles[i],{choices:roles})}));
-  box.append(n('h4','Kirjeldused · kuni 90 märki'));const descriptions=g.descriptions.map((s,i)=>field(box,'Kirjeldus '+(i+1),s,{max:90}));
+  const headlines=g.headlines.map((s,i)=>({text:creative(field(box,'Pealkiri '+(i+1),s,{max:30}),{kind:'headlines',group:groupIndex,index:i}),role:field(box,'Pealkirja ülesanne',g.headline_roles[i],{choices:roles})}));
+  box.append(n('h4','Kirjeldused · kuni 90 märki'));const descriptions=g.descriptions.map((s,i)=>creative(field(box,'Kirjeldus '+(i+1),s,{max:90}),{kind:'descriptions',group:groupIndex,index:i}));
   const ads=g.ads.map((ad,index)=>{const card=n('details');card.append(n('summary','Reklaam '+(index+1)+' · '+ad.angle));box.append(card);const angle=field(card,'Sõnumi rõhuasetus',ad.angle,{max:400}),path1=field(card,'Kuvatava aadressi osa 1',ad.path1,{max:15}),path2=field(card,'Kuvatava aadressi osa 2',ad.path2,{max:15});
    function choices(label,pool,selected){card.append(n('h4',label));return pool.map((text,i)=>{const l=n('label'),c=n('input');c.type='checkbox';c.checked=selected.includes(i);l.append(c,document.createTextNode(' '+(i+1)+'. '+text));card.append(l);return c;});}
    const h=choices('Vali 10–15 pealkirja',g.headlines,ad.headline_indices),d=choices('Vali 2–4 kirjeldust',g.descriptions,ad.description_indices);
@@ -46,10 +47,10 @@ export function renderSearchProposal(root,original){
  });
  const negative=field(root,'Välistused · üks rea kohta',value.negative_keywords.join('\n'),{kind:'textarea'});
  const assetBox=n('details');assetBox.append(n('summary','Lisalingid ja lisateave'));root.append(assetBox);
- const links=value.assets.sitelinks.map(x=>{const b=n('div');assetBox.append(b);return Object.fromEntries(Object.entries(x).map(([k,v])=>[k,field(b,({text:'Lingi tekst',description1:'Kirjeldus 1',description2:'Kirjeldus 2',url:'Kinnitatud lehe aadress'})[k],v)]));});
- const callouts=field(assetBox,'Lühieelised · üks rea kohta',value.assets.callouts.join('\n'),{kind:'textarea'});
- const snippets=value.assets.structured_snippets.map(s=>({header:field(assetBox,'Teabeloendi pealkiri',s.header),values:field(assetBox,'Teabeloendi väärtused · üks rea kohta',s.values.join('\n'),{kind:'textarea'})}));
+ const links=value.assets.sitelinks.map((x,i)=>{const b=n('div');assetBox.append(b);return Object.fromEntries(Object.entries(x).map(([k,v])=>{const el=field(b,({text:'Lingi tekst',description1:'Kirjeldus 1',description2:'Kirjeldus 2',url:'Kinnitatud lehe aadress'})[k],v);if(k==='text')creative(el,{kind:'sitelinks',group:null,index:i});return [k,el];}));});
+ const callouts=value.assets.callouts.map((s,i)=>creative(field(assetBox,'Lühieelis '+(i+1),s,{max:25}),{kind:'callouts',group:null,index:i}));
+ const snippets=value.assets.structured_snippets.map((s,i)=>({header:field(assetBox,'Teabeloendi pealkiri',s.header),values:creative(field(assetBox,'Teabeloendi väärtused · üks rea kohta',s.values.join('\n'),{kind:'textarea'}),{kind:'structured_snippets',group:null,index:i})}));
  if(value.assumptions.length){root.append(n('h3','Eeldused ja lahtised küsimused'));for(const a of value.assumptions)root.append(n('p',a));}
  const lines=s=>s.split('\n').map(x=>x.trim()).filter(Boolean);
- return ()=>({...value,rationale:rationale.value.trim(),ad_groups:groups.map(read=>read()),negative_keywords:lines(negative.value),assets:{sitelinks:links.map(x=>Object.fromEntries(Object.entries(x).map(([k,e])=>[k,e.value.trim()]))),callouts:lines(callouts.value),structured_snippets:snippets.map(s=>({header:s.header.value.trim(),values:lines(s.values.value)}))}});
+ return ()=>({...value,rationale:rationale.value.trim(),ad_groups:groups.map(read=>read()),negative_keywords:lines(negative.value),assets:{sitelinks:links.map(x=>Object.fromEntries(Object.entries(x).map(([k,e])=>[k,e.value.trim()]))),callouts:callouts.map(e=>e.value.trim()),structured_snippets:snippets.map(s=>({header:s.header.value.trim(),values:lines(s.values.value)}))}});
 }

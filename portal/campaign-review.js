@@ -9,7 +9,7 @@ export function clientReview(root,state,api,route,clientId,refresh,{dirty=false}
   const b=n('button',label);b.type='button';b.className='secondary';b.disabled=dirty||['queued','running','limited'].includes(state.generation?.status);controls.push(b);root.append(b);
   b.onclick=async()=>{controls.forEach(c=>c.disabled=true);message.textContent='Salvestan…';try{await api.write(route+'review',{client_id:clientId,proposal_version:state.proposal.version,decision});message.textContent=decision==='confirm'?'Sisu kinnitatud. Loomine läbib eraldi paketi- ja tegevusõiguse kontrolli.':'✓ Soov saadetud Adhallale.';await refresh();}catch(e){message.textContent=e.message;controls.forEach(c=>c.disabled=dirty);}};
  }
- root.append(message);const review=state.content_review;if(!review)return;
+ const help=n('details');help.className='field-help';help.append(n('summary','? Mida tähendab arutelu Adhallaga?'),n('p','Soovituslik 30–60 minuti veebikohtumine, kus töötaja aitab kampaania ülesehituse, sihtimise ja sisu läbi vaadata. Adhalla pakub kuni kolm aega ning sina valid sobiva.'));root.append(help,message);const review=state.content_review;if(!review)return;
  const same=review.proposal_version===state.proposal.version&&review.brief_version===state.brief?.version;
  root.append(n('p',(labels[review.kind]||'Taotlus')+' · '+(states[review.status]||review.status)+(same?'':' · varasema sisu kohta')));
  if(review.selected_slot)root.append(n('p','Valitud aeg: '+new Date(review.selected_slot.start).toLocaleString('et-EE')+' · '+review.selected_slot.minutes+' min'));

@@ -14,7 +14,7 @@ export const detailLists=['products_services','positioning','business_facts','lo
 export function emptyDetails(){return {...Object.fromEntries(detailLists.map(key=>[key,[]])),logo_url:'',phone:'',phone_opt_in:false};}
 export function discoveryText(job){
  if(!job)return 'Salvesta ettevõtte nimi ja veebileht. Leitud info saad enne kasutamist üle vaadata.';
- return ({queued:'Veebilehe uuring on järjekorras. Tulemus ilmub siia automaatselt.',running:'Koostan veebilehe põhjal ettepanekuid…',
+ return ({queued:'Adhalla mõtleb… Veebilehe analüüs ja ettevõtteinfo koostamine võib võtta kuni 5 minutit. Võid vahepeal mujale liikuda.',running:'Adhalla mõtleb… Koostame ettevõtteinfo ettepanekut. See võib võtta kuni 5 minutit; võid vahepeal mujale liikuda.',
  completed:'Ettepanekud on valmis. Too need vormi, kontrolli ja paranda enne kinnitamist.',
  failed:'Veebilehe uuring ei õnnestunud. Võid uuesti proovida või info ise täita.',
  stale:'Ettevõtte info muutus. Käivita uuring uuesti salvestatud andmetega.',
