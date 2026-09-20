@@ -1,14 +1,14 @@
-import './dialogs.js?v=0.25.1';
+import './dialogs.js?v=0.26';
 const n=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const labels={campaign_content_confirmation:'Kliendi sisukinnitus',campaign_review:'Kampaania ülevaatus',campaign_consultation:'Kampaania konsultatsioon',measurement_setup:'Mõõtmise seadistamise abi'};
 const states={content_confirmed:'Sisu kliendi poolt kinnitatud',unassigned:'Ootab Adhallat',in_progress:'Töös',awaiting_client:'Vali konsultatsiooni aeg',scheduled:'Konsultatsiooni aeg valitud',completed:'Lõpetatud',declined:'Tagasi lükatud'};
-export function clientReview(root,state,api,route,clientId,refresh,{dirty=false}={}){
- root.replaceChildren();if(!state.proposal)return;
+export function clientReview(root,state,api,route,clientId,refresh,{dirty=false,beforeDecision=async()=>state}={}){
+ root.replaceChildren();if(!state.proposal||state.proposal.brief_version!==state.brief?.version)return;
  root.append(n('h3','Kuidas soovid edasi minna?'),n('p','Sa ei pea kõike ise teadma. Võid kinnitada sisu, paluda Adhalla ülevaatust või arutada kampaania koos läbi. Ükski neist valikutest ei käivita reklaame.'));
  const message=n('p');message.setAttribute('role','status');const controls=[];
  for(const [decision,label]of [['confirm','Kinnitan reklaami sisu'],['worker_review','Saada Adhallale ülevaatuseks'],['consultation','Soovin 30–60 min konsultatsiooni'],['tracking_help','Vajan mõõtmise seadistamise abi']]){
   const b=n('button',label);b.type='button';b.className='secondary';b.disabled=dirty||['queued','running','limited'].includes(state.generation?.status);controls.push(b);root.append(b);
-  b.onclick=async()=>{controls.forEach(c=>c.disabled=true);message.textContent='Salvestan…';try{await api.write(route+'review',{client_id:clientId,proposal_version:state.proposal.version,decision});message.textContent=decision==='confirm'?'Sisu kinnitatud. Loomine läbib eraldi paketi- ja tegevusõiguse kontrolli.':'✓ Soov saadetud Adhallale.';await refresh();}catch(e){message.textContent=e.message;controls.forEach(c=>c.disabled=dirty);}};
+  b.onclick=async()=>{controls.forEach(c=>c.disabled=true);message.textContent='Salvestan…';try{const current=await beforeDecision();await api.write(route+'review',{client_id:clientId,proposal_version:current.proposal.version,decision});await refresh();const done=n('p',decision==='confirm'?'✓ Reklaamisisu on salvestatud ja Adhallale kinnitamiseks saadetud.':'✓ Soov ja reklaamisisu on Adhallale saadetud.');done.setAttribute('role','status');root.prepend(done);}catch(e){message.textContent=e.message;controls.forEach(c=>c.disabled=dirty);}};
  }
  const help=n('details');help.className='field-help';help.append(n('summary','? Mida tähendab arutelu Adhallaga?'),n('p','Soovituslik 30–60 minuti veebikohtumine, kus töötaja aitab kampaania ülesehituse, sihtimise ja sisu läbi vaadata. Adhalla pakub kuni kolm aega ning sina valid sobiva.'));root.append(help,message);const review=state.content_review;if(!review)return;
  const same=review.proposal_version===state.proposal.version&&review.brief_version===state.brief?.version;
