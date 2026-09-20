@@ -7,3 +7,19 @@
 @media(max-width:600px){.product-head{flex-direction:column}.product-head>div:first-child{flex:auto;width:100%}.product-head h1{font-size:2rem}.head-actions{width:100%;justify-content:flex-start}.event-marker{font-size:.6rem}.separate-campaigns{grid-template-columns:1fr}.calendar-legend{display:block;font-size:.7rem}}
 
 .future-channel{display:block;padding:.7rem 1rem;color:var(--muted);font-size:.85rem}.creative-item input{width:100%}
+
+/* Explicit light modal surfaces prevent the legacy dark dialog gradient from
+   inheriting light-page ink. Questions intentionally retain the brand dark theme. */
+dialog.product-modal,dialog#newCampaignDialog,dialog#campaignStatusDialog,dialog#requestDialog{background:#fff;color:#291737}
+dialog.product-modal :is(h2,h3,h4,label,summary,strong),dialog#newCampaignDialog :is(h2,label),dialog#campaignStatusDialog :is(h2,h3,label){color:#291737}
+dialog.product-modal :is(p,small,.note){color:#665c6e}
+dialog.question-modal{background:#201329;color:#fff5d7}
+dialog.question-modal :is(h2,h3,label,.question-progress){color:#ffdc83}
+dialog.question-modal :is(p,small,.note){color:#ded3e5}
+dialog.question-modal :is(input,textarea,select){background:#fff;color:#291737}
+dialog button{position:static;font-size:1rem}dialog :is(input,textarea,select){color:#291737;background:#fff}
+.campaign-ready{background:#fff9e6;border-color:#d8b653}.campaign-ready .campaign-badge{color:#76530e}
+.campaign-pending,.campaign-attention{background:#fff0ed;border-color:#d9a29a}.campaign-pending .campaign-badge,.campaign-attention .campaign-badge{color:#92382f}
+.creative-feedback{color:#60466e!important;background:#f3edf7;padding:.6rem;border-radius:8px;line-height:1.5}.creative-feedback:empty{display:none}
+.report-prose{line-height:1.65}.report-prose h3{margin-top:1.3rem}.report-detail-link{display:inline-block;margin-top:1rem}
+input[readonly]{background:#f5f2f7;color:#63596b;cursor:default}

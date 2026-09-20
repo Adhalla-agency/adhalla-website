@@ -1,4 +1,5 @@
-import {reportEvents,calendar} from './timeline.js?v=0.21';
+import {reportLink,renderReport} from './report-content.js?v=0.22';
+import {reportEvents,calendar} from './timeline.js?v=0.22';
 const n=(t,s)=>{const e=document.createElement(t);if(s!==undefined)e.textContent=s;return e;};
 const labels={impressions:'Näitamised',clicks:'Klikid',cost:'Reklaamikulu',conversions:'Konversioonid',conversion_value:'Omistatud konversiooniväärtus'};
 export async function channelReports(root,api,base){
@@ -11,11 +12,8 @@ export async function channelReports(root,api,base){
    body.append(n('h3',(report.cadence==='monthly'?'Monthly Review · ':'')+report.period.start+' – '+report.period.end),n('p','Google Adsi väljavõte salvestatud ettevõtte ülevaatest. Kogu ettevõtte hinnang asub Äri ülevaates.'));
    const facts=report.evidence?.observed_facts||[],rows=facts.filter(f=>f.id.startsWith('google_ads.current.')&&labels[f.id.split('.').at(-1)]);
    const grid=n('div');grid.className='metric-grid';for(const fact of rows){const tile=n('article');tile.className='metric-tile';tile.append(n('span',labels[fact.id.split('.').at(-1)]),n('strong',new Intl.NumberFormat('et-EE',{maximumFractionDigits:2}).format(fact.value)));grid.append(tile);}body.append(grid);if(!rows.length)body.append(n('p','Google Adsi mõõdikuid selles aruandes ei kinnitatud. Puuduv info ei tähenda nulli.'));
-   const adsRelated=item=>(item.evidence_refs||[]).some(ref=>ref.startsWith('FACT:google_ads.'));
-   for(const item of (report.interpretations||[]).filter(adsRelated))body.append(n('p',item.text));
-   const recs=(report.recommendations||[]).filter(adsRelated);if(recs.length)body.append(n('h3','Reklaamide järgmised sammud'));for(const item of recs)body.append(n('h4',item.title),n('p',item.rationale));
    body.append(n('p','Konversioonid ja nende omistatud väärtus ei kinnita iseenesest müüki ega kasumit. Arvud säilitavad aruandeaegse seisu.'));
-   const detail=n('details');detail.className='advanced-section';detail.append(n('summary','Allikad ja piirangud'));for(const f of facts.filter(f=>f.id.startsWith('google_ads.')))detail.append(n('p',f.statement+': '+String(f.value)));body.append(detail);
+   const prose=n('section');renderReport(prose,report,{cadence:select.value.split('/')[0],source:'google_ads'});body.append(prose);const link=n('a','Ava selle perioodi mõõdikud ja raport →');link.href=reportLink(report,select.value.split('/')[0],{clientId:base.split('/').at(-1),worker:base.startsWith('/worker/'),source:'google_ads'});body.append(link);const detail=n('details');detail.className='advanced-section';detail.append(n('summary','Allikad ja piirangud'));for(const f of facts.filter(f=>f.id.startsWith('google_ads.')))detail.append(n('p',f.statement+': '+String(f.value)));body.append(detail);
   }
   select.onchange=async()=>{const current=++read;try{const value=await api.read(base+'/'+select.value);if(root.dataset.epoch===epoch&&current===read)render(value.report);}catch(e){if(current===read)body.replaceChildren(n('p',e.message));}};
   // Latest weekly is the default; monthly remains a distinct historical choice.

@@ -67,7 +67,7 @@ export function errorMessage(status,detail={}){
  const label=fields.find(([key])=>key===detail.field)?.[1]||'Lähteülesanne';
  if([401,403].includes(status))return 'Ligipääs puudub või selle toimingu paketiõigus pole lubatud. Sisestatud väljad jäid sellesse vaatesse alles.';
  if(status===409)return 'Vahepeal salvestati uuem versioon. Sinu tekst on alles. Võrdle uuemat salvestust enne oma muudatuste uuesti salvestamist.';
- const messages={campaign_busy:'kampaania kinnitatud töö peab enne muudatuste tegemist lõppema.',positive_decimal:'sisesta positiivne arv kuni kahe komakohaga või jäta tühjaks.',currency:'kasuta kolme tähega koodi, näiteks EUR.',https_url:'sisesta https:// aadress ilma kasutajatunnuste ja # osata.',text_length:'tekst on liiga pikk.',list_limit:'liiga palju ridu või mõni rida ületab 160 märki.',private_content:'eemalda võtmed, paroolid ja privaatsed failiteed. Kui sisestasid tavalist äriteksti, vaata märgitud väli üle.',research_context:'AI abi vajab pakkumist ja sihtgrupi kirjeldust.',research_targeting:'märksõnauuring vajab asukohti ja täpselt üht keelt.',research_pending:'eelmine AI uuring on veel tööjärjekorras.'};
+ const messages={campaign_naming_locked:'kampaania tehnilise nime ja riigikoodi haldab Adhalla adminivaates.',regeneration_stale:'uus tekst vajab praegusele salvestatud lähteülesandele vastavat ettepanekut. Esita muudetud lähteülesanne ülevaatuseks.',regeneration_context:'värsked alusandmed on puudu. Uuenda andmeid ja proovi siis uuesti.',regeneration_limit:'selle kampaania AI uuenduste arv on kasutatud. Käsitsi muutmine jääb võimalikuks.',campaign_busy:'kampaania kinnitatud töö peab enne muudatuste tegemist lõppema.',positive_decimal:'sisesta positiivne arv kuni kahe komakohaga või jäta tühjaks.',currency:'kasuta kolme tähega koodi, näiteks EUR.',https_url:'sisesta https:// aadress ilma kasutajatunnuste ja # osata.',text_length:'tekst on liiga pikk.',list_limit:'liiga palju ridu või mõni rida ületab 160 märki.',private_content:'eemalda võtmed, paroolid ja privaatsed failiteed. Kui sisestasid tavalist äriteksti, vaata märgitud väli üle.',research_context:'AI abi vajab pakkumist ja sihtgrupi kirjeldust.',research_targeting:'märksõnauuring vajab asukohti ja täpselt üht keelt.',research_pending:'eelmine AI uuring on veel tööjärjekorras.'};
  if(messages[detail.error])return label+': '+messages[detail.error]+' Sinu tekst on alles.';
  return status===400?'Toiming ei vasta praegusele tööseisule. Sinu tekst on alles; kontrolli puuduvaid välju ja taotluse seisu.':'Toimingut ei saanud kinnitada. Sinu tekst on alles. Proovi sama toimingut uuesti.';
 }
@@ -88,14 +88,15 @@ export function campaignPresentation(item){
  if(['requested','running'].includes(stop?.status))return {tone:'pending',text:'Peatamise kinnitus ootel'};
  if(['failed','reconciliation_required'].includes(stop?.status))return {tone:'attention',text:'Peatamine pole kinnitatud · vajab kontrolli'};
  const observed=item.google_state?.result;
- if(stop?.status==='completed'&&(!item.google_state?.observed_at||Date.parse(stop.completed_at)>=Date.parse(item.google_state.observed_at)))return {tone:'approved',text:'✓ Peatatud sinu soovil'};
+ if(item.creation&&['unassigned','in_progress'].includes(item.status)&&item.submitted_version===item.brief_version)return {tone:'pending',text:'Muudatus esitatud · ootab Adhalla kinnitust'+(observed?.campaign_status==='ENABLED'?' · senine reklaam on aktiivne':' · senine kampaania on koostatud')};
+ if(stop?.status==='completed'&&(!item.google_state?.observed_at||Date.parse(stop.completed_at)>=Date.parse(item.google_state.observed_at)))return {tone:'ready',text:'Koostatud · peatatud sinu soovil'};
  if(observed?.campaign_status==='ENABLED')return {tone:'approved',text:'Aktiivne · viimane Google Adsi kontroll'};
- if(observed?.campaign_status==='PAUSED')return {tone:'approved',text:'Peatatud · viimane Google Adsi kontroll'};
- if(item.creation)return {tone:'approved',text:'Loodud peatatud olekus · hetkeolukord vajab lugemist'};
+ if(observed?.campaign_status==='PAUSED')return {tone:'ready',text:'Koostatud · Google Adsis peatatud, reklaam ei tööta'};
+ if(item.creation)return {tone:'ready',text:'Koostatud peatatud olekus · hetkeolukord vajab lugemist'};
  const sent=!!item.request_id&&item.status!=='cancelled'&&item.submitted_version===item.brief_version;
  if(!sent)return {tone:'draft',text:item.request_id?'Muudatused salvestatud · ootavad esitamist':item.brief_version?'Salvestatud · veel esitamata':'Veel salvestamata'};
  if(['unassigned','in_progress'].includes(item.status))return {tone:'pending',text:item.status==='in_progress'?'Esitatud · töötaja vaatab üle':'Esitatud · ootab Adhalla kinnitust'};
- if(['approved','generating','awaiting_action','creating_paused','completed'].includes(item.status))return {tone:'approved',text:'✓ Kinnitatud · '+(states[item.status]||item.status)};
+ if(['approved','generating','awaiting_action','creating_paused','completed'].includes(item.status))return {tone:'pending',text:'Kinnitatud · '+(states[item.status]||item.status)};
  return {tone:'attention',text:'Esitatud · '+(states[item.status]||item.status)};
 }
 export function researchPresentation(job,now=Date.now()){

@@ -1,3 +1,4 @@
+import './dialogs.js?v=0.22';
 const n=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const labels={campaign_content_confirmation:'Kliendi sisukinnitus',campaign_review:'Kampaania ülevaatus',campaign_consultation:'Kampaania konsultatsioon',measurement_setup:'Mõõtmise seadistamise abi'};
 const states={content_confirmed:'Sisu kliendi poolt kinnitatud',unassigned:'Ootab Adhallat',in_progress:'Töös',awaiting_client:'Vali konsultatsiooni aeg',scheduled:'Konsultatsiooni aeg valitud',completed:'Lõpetatud',declined:'Tagasi lükatud'};
@@ -22,7 +23,7 @@ export async function workerReviews(root,api,openCampaign){
  const records=await api.read('/worker/service-requests');root.replaceChildren(n('h3','Ülevaatused ja abipalved'));
  for(const row of records.filter(Boolean)){
   const card=n('button',(labels[row.kind]||'Abipalve')+' · klient '+row.client_id+' · '+row.campaign_id+' · '+(states[row.status]||row.status));card.type='button';card.className='ticket-card';root.append(card);
-  card.onclick=async()=>{const record=await api.read('/worker/service-requests/'+row.request_id),dialog=n('dialog'),close=n('button','Sulge');close.type='button';close.onclick=()=>{dialog.close();dialog.remove();};dialog.addEventListener('cancel',()=>dialog.remove(),{once:true});dialog.append(n('h2',labels[record.kind]||'Abipalve'),n('p','Klient '+record.client_id+' · '+record.campaign_id),n('p',states[record.status]||record.status),close);document.body.append(dialog);dialog.showModal();
+  card.onclick=async()=>{const record=await api.read('/worker/service-requests/'+row.request_id),dialog=n('dialog'),close=n('button','Sulge');close.type='button';close.onclick=()=>{dialog.close();dialog.remove();};dialog.className='product-modal';dialog.addEventListener('close',()=>dialog.remove(),{once:true});dialog.append(n('h2',labels[record.kind]||'Abipalve'),n('p','Klient '+record.client_id+' · '+record.campaign_id),n('p',states[record.status]||record.status),close);document.body.append(dialog);dialog.showModal();
    const proposal=record.snapshot.proposal;dialog.append(n('h3',proposal.campaign_name),n('p',proposal.rationale));for(const group of proposal.ad_groups)dialog.append(n('h4',group.name),n('p',group.headlines.join(' · ')),n('p',group.descriptions.join(' · ')));
    dialog.append(n('p','Sisu versioon '+record.proposal_version.slice(0,8)+'. See abipalve ei anna Google’i muutmisõigust.'));
    if(record.snapshot.measurement)dialog.append(n('p','Mõõtmise kontroll: '+record.snapshot.measurement.status+'. Päris teekonna läbimine '+(record.snapshot.measurement.end_to_end_verified?'kinnitatud':'kontrollimata')+'.'));

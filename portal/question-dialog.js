@@ -1,10 +1,11 @@
+import './dialogs.js?v=0.22';
 // Optional context only. No answer is an approval or an execution command.
 export function questionsWorkflow(root,api,base,clientId,{auto=true}={}){
  let alive=true,busy=false,dialog=null,latest=null,index=0,values={};
  const n=(t,s)=>{const e=document.createElement(t);if(s)e.textContent=s;return e;};
  const next=n('button','Järgmine küsimus'),weekly=n('button','Nädala küsimused'),status=n('span');next.type=weekly.type='button';next.className=weekly.className='quiet';weekly.hidden=true;status.setAttribute('role','status');root.replaceChildren(next,weekly,status);
  function close(){dialog?.close();dialog?.remove();dialog=null;}
- function modal(title){close();dialog=n('dialog');dialog.className='product-modal';dialog.setAttribute('aria-label',title);const top=n('div');top.className='modal-top';const x=n('button','Sulge');x.type='button';x.onclick=close;top.append(n('h2',title),x);dialog.append(top,n('p','Vastamine on vabatahtlik. Võid akna sulgeda ja tavapäraselt jätkata.'));document.body.append(dialog);dialog.showModal();const opened=dialog;opened.addEventListener('close',()=>opened.remove(),{once:true});return dialog;}
+ function modal(title){close();dialog=n('dialog');dialog.className='product-modal question-modal';dialog.setAttribute('aria-label',title);const top=n('div');top.className='modal-top';const x=n('button','Sulge');x.type='button';x.onclick=close;top.append(n('h2',title),x);dialog.append(top,n('p','Vastamine on vabatahtlik. Võid akna sulgeda ja tavapäraselt jätkata.'));document.body.append(dialog);dialog.showModal();const opened=dialog;opened.addEventListener('close',()=>opened.remove(),{once:true});return dialog;}
  function key(){return 'adhalla-questions:'+clientId+':'+latest?.report?.run_id;}
  function seen(){try{localStorage.setItem(key(),'seen');}catch{}}
  function renderWeekly(){if(!alive||!latest?.report)return;const report=latest.report,q=report.questions[index];if(!q){close();status.textContent='Aitäh! Küsimuste ring on lõpetatud.';return;}
