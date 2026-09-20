@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="../assets/adhalla-logo.png">
   <link rel="stylesheet" href="styles.css?v=0.2">
   <link rel="stylesheet" href="workspace.css?v=0.4">
-</head>
+<link rel="stylesheet" href="product.css?v=0.21"></head>
 <body>
   <section class="auth-gate" id="authGate" aria-labelledby="welcomeTitle">
     <div class="auth-card">
@@ -28,7 +28,7 @@
     <aside class="sidebar">
       <a class="brand" href="/"><img src="../assets/adhalla-logo.png" alt=""><span>ADHALLA</span></a>
       <div class="client-chip"><div><strong>Minu tööruum</strong><small>Ettevõtte ülevaade</small></div></div>
-      <nav aria-label="Tööruum"><a href="#business" class="active">Ettevõtte info</a><a href="#sources">Andmed ja kindlus</a><a href="#interpretation">Tõlgendus</a><a id="businessOverview" href="business.html?release=0.17" hidden>Äri ülevaade ja nädalakokkuvõtted</a><a href="clients.html?release=0.17">Admin · kliendid</a><a id="internalProduct" href="campaigns.html" hidden>Adhalla · Google Ads töölaud</a></nav>
+      <nav aria-label="Tööruum"><a href="#business" class="active">Ettevõtte info</a><a id="businessOverview" href="business.html?release=0.17" hidden>Äri ülevaade</a><a id="dataReports" href="data.html">Andmed ja raportid</a><a id="workerDirectory" href="clients.html?release=0.21" hidden>Admin · kliendid</a><a id="internalProduct" href="campaigns.html" hidden>Google Ads</a><span class="future-channel">Meta · tulekul</span><span class="future-channel">TikTok · tulekul</span><span class="future-channel">LinkedIn · tulekul</span></nav>
       <div class="side-foot"><small>Adhalla · varajane ligipääs</small><strong>Kasvame koos sinu ettevõttega.</strong></div>
     </aside>
     <main class="workspace-main">
@@ -36,20 +36,20 @@
         <div><div class="eyebrow">MINU ETTEVÕTE</div><h1 id="businessName">Minu ettevõte</h1></div>
         <div class="account"><div class="user"><div><strong id="userName"></strong><small id="userEmail"></small></div></div><button id="signOut" class="sign-out">Logi välja</button></div>
       </header>
-      <section class="state-card" aria-label="Ettevõtte mõistmine ja andmete kindlus">
+      <section class="state-card" hidden aria-label="Ettevõtte mõistmine ja andmete kindlus">
         <div><div class="eyebrow">ETTEVÕTTE MÕISTMINE</div><h2>Alustame sinu kontekstist.</h2><p>Täidetud põhiväljad: <strong id="understanding">0 / 6</strong>. Need aitavad Adhallal sinu ettevõtte eesmärke ja olukorda mõista.</p><p class="progress-note">See näitab põhiinfo täielikkust. Sisulise hinnangu saab anda pärast andmete ühendamist.</p></div>
         <div class="confidence"><small>Andmete kindlus</small><strong id="confidence">Kinnitatud andmeid veel pole</strong><p class="progress-note" id="confidenceNote">Kindlust saab hinnata pärast esimeste andmete saabumist.</p></div>
       </section>
       <section class="panel business-panel" id="business" aria-labelledby="businessTitle">
         <div class="eyebrow">ESIMENE SAMM</div><h2 id="businessTitle">Räägi oma ettevõttest</h2>
-        <p>Alustamiseks piisab ettevõtte nimest. Ülejäänut saad igal ajal täiendada.</p>
+        <p>Alustamiseks sisesta ettevõtte nimi ja veebileht. Ülejäänu aitab Adhalla koostada.</p>
         <form id="workspaceForm" class="workspace-form">
           <label>Ettevõtte nimi <input id="name" name="name" autocomplete="organization" maxlength="160" required></label>
           <label>Veebileht <input id="website" name="website" inputmode="url" autocomplete="url" maxlength="500" placeholder="sinufirma.ee"></label>
-          <div class="wide"><button type="button" id="generateBusiness" class="sign-out" disabled>Koosta info veebilehelt</button>
-            <p id="discoveryStatus" role="status">Salvesta ettevõtte nimi ja veebileht. Leitud info saad enne kasutamist üle vaadata.</p>
-            <button type="button" id="applyBusinessCandidate" class="sign-out" hidden>Too ettepanekud vormi</button><p id="discoverySources"></p></div>
-          <label class="wide">Millega ettevõte tegeleb? <textarea id="description" name="description" maxlength="2000" placeholder="Kirjelda ettevõtet paari lausega."></textarea></label>
+          <div class="wide"><button type="button" id="generateBusiness" class="sign-out" disabled>Genereeri ettevõtte info</button>
+            <p id="discoveryStatus" role="status">Sisesta nimi ja veebileht. Adhalla koostab ettepaneku, mille vaatad enne kinnitamist üle.</p>
+            <button type="button" id="applyBusinessCandidate" class="sign-out" hidden>Vaata ettevõtteinfo ettepanek üle</button><p id="discoverySources"></p></div>
+<div id="businessReview" class="wide" hidden><h3>Vaata üle ja täpsusta</h3>          <label class="wide">Millega ettevõte tegeleb? <textarea id="description" name="description" maxlength="2000" placeholder="Kirjelda ettevõtet paari lausega."></textarea></label>
           <label>Mida pakud? <textarea id="offering" name="offering" maxlength="2000" placeholder="Peamised tooted või teenused."></textarea></label>
           <label>Kes on sinu klient? <textarea id="customer" name="customer" maxlength="2000" placeholder="Keda aitad ja millise vajadusega?"></textarea></label>
           <label class="wide">Mis on praegu kõige olulisem eesmärk? <textarea id="objective" name="objective" maxlength="2000" placeholder="Näiteks rohkem sobivaid päringuid või selgem ülevaade reklaami tulemustest."></textarea></label>
@@ -67,7 +67,7 @@
             <label>Telefoninumbri riigikood (näiteks EE)<input id="detail_phone_country" maxlength="2" placeholder="EE"></label>
             <label><input id="detail_phone_opt_in" type="checkbox"> Kinnitan, et number kuulub ettevõttele ja soovime reklaamidest telefonikõnesid.</label>
           </details>
-          <button type="submit" id="saveWorkspace" class="save-button" disabled>Salvesta ettevõtte info</button>
+</div>          <button type="submit" id="saveWorkspace" class="save-button" disabled>Salvesta ettevõtte info</button>
         </form>
         <p class="workspace-status" id="message" role="status" aria-live="polite"></p><p id="promotionStatus" role="status"></p><small id="lastSaved">Veel salvestamata</small>
         <div class="business-confirmation">
@@ -100,6 +100,6 @@
       <footer><span>Adhalla · sinu ettevõtte tööruum</span><a href="../privacy.html">Privaatsus</a></footer>
     </main>
   </div>
-  <script type="module" src="workspace.js?v=0.20"></script>
+  <script type="module" src="workspace.js?v=0.21"></script>
 </body>
 </html>

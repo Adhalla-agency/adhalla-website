@@ -1,6 +1,6 @@
 // Model prose is always text, never HTML. Answers remain bound to one report version.
 import {questionBacklog} from './questions.js?v=0.20';
-export function weeklyView(root,api,{cadence='weekly'}={}){
+export function weeklyView(root,api,{cadence='weekly',showQuestions=false}={}){
  const monthly=cadence==='monthly';
  let data=null,epoch=0,timer=null,shown=null,saving=false;
  const n=(tag,text='',cls='')=>{const e=document.createElement(tag);e.textContent=text;e.className=cls;return e;};
@@ -21,7 +21,7 @@ export function weeklyView(root,api,{cadence='weekly'}={}){
   root.replaceChildren(n('p',monthly?'KUU KOKKUVÕTE':'NÄDALA FOOKUS','eyebrow'),n('h2','Mida andmed sinu ettevõtte kohta ütlevad?'));
   root.append(n('p',value.schedule_enabled?(monthly?'Kokkuvõte valminud kalendrikuust · iga kuu alguses pärast 09.00.':'Uus kokkuvõte esmaspäeviti alates 09.00 Eesti aja järgi. Hilinenud töö võetakse uuesti järjekorda.'):'Automaatne nädalakokkuvõte pole veel sisse lülitatud.','muted'));
   if(!report){const status=value.job?.status;root.append(n('p',status==='running'?'AI koostab kokkuvõtet…':status==='waiting_provider'?'Google’i AI teenus on ajutiselt päringu tagasi lükanud. Järgmine piiratud korduskatse: '+new Date(value.job.retry_at).toLocaleString('et-EE')+'. Uut taotlust pole vaja.':status==='limited'?'Kokkuvõte ootab mudeli kasutuslimiidi vabanemist.':status==='failed'?'Kokkuvõtet ei õnnestunud avaldada. Adhalla saab vea üle vaadata; varasemaid mõõdikuid see ei muuda.':'Esimest nädalakokkuvõtet pole veel.','source-note'));return;}
-  shown=report.run_id;
+  shown=report.run_id;if(monthly){const heading=root.querySelector('h2');if(heading)heading.textContent=new Intl.DateTimeFormat('et-EE',{month:'long',year:'numeric'}).format(new Date(report.period.start+'T12:00:00Z'))+' — Monthly Review';}
   if(value.history?.length>1){const label=n('label',monthly?'Vaata kuud ':'Vaata nädalat '),select=n('select');for(const item of value.history){const option=n('option',item.period.start+' – '+item.period.end);option.value=item.run_id;select.append(option);}select.value=report.run_id;select.onchange=()=>load(select.value);label.append(select);root.append(label);}
   root.append(n('p',report.period.start+' – '+report.period.end+' · koostatud '+new Date(report.generated_at).toLocaleString('et-EE'),'report-dates'));
   const notice=n('p','See on andmetel põhinev AI hinnang. Soovitused ei käivita, peata ega muuda reklaame.','source-note');root.append(notice);
@@ -31,10 +31,10 @@ export function weeklyView(root,api,{cadence='weekly'}={}){
   for(const item of [...report.recommendations].sort((a,b)=>a.priority-b.priority)){const card=n('article','','weekly-item');card.append(n('h4',item.priority+'. '+item.title),n('p',item.rationale));references(card,item.evidence_refs,report);root.append(card);}
   const actions=n('details');actions.append(n('summary','Salvestatud tegevused sel perioodil ('+report.completed_actions.length+')'));
   if(!report.completed_actions.length)actions.append(n('p','Selle perioodi kohta ei ole Adhalla ajaloos lõpetatud tegevusi. See ei ole Google konto täielik muudatuste ajalugu.'));
-  const actionNames={pause_keywords:'märksõna peatatud',add_keywords:'märksõna lisatud',add_negatives:'välistus lisatud',create_ads:'reklaamiversioon loodud',edit_ads:'reklaam uuendatud',adjust_budget:'eelarve muudetud',change_bidding_strategy:'pakkumisstrateegia muudetud',activate_campaign:'kampaania käivitatud',experiment_review:'katse hinnang salvestatud'};
+  const actionNames={pause_campaign:'kampaania peatatud kliendi soovil',pause_keywords:'märksõna peatatud',add_keywords:'märksõna lisatud',add_negatives:'välistus lisatud',create_ads:'reklaamiversioon loodud',edit_ads:'reklaam uuendatud',adjust_budget:'eelarve muudetud',change_bidding_strategy:'pakkumisstrateegia muudetud',activate_campaign:'kampaania käivitatud',experiment_review:'katse hinnang salvestatud'};
   for(const item of report.completed_actions)actions.append(n('p',item.campaign+' · '+(item.state==='rolled_back'?'muudatus tagasi pööratud':actionNames[item.action]||'loodud peatatud olekus')+' · '+new Date(item.at).toLocaleString('et-EE')));root.append(actions);
   const gaps=n('details');gaps.append(n('summary','Mida me veel kindlalt ei tea?'));for(const item of report.missing_information)gaps.append(n('p',item.label));for(const item of report.evidence.cautions)gaps.append(n('p',item.statement));root.append(gaps);
-  if(monthly)return;
+  if(monthly||!showQuestions)return;
   root.append(n('h3','Vabatahtlikud küsimused järgmise nädala paremaks otsuseks'),n('p','Võid vastata kõigile, osale või jätta kõik vahele. Vastused lähevad järgmise kokkuvõtte konteksti; need ei anna reklaamide muutmiseks luba.','muted'));
   const form=n('form','','weekly-questions'),fields={};
   for(const q of report.questions){const label=n('label',q.question),input=n('textarea');input.rows=3;input.maxLength=1500;input.value=value.answers?.answers.find(a=>a.id===q.id)?.answer||'';fields[q.id]=input;label.append(input,n('small',q.why));form.append(label);}
@@ -49,5 +49,5 @@ export function weeklyView(root,api,{cadence='weekly'}={}){
  }
  async function load(id){const capture=epoch;try{const value=await api.read(base+'/'+cadence+(id?'/'+id:''));if(capture!==epoch)return;render(value);clearTimeout(timer);if(!value.report&&value.schedule_enabled&&value.job?.status!=='failed')timer=setTimeout(()=>load(),30000);}
   catch(error){if(capture!==epoch)return;root.replaceChildren(n('h2','Nädalaülevaade'),n('p',error.message));}}
- return {reset,load,setScope};
+ return {reset,load,setScope,render};
 }

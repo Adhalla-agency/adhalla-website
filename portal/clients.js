@@ -5,10 +5,12 @@ import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.
 const $=id=>document.getElementById(id),api=createCampaignClient();let epoch=0,selection=0,busy=false;
 const node=(tag,text='')=>{const e=document.createElement(tag);e.textContent=text;return e;};
 const labels={unreviewed:'Ülevaatamata',discovery:'Üle vaadatud',approved:'Piloodiks kinnitatud',promoted:'Püsiklient'};
+let requestedClient=new URLSearchParams(location.search).get('client');
 function message(error){return error.status===403?'Selleks puudub Adhalla kliendihalduse õigus.':error.status===400?'Kontrolli ettevõtte veebiaadressi, valitud sammu ja kinnitust. Andmed võisid vahepeal muutuda; ava tööruum uuesti.':error.message;}
 async function load(){const capture=epoch;$('status').textContent='Laadin…';try{const rows=await api.read('/worker/workspaces');if(capture!==epoch)return;$('list').replaceChildren();
  for(const row of rows){const b=node('button');b.append(node('strong',(row.client_id?row.client_id+' · ':'')+(row.name||'Nimeta tööruum')),node('small',labels[row.status]||row.status));b.onclick=()=>open(row.workspace_id);$('list').append(b);}
  $('status').textContent=rows.length?rows.length+' tööruumi.':'Väliste ettevõtete tööruume pole veel. Klient registreerub portaali kaudu ja salvestab ettevõtte info. 0000 jääb eraldi kaitstud sisekliendiks.';
+ if(requestedClient){const selected=rows.find(r=>r.client_id===requestedClient);requestedClient=null;if(selected)await open(selected.workspace_id);}
  }catch(e){if(capture===epoch)$('status').textContent=message(e);}}
 async function open(id){const capture=epoch,pick=++selection;busy=false;$('content').replaceChildren();$('detailStatus').textContent='Laadin ülevaatust…';if(!$('detail').open)$('detail').showModal();
  try{const review=await api.read('/worker/workspaces/'+encodeURIComponent(id));if(capture!==epoch||pick!==selection)return;const root=$('content'),profile=review.snapshot.business;

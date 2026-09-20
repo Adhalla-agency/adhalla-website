@@ -5,7 +5,7 @@ export function createCampaignClient(fetcher=fetch) {
   async function call(path,body) {
     if(!user)throw Error('Palun logi sisse.');
     const captured=user, generation=epoch, controller=new AbortController();active.add(controller);
-    const timeout=setTimeout(()=>controller.abort(),25000);
+    const timeout=setTimeout(()=>controller.abort(),path.endsWith('/pause')?95000:25000);
     try {
       const token=await captured.getIdToken(true);
       if(generation!==epoch)throw Error('Konto muutus.');
@@ -72,7 +72,7 @@ export function errorMessage(status,detail={}){
  return status===400?'Toiming ei vasta praegusele tööseisule. Sinu tekst on alles; kontrolli puuduvaid välju ja taotluse seisu.':'Toimingut ei saanud kinnitada. Sinu tekst on alles. Proovi sama toimingut uuesti.';
 }
 export const lines=value=>value.split('\n').map(x=>x.trim()).filter(Boolean);
-export const states={superseded:'Koondatud kampaania põhitaotlusega',draft:'Lähteülesanne',rejected:'Tagasi lükatud',unassigned:'Määramata',in_progress:'Töös',approved:'Kinnitatud',generating:'Koostamisel',awaiting_action:'Ootab järgmist sammu',
+export const states={cancelled:'Tühistatud',deleted:'Eemaldatud',superseded:'Koondatud kampaania põhitaotlusega',draft:'Lähteülesanne',rejected:'Tagasi lükatud',unassigned:'Määramata',in_progress:'Töös',approved:'Kinnitatud',generating:'Koostamisel',awaiting_action:'Ootab järgmist sammu',
  creating_paused:'Peatatud kampaania loomisel',reconciliation_required:'Vajab tulemuse kontrolli',running:'Koostamisel',
  awaiting_input:'Ootab lisainfot',completed:'Valmis',failed:'Ebaõnnestus',queued:'Tööjärjekorras',limited:'Ootab AI kasutuspiiri vabanemist'};
 
@@ -84,7 +84,15 @@ export function quotaPresentation(job){
 }
 
 export function campaignPresentation(item){
- const sent=!!item.request_id&&item.submitted_version===item.brief_version;
+ const stop=item.safety_pause;
+ if(['requested','running'].includes(stop?.status))return {tone:'pending',text:'Peatamise kinnitus ootel'};
+ if(['failed','reconciliation_required'].includes(stop?.status))return {tone:'attention',text:'Peatamine pole kinnitatud · vajab kontrolli'};
+ const observed=item.google_state?.result;
+ if(stop?.status==='completed'&&(!item.google_state?.observed_at||Date.parse(stop.completed_at)>=Date.parse(item.google_state.observed_at)))return {tone:'approved',text:'✓ Peatatud sinu soovil'};
+ if(observed?.campaign_status==='ENABLED')return {tone:'approved',text:'Aktiivne · viimane Google Adsi kontroll'};
+ if(observed?.campaign_status==='PAUSED')return {tone:'approved',text:'Peatatud · viimane Google Adsi kontroll'};
+ if(item.creation)return {tone:'approved',text:'Loodud peatatud olekus · hetkeolukord vajab lugemist'};
+ const sent=!!item.request_id&&item.status!=='cancelled'&&item.submitted_version===item.brief_version;
  if(!sent)return {tone:'draft',text:item.request_id?'Muudatused salvestatud · ootavad esitamist':item.brief_version?'Salvestatud · veel esitamata':'Veel salvestamata'};
  if(['unassigned','in_progress'].includes(item.status))return {tone:'pending',text:item.status==='in_progress'?'Esitatud · töötaja vaatab üle':'Esitatud · ootab Adhalla kinnitust'};
  if(['approved','generating','awaiting_action','creating_paused','completed'].includes(item.status))return {tone:'approved',text:'✓ Kinnitatud · '+(states[item.status]||item.status)};
