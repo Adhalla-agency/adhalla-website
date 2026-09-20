@@ -46,10 +46,27 @@
         <form id="workspaceForm" class="workspace-form">
           <label>Ettevõtte nimi <input id="name" name="name" autocomplete="organization" maxlength="160" required></label>
           <label>Veebileht <input id="website" name="website" inputmode="url" autocomplete="url" maxlength="500" placeholder="sinufirma.ee"></label>
+          <div class="wide"><button type="button" id="generateBusiness" class="sign-out" disabled>Koosta info veebilehelt</button>
+            <p id="discoveryStatus" role="status">Salvesta ettevõtte nimi ja veebileht. Leitud info saad enne kasutamist üle vaadata.</p>
+            <button type="button" id="applyBusinessCandidate" class="sign-out" hidden>Too ettepanekud vormi</button><p id="discoverySources"></p></div>
           <label class="wide">Millega ettevõte tegeleb? <textarea id="description" name="description" maxlength="2000" placeholder="Kirjelda ettevõtet paari lausega."></textarea></label>
           <label>Mida pakud? <textarea id="offering" name="offering" maxlength="2000" placeholder="Peamised tooted või teenused."></textarea></label>
           <label>Kes on sinu klient? <textarea id="customer" name="customer" maxlength="2000" placeholder="Keda aitad ja millise vajadusega?"></textarea></label>
           <label class="wide">Mis on praegu kõige olulisem eesmärk? <textarea id="objective" name="objective" maxlength="2000" placeholder="Näiteks rohkem sobivaid päringuid või selgem ülevaade reklaami tulemustest."></textarea></label>
+          <details class="wide"><summary>Ettevõtte täpsem info, olulised lehed ja kontakt</summary>
+            <p>Täpsustused kinnitad koos ettevõtteinfo põhiväljadega. Veebist leitu on ettepanek, mitte kontrollitud fakt.</p>
+            <label>Tooted ja teenused · üks rea kohta<textarea id="detail_products_services"></textarea></label>
+            <label>Positsioneerimine · kelle jaoks ja mille poolest eristud<textarea id="detail_positioning"></textarea></label>
+            <label>Ettevõtte faktid · ainult väited, mida saad kinnitada<textarea id="detail_business_facts"></textarea></label>
+            <label>Asukohad ja teeninduspiirkonnad<textarea id="detail_locations"></textarea></label>
+            <label>Kasu kliendile ja väärtuspakkumine<textarea id="detail_value_propositions"></textarea></label>
+            <label>Kuidas klient saab osta, broneerida või ühendust võtta<textarea id="detail_conversion_paths"></textarea></label>
+            <label>Oluliste toote-, teenuse- ja kontaktilehtede aadressid · üks rea kohta<textarea id="detail_relevant_pages"></textarea></label>
+            <label>Logo avalik aadress<input id="detail_logo_url" maxlength="1500" inputmode="url"></label>
+            <label>Ettevõtte telefon<input id="detail_phone" maxlength="40" type="tel"></label>
+            <label>Telefoninumbri riigikood (näiteks EE)<input id="detail_phone_country" maxlength="2" placeholder="EE"></label>
+            <label><input id="detail_phone_opt_in" type="checkbox"> Kinnitan, et number kuulub ettevõttele ja soovime reklaamidest telefonikõnesid.</label>
+          </details>
           <button type="submit" id="saveWorkspace" class="save-button" disabled>Salvesta ettevõtte info</button>
         </form>
         <p class="workspace-status" id="message" role="status" aria-live="polite"></p><p id="promotionStatus" role="status"></p><small id="lastSaved">Veel salvestamata</small>
@@ -83,6 +100,6 @@
       <footer><span>Adhalla · sinu ettevõtte tööruum</span><a href="../privacy.html">Privaatsus</a></footer>
     </main>
   </div>
-  <script type="module" src="workspace.js?v=0.19"></script>
+  <script type="module" src="workspace.js?v=0.20"></script>
 </body>
 </html>

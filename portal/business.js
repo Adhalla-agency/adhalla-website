@@ -1,17 +1,18 @@
+import {measurementChain} from './measurement-chain.js?v=0.20';
 import {firebaseConfig} from './firebase-config.js';
-import {weeklyView} from './weekly.js?v=0.17';
+import {weeklyView} from './weekly.js?v=0.20';
 import {createCampaignClient} from './campaigns-client.js?v=0.16';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id),api=createCampaignClient();
 let base='/internal/clients/0000',route=base+'/metrics';
-const weekly=weeklyView($('weekly'),api);
+const weekly=weeklyView($('weekly'),api),monthly=weeklyView($('monthly'),api,{cadence:'monthly'});
 let epoch=0,timer=null,current=null,submitting=false;
 const node=(tag,text,cls='')=>{const e=document.createElement(tag);e.textContent=text;e.className=cls;return e;};
 const number=(v,currency)=>v===null||v===undefined?'—':new Intl.NumberFormat('et-EE',currency?{style:'currency',currency,maximumFractionDigits:2}:{maximumFractionDigits:2}).format(v);
 const dates=p=>p.start+' – '+p.end;
 function clear(){clearInterval(timer);timer=null;current=null;submitting=false;$('business').hidden=true;$('gate').hidden=false;$('metrics').replaceChildren();$('readStatus').textContent='';$('start').value='';$('end').value='';}
-function render(data){current=data;$('clientIdentity').textContent=(data.name||'Ettevõte')+' · '+data.client_id;$('clientKind').textContent=data.client_id==='0000'?'KAITSTUD SISEKLIENT':'ETTEVÕTTE ÜLEVAADE';$('campaignLink').hidden=data.client_id!=='0000';const job=data.job,pending=job&&['queued','running'].includes(job.status);$('loadMetrics').disabled=submitting||pending||data.sources_ready===false;
+function render(data){current=data;$('clientIdentity').textContent=(data.name||'Ettevõte')+' · '+data.client_id;$('clientKind').textContent=data.client_id==='0000'?'KAITSTUD SISEKLIENT':'ETTEVÕTTE ÜLEVAADE';$('campaignLink').hidden=false;$('campaignLink').href='campaigns.html?client='+data.client_id+(base.startsWith('/worker/')?'&view=worker':'')+'&release=0.20';const job=data.job,pending=job&&['queued','running'].includes(job.status);$('loadMetrics').disabled=submitting||pending||data.sources_ready===false;
  $('readStatus').textContent=pending?(job.status==='running'?'Loen Google’i andmeid…':'Andmelugemine on järjekorras. Tulemus ilmub siia tavaliselt kuni 5 minuti jooksul.'):(job?.status==='failed'?'Andmelugemine ei õnnestunud. Varasemad andmed jäävad nähtavale; proovi uuesti.':data.report?'Andmed loetud. Perioodi muutmine ei muuda reklaame.':'Vali periood ja vajuta „Näita perioodi”.');
  if(data.sources_ready===false)$('readStatus').textContent='Adhalla peab esmalt kontrollima ja ühendama sinu ettevõtte andmeallika. Seejärel saad siit valida perioodi.';
  if(!timer&&pending)timer=setInterval(()=>{if(!document.hidden)refresh();},15000);if(timer&&!pending){clearInterval(timer);timer=null;}
@@ -31,6 +32,7 @@ function render(data){current=data;$('clientIdentity').textContent=(data.name||'
    else if(!limited&&old===0)tile.append(node('small','Eelmine väärtus oli 0; protsentuaalset muutust ei arvutata.'));grid.append(tile);}
   for(const message of key==='google_ads'?['Konversioon ei võrdu automaatselt müügiga. Tulemus sõltub konto mõõtmise ja omistamise seadistusest.']:['Võtmesündmused on GA4-s määratud tegevused. Need ei tähenda automaatselt kinnitatud müüke või päringuid.','GA4 tulu ja Google Adsi konversiooniväärtust ei liideta kokku.'])section.append(node('p',message,'source-note'));
  }
+ measurementChain(root,report);
  const gtm=node('section','','card'),inspection=report.gtm;gtm.append(node('h2','Google Tag Manager'));root.append(gtm);
  if(inspection?.status!=='available'){gtm.append(node('p',inspection?.status==='not_authorized'?'○ GTM pole selle kliendiga lugemiseks ühendatud.':'GTM seadistust ei õnnestunud värskelt kontrollida. See ei tähenda, et märgised puuduvad.','source-note'));return;}
  gtm.append(node('p','✓ Konteineri seadistus kontrollitud · '+new Date(inspection.inspected_at).toLocaleString('et-EE'),'source-note'),node('p','See on kontrollihetke seadistus, mitte valitud kuupäevade ajalooline seis.','muted'));
@@ -48,10 +50,10 @@ function render(data){current=data;$('clientIdentity').textContent=(data.name||'
 async function refresh(){const capture=epoch;try{const data=await api.read(route);if(capture!==epoch)return;$('business').hidden=false;$('gate').hidden=true;if(!$('start').value){const p=data.report?.period||data.default_period;if(p){$('start').value=p.start;$('end').value=p.end;}}render(data);}catch(e){if(capture!==epoch)return;if([401,403].includes(e.status)){clear();$('gateMessage').textContent='Selle ettevõtte vaatamiseks puudub ligipääs.';}else $('readStatus').textContent=e.message;}}
 $('dates').onsubmit=async e=>{e.preventDefault();if(submitting)return;const capture=epoch;submitting=true;$('loadMetrics').disabled=true;$('readStatus').textContent='Saadan andmepäringu…';try{const job=await api.write(route,{client_id:current.client_id,start:$('start').value,end:$('end').value});if(capture!==epoch)return;submitting=false;render({...current,job});await refresh();}catch(error){if(capture!==epoch)return;submitting=false;$('loadMetrics').disabled=false;$('readStatus').textContent=error.code==='metrics_limit'?'Tänane 12 andmelugemise piir on täis. Jätka homme.':error.code==='metrics_pending'?'Üks andmelugemine on juba töös. Oota selle lõppu.':error.message;}};
 onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),async user=>{
- const capture=++epoch;api.start(user);clear();weekly.reset();
+ const capture=++epoch;api.start(user);clear();weekly.reset();monthly.reset();
  if(!user){$('gateMessage').textContent='Logi Google kontoga portaali kaudu sisse.';return;}
  const selected=new URLSearchParams(location.search).get('client');
  base=selected&&/^[0-9]{4}$/.test(selected)&&selected!=='0000'?'/worker/clients/'+selected:user.email==='admin@adhalla.ee'?'/internal/clients/0000':'/workspaces/'+encodeURIComponent(user.uid);
  route=base+'/metrics';await refresh();if(capture!==epoch||!current)return;
- weekly.setScope(base,current.client_id);weekly.load();
+ weekly.setScope(base,current.client_id);weekly.load();monthly.setScope(base,current.client_id);monthly.load();
 });
