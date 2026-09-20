@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="../assets/adhalla-logo.png">
   <link rel="stylesheet" href="styles.css?v=0.2">
   <link rel="stylesheet" href="workspace.css?v=0.4">
-<link rel="stylesheet" href="product.css?v=0.22"></head>
+<link rel="stylesheet" href="product.css?v=0.23"></head>
 <body>
   <section class="auth-gate" id="authGate" aria-labelledby="welcomeTitle">
     <div class="auth-card">
@@ -28,8 +28,8 @@
     <aside class="sidebar">
       <a class="brand" href="/"><img src="../assets/adhalla-logo.png" alt=""><span>ADHALLA</span></a>
       <div class="client-chip"><div><strong>Minu tööruum</strong><small>Ettevõtte ülevaade</small></div></div>
-      <nav aria-label="Tööruum"><a href="#business" class="active">Ettevõtte info</a><a id="businessOverview" href="business.html?release=0.22" hidden>Äri ülevaade</a><a id="dataReports" href="data.html">Andmed ja raportid</a><a id="workerDirectory" href="clients.html?release=0.22" hidden>Admin · kliendid</a><a id="internalProduct" href="campaigns.html" hidden>Google Ads</a><span class="future-channel">Meta · tulekul</span><span class="future-channel">TikTok · tulekul</span><span class="future-channel">LinkedIn · tulekul</span></nav>
-      <div class="side-foot"><small>Adhalla · varajane ligipääs</small><strong>Kasvame koos sinu ettevõttega.</strong></div>
+      <nav aria-label="Tööruum"><a href="#business" class="active">Ettevõtte info</a><a id="businessOverview" href="business.html?release=0.23" hidden>Äri ülevaade</a><a id="dataReports" href="data.html">Andmed ja raportid</a><a id="workerDirectory" href="clients.html?release=0.23" hidden>Admin · kliendid</a><a id="internalProduct" href="campaigns.html" hidden>Google Ads</a><span class="future-channel">Meta · tulekul</span><span class="future-channel">TikTok · tulekul</span><span class="future-channel">LinkedIn · tulekul</span></nav>
+      <div class="side-foot"><a href="plans.html">Paketid</a><small>Adhalla · varajane ligipääs</small><strong>Kasvame koos sinu ettevõttega.</strong></div>
     </aside>
     <main class="workspace-main">
       <header class="workspace-head">
@@ -79,27 +79,15 @@
       <section class="setup-state" id="sources" aria-labelledby="dataTitle">
         <div class="eyebrow">ANDMED JA KINDLUS</div><h2 id="dataTitle">Mida me praegu teame?</h2>
         <button id="refreshWorkspace" class="sign-out">Värskenda vaadet</button>
-        <p id="dataEmpty">Kinnitatud andmevaadet veel pole. Pärast sinu ettevõtte andmeallika ja ligipääsu kontrollimist ilmuvad siia päris andmed koos piirangutega.</p>
-        <div id="dataContent" hidden>
-          <p id="sourceSummary"></p><p id="dataUpdated" class="artifact-time"></p>
-          <div id="dataFacts" class="fact-list"></div>
-          <div class="evidence-columns"><div><h3>Ettevõtte mõistmine</h3><ul id="dataUnderstanding"></ul><h3>Puuduv info</h3><ul id="dataMissing"></ul></div><div><h3>Milliseid hinnanguid saab anda?</h3><ul id="dataGates"></ul><ul id="dataCautions"></ul></div></div>
-        </div>
+        <div id="companyKnowledge" aria-live="polite"><p>Laadin ettevõtte infopagasit…</p></div>
       </section>
       <section class="setup-state" id="interpretation" aria-labelledby="interpretationTitle">
-        <div class="eyebrow">TÕLGENDUS JA PRIORITEEDID</div><h2 id="interpretationTitle">Mida need andmed tähendavad?</h2>
-        <p id="interpretationEmpty">Kättesaadavat tõlgendust veel pole. Siin kuvatakse kontrollitud tõlgendus, kui andmed ja teenuse ligipääs on kinnitatud.</p>
-        <div id="interpretationContent" hidden>
-          <p id="reportUpdated" class="artifact-time"></p><p>AI tõlgendus läbib tõendite ja struktuuri kontrolli. Järeldusi tuleb lugeda koos puuduva info ja andmete piirangutega.</p>
-          <h3>Tõendatud faktid</h3><ul id="reportFacts"></ul><h3>Tõlgendus</h3><ul id="reportInferences"></ul>
-          <h3>Soovitatud prioriteedid</h3><div id="reportRecommendations"></div><h3>Mida on vaja täpsustada?</h3><ul id="reportMissing"></ul>
-        </div>
+        <div class="eyebrow">TÕLGENDUS JA PRIORITEEDID</div><h2 id="interpretationTitle">Kui kindel on praegune pilt?</h2>
+        <div id="knowledgeSummary" aria-live="polite"></div>
       </section>
-      <section class="setup-state" aria-labelledby="activityTitle"><h2 id="activityTitle">Sinu vastused ja taotlused</h2><div id="latestActivity" aria-live="polite"></div></section>
-      <section class="setup-state" aria-labelledby="automationTitle"><div class="eyebrow">AUTOMAATIKA</div><h2 id="automationTitle">Rohkem juhtimist, selged piirid</h2><p id="planExplanation">Interpretation sisaldab andmeid, korduvaid tõlgendusi, soovitusi ja kampaaniaettepanekuid. Automatiseerimise juhtimine eeldab Automation paketti ning serveris kinnitatud õigusi.</p><fieldset disabled style="opacity:.5"><legend>Automatiseerimise juhtimine · lukus</legend><label>Volituste tase <select><option>Assisted · kinnitustega</option><option>Guarded automation · tulekul</option><option>Laiem autonoomia · tulekul</option></select></label><button type="button">Loo peatatud kampaania</button><button type="button">Muuda eelarvet</button></fieldset><p>Need väliskliendi juhtnupud pole veel aktiveeritud. Pakett üksi ei anna reklaamide käivitamise ega eelarve muutmise luba.</p></section>
       <footer><span>Adhalla · sinu ettevõtte tööruum</span><a href="../privacy.html">Privaatsus</a></footer>
     </main>
   </div>
-  <script type="module" src="workspace.js?v=0.22"></script>
+  <script type="module" src="workspace.js?v=0.23"></script>
 </body>
 </html>

@@ -1,12 +1,12 @@
-import './dialogs.js?v=0.22';
-import {navigation} from './navigation.js?v=0.22';
-import {questionsWorkflow} from './question-dialog.js?v=0.22';
-import {channelReports} from './channel-reports.js?v=0.22';
-import {managementView} from './campaign-management.js?v=0.22';
-import {clientReview,workerReviews} from './campaign-review.js?v=0.22';
-import {mountSearch,renderSearchProposal,searchLabels,emptySearch} from './search-workspace.js?v=0.22';
+import './dialogs.js?v=0.23';
+import {navigation} from './navigation.js?v=0.23';
+import {questionsWorkflow} from './question-dialog.js?v=0.23';
+import {channelReports} from './channel-reports.js?v=0.23';
+import {managementView} from './campaign-management.js?v=0.23';
+import {clientReview,workerReviews} from './campaign-review.js?v=0.23';
+import {mountSearch,renderSearchProposal,searchLabels,emptySearch} from './search-workspace.js?v=0.23';
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation,quotaPresentation} from './campaigns-client.js?v=0.22';
+import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation,quotaPresentation} from './campaigns-client.js?v=0.23';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id), client=createCampaignClient();
@@ -227,7 +227,7 @@ function renderResearch(){
 async function switchClient(id,campaign='campaign-01'){
  if(saving||submitting||regenerationSending){say('Oota salvestuse lõppu.');return;}if(dirty||proposalDirty){say('Salvesta muudatused enne kliendi vahetamist.');return;}
  if(!/^[0-9]{4}$/.test(id))return;
- userEpoch++;client.start(getAuth().currentUser);clearProtected();clientId=id;assisted=true;rootRoute='/worker/clients/'+id+'/';campaignId=campaign;route=rootRoute+'campaigns/'+campaign+'/';editing=true;mode(false);history.replaceState(null,'','?client='+id+'&view=worker&release=0.22');await refresh(true);if(state)questionsUI=questionsWorkflow(questionRoot,client,reportBase(),clientId,{auto:false});
+ userEpoch++;client.start(getAuth().currentUser);clearProtected();clientId=id;assisted=true;rootRoute='/worker/clients/'+id+'/';campaignId=campaign;route=rootRoute+'campaigns/'+campaign+'/';editing=true;mode(false);history.replaceState(null,'','?client='+id+'&view=worker&release=0.23');await refresh(true);if(state)questionsUI=questionsWorkflow(questionRoot,client,reportBase(),clientId,{auto:false});
 }
 $('adminClient').onchange=()=>switchClient($('adminClient').value);
 const managementBox=node('details');managementBox.className='advanced-section';managementBox.append(node('summary','Optimeerimine ja tegevuste ajalugu'));const managementContent=node('div');managementBox.append(managementContent);managementBox.className='card advanced-section';$('product').querySelector('main').append(managementBox);const management=managementView(managementContent,client);

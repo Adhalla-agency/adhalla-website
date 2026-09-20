@@ -1,9 +1,8 @@
-import {questionsWorkflow} from './question-dialog.js?v=0.22';
-import {createCampaignClient} from './campaigns-client.js?v=0.22';
+import {questionsWorkflow} from './question-dialog.js?v=0.23';
+import {createCampaignClient} from './campaigns-client.js?v=0.23';
 import {firebaseConfig} from './firebase-config.js';
-import {confirmationState,matchesSavedProfile,detailLists,emptyDetails,discoveryText} from './business-profile-client.js?v=0.22';
-import {createArtifactFeed, renderArtifacts} from './workspace-data.js?v=0.4';
-import {createActionClient, recommendationControls} from './workspace-actions.js?v=0.4';
+import {confirmationState,matchesSavedProfile,detailLists,emptyDetails,discoveryText} from './business-profile-client.js?v=0.23';
+import {renderKnowledge,knowledgePending} from './company-knowledge.js?v=0.23';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 import {getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js';
@@ -11,15 +10,6 @@ import {getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp} from 
 const $ = id => document.getElementById(id);
 const auth = getAuth(initializeApp(firebaseConfig));
 const database = getFirestore(auth.app);
-fetch('./plans.json?v=0.6',{cache:'no-store',credentials:'omit'}).then(r=>{if(!r.ok)throw Error();return r.json();}).then(catalog=>{
-  const a=catalog.plans?.interpretation?.monthly_eur,b=catalog.plans?.automation?.monthly_eur;
-  if(!Number.isFinite(a)||!Number.isFinite(b)||a<0||b<0)return;
-  $('planExplanation').textContent=`Interpretation · €${a}/kuu: andmed, korduvad tõlgendused, soovitused ja kampaaniaettepanekud. Automatiseerimise juhtimine eeldab Automation paketti · €${b}/kuu. Tegevused vajavad lisaks serveris kinnitatud õigusi ja turvapiire.`;
-}).catch(()=>{});
-const actions = createActionClient();
-const artifacts = createArtifactFeed((workspaceId, kind, next, failed) =>
-  onSnapshot(doc(database, 'workspaces', workspaceId, kind, 'latest'), {includeMetadataChanges:true}, next, failed),
-  (data, report, activity) => renderArtifacts(data, report, activity, (card, report, recommendation) => recommendationControls(actions, card, report, recommendation)));
 const fields = ['name','website','description','offering','customer','objective'];
 let registered=false,registering=false,permanentId=null,questionsUI=null;const questionApi=createCampaignClient();const questionRoot=document.createElement('div');questionRoot.className='head-actions';document.querySelector('.workspace-head').append(questionRoot);
 let user = null, savedWorkspace = null, unsubscribe = null, epoch = 0, canSave = false, dirty = false;
@@ -81,7 +71,7 @@ async function profileRequest(owner,body,action='confirm'){
 async function refreshConfirmation(){
  if(!user||!savedWorkspace||confirmationBusy)return;
  const captured=epoch,version=++confirmationEpoch,owner=user;
- try{const view=await profileRequest(owner);if(captured!==epoch||version!==confirmationEpoch)return;businessConfirmation=view;if(!detailsDirty)populateDetails(view.draft_details?.details||view.confirmed?.details||emptyDetails());renderConfirmation();}
+ try{const view=await profileRequest(owner);if(captured!==epoch||version!==confirmationEpoch)return;businessConfirmation=view;refreshKnowledge();if(!detailsDirty)populateDetails(view.draft_details?.details||view.confirmed?.details||emptyDetails());renderConfirmation();}
  catch{if(captured===epoch&&version===confirmationEpoch){businessConfirmation=null;renderConfirmation();$('businessConfirmationStatus').textContent='Kinnituse kontroll ei õnnestunud. Salvestatud info on alles; proovi „Värskenda vaadet”.';}}
 }
 $('confirmBusiness').onclick=async()=>{
@@ -99,7 +89,7 @@ async function registerWorkspace(){
   const response=await fetch('https://adhalla-workspace-api-184522982163.europe-north1.run.app/v1/workspaces/'+encodeURIComponent(owner.uid)+'/register',{
    method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:'{}',credentials:'omit',redirect:'error',cache:'no-store'});
   if(!response.ok)throw Error();const {data}=await response.json();if(capture!==epoch)return;
-  registered=true;permanentId=data.client_id||permanentId;$('businessOverview').hidden=!permanentId;renderChannelGate();if(permanentId&&!questionsUI){questionApi.start(user);questionsUI=questionsWorkflow(questionRoot,questionApi,permanentId==='0000'?'/internal/clients/0000':'/workspaces/'+encodeURIComponent(user.uid),permanentId);}
+  registered=true;permanentId=data.client_id||permanentId;refreshKnowledge();$('businessOverview').hidden=!permanentId;renderChannelGate();if(permanentId&&!questionsUI){questionApi.start(user);questionsUI=questionsWorkflow(questionRoot,questionApi,permanentId==='0000'?'/internal/clients/0000':'/workspaces/'+encodeURIComponent(user.uid),permanentId);}
   $('promotionStatus').textContent=data.client_id?'Sinu kliendinumber: '+data.client_id+'. Mõõdikud ja nädalakokkuvõtted leiad „Äri ülevaate” lehelt.':'Tööruum on Adhalla ülevaatuse nimekirjas. Püsikliendi ligipääs aktiveeritakse pärast kinnitamist.';
  }catch{if(capture===epoch)$('promotionStatus').textContent='Ettevõtte info on alles. Adhalla ülevaatuse järjekorda lisamine ei õnnestunud; vajuta „Värskenda vaadet”.';}
  finally{if(capture===epoch)registering=false;}
@@ -108,8 +98,7 @@ function clearWorkspace() {
   detailsDirty=false;discoveryJob=null;discoveryBusy=false;discoveryError='';++discoveryEpoch;++formRevision;populateDetails(emptyDetails());
   businessConfirmation=null;confirmationBusy=false;++confirmationEpoch;
   registered=false;registering=false;permanentId=null;questionsUI?.destroy();questionsUI=null;questionApi.start(null);$('businessOverview').hidden=true;$('promotionStatus').textContent='';
-  artifacts.stop();
-  actions.stop();
+  knowledgePending();
   canSave = false;
   dirty = false;
   savedWorkspace = null;
@@ -153,7 +142,7 @@ onAuthStateChanged(auth, current => {
   $('authGate').hidden = !!current;
   $('appShell').hidden = !current;
   if (!current) return;
-  actions.start(current);
+
   $('userName').textContent = current.displayName || 'Minu konto';
   $('userEmail').textContent = current.email || '';
   const internalLink=$('internalProduct');
@@ -162,13 +151,13 @@ onAuthStateChanged(auth, current => {
     {headers:{Authorization:'Bearer '+token},credentials:'omit',redirect:'error',cache:'no-store'});}).then(response=>{if(thisEpoch===epoch&&response.ok){permanentId='0000';$('workerDirectory').hidden=false;renderChannelGate();}}).catch(()=>{});
   $('saveWorkspace').disabled = true;
   message('Laadin sinu tööruumi…');
-  let artifactsStarted = false;
+
   unsubscribe = onSnapshot(doc(database, 'workspaces', current.uid), snapshot => {
     if (thisEpoch !== epoch) return;
     render(snapshot.exists() ? snapshot.data() : null, !dirty && !snapshot.metadata.hasPendingWrites);
     canSave = true;
     if(snapshot.exists()&&!snapshot.metadata.hasPendingWrites&&!snapshot.metadata.fromCache){registerWorkspace();refreshConfirmation();discoveryRequest().catch(()=>{});}
-    if (snapshot.exists() && !artifactsStarted) { artifactsStarted = true; artifacts.start(current.uid); }
+
     $('saveWorkspace').disabled = false;
     message(snapshot.exists() ? '' : 'Alusta oma ettevõtte põhiinfost. Sinu tööruum on teistest eraldatud.');
   }, () => {
@@ -182,7 +171,7 @@ $('refreshWorkspace').addEventListener('click', () => {
   registered=false;registerWorkspace();
   refreshConfirmation();
   discoveryRequest().catch(()=>{});
-  if (user && savedWorkspace) { artifacts.start(user.uid); message('Kontrollin salvestatud andmeid ja ligipääsu…'); }
+  if (user && savedWorkspace) refreshKnowledge();
 });
 async function saveWorkspace(event) {
   event?.preventDefault();
@@ -214,4 +203,20 @@ async function saveWorkspace(event) {
 }
 $('workspaceForm').addEventListener('submit',saveWorkspace);
 
-function renderChannelGate(){const link=$('internalProduct'),ready=!!businessConfirmation?.confirmed;link.hidden=false;link.classList.toggle('channel-pending',!ready);link.setAttribute('aria-disabled',String(!ready||!permanentId));link.textContent=ready?'Google Ads':'◷ Google Ads';link.title=!ready?'Esmalt kinnita ettevõtte info.':!permanentId?'Adhalla peab esmalt kinnitama sinu klienditööruumi.':'Ava kampaaniad';link.href=permanentId?'campaigns.html?client='+permanentId+'&release=0.22':'#business';link.onclick=e=>{if(!ready||!permanentId){e.preventDefault();message(!ready?'Vaata ettevõtte info üle ja kinnita see, et avada reklaamide tööruum.':'Ettevõtte info on kinnitatud. Adhalla seob sinu tööruumi enne reklaamide seadistamist.');}};$('dataReports').hidden=!permanentId;const more=$('businessReview');if(more)more.hidden=!ready&&!discoveryJob?.candidate&&!fields.slice(2).some(k=>$(k).value.trim());}
+function renderChannelGate(){const link=$('internalProduct'),ready=!!businessConfirmation?.confirmed;link.hidden=false;link.classList.toggle('channel-pending',!ready);link.setAttribute('aria-disabled',String(!ready||!permanentId));link.textContent=ready?'Google Ads':'◷ Google Ads';link.title=!ready?'Esmalt kinnita ettevõtte info.':!permanentId?'Adhalla peab esmalt kinnitama sinu klienditööruumi.':'Ava kampaaniad';link.href=permanentId?'campaigns.html?client='+permanentId+'&release=0.23':'#business';link.onclick=e=>{if(!ready||!permanentId){e.preventDefault();message(!ready?'Vaata ettevõtte info üle ja kinnita see, et avada reklaamide tööruum.':'Ettevõtte info on kinnitatud. Adhalla seob sinu tööruumi enne reklaamide seadistamist.');}};$('dataReports').hidden=!permanentId;const more=$('businessReview');if(more)more.hidden=!ready&&!discoveryJob?.candidate&&!fields.slice(2).some(k=>$(k).value.trim());}
+
+let knowledgeSequence=0;
+async function refreshKnowledge(){
+ const captured=epoch,owner=user,seq=++knowledgeSequence;
+ if(!owner)return;
+ if(!permanentId){knowledgePending(businessConfirmation?.confirmed);return;}
+ const base=permanentId==='0000'?'/internal/clients/0000':'/workspaces/'+encodeURIComponent(owner.uid);
+ try{const token=await owner.getIdToken();if(captured!==epoch)return;
+  const response=await fetch('https://adhalla-workspace-api-184522982163.europe-north1.run.app/v1'+base+'/knowledge',{headers:{Authorization:'Bearer '+token},credentials:'omit',cache:'no-store',redirect:'error'});
+  if(!response.ok)throw Error();const {data}=await response.json();
+  if(captured===epoch&&seq===knowledgeSequence)renderKnowledge(data);
+ }catch{if(captured===epoch&&seq===knowledgeSequence)knowledgePending(businessConfirmation?.confirmed,'Infopagasi laadimine ei õnnestunud. Salvestatud info on alles; proovi värskendada.');}
+}
+setInterval(()=>{if(user&&!document.hidden)refreshKnowledge();},60000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshKnowledge();});
+window.addEventListener('focus',()=>refreshKnowledge());
