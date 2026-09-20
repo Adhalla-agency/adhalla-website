@@ -29,6 +29,7 @@ export function managementView(root,api){
   if(['queued','running'].includes(data.job?.status)){clearTimeout(timer);timer=setTimeout(()=>{if(capture===epoch&&!document.hidden)load();},30000);}
  }
  function open(plan){const capture=epoch,path=route,cid=clientId,dialog=node('dialog');dialog.dataset.management='true';const close=node('button','Sulge');close.type='button';close.onclick=()=>{dialog.close();dialog.remove();};dialog.addEventListener('cancel',()=>dialog.remove(),{once:true});dialog.append(node('h2',labels[plan.action.action]||plan.action.action),node('p','Klient '+cid+' · '+plan.campaign_id),node('p',plan.action.reason),close);explain(dialog,{before:plan.before,proposed:plan.action.values,evidence:plan.action.evidence_refs,experiment:plan.action.experiment});
+  if(plan.affected_entities)for(const value of Object.values(plan.affected_entities)){dialog.append(node('p','Käivitatav osa: '+(value.text||value.name||value.headlines?.join(' · ')||value.kind)));}
   dialog.append(node('p','See on konkreetne muudatus ülal näidatud varasema seisu ja tõendite alusel. Muutunud sisu või õigused blokeerivad täitmise.'));
   const message=node('p');message.setAttribute('role','status');dialog.append(message);let sending=false;
   if(isWorker){const confirm=node('input');confirm.type='checkbox';const label=node('label');label.append(confirm,document.createTextNode(' Olen kliendi, täpse muudatuse, tõendid ja mõju üle vaadanud.'));dialog.append(label);
