@@ -1,12 +1,12 @@
-import './dialogs.js?v=0.27';
-import {navigation} from './navigation.js?v=0.27';
-import {questionsWorkflow} from './question-dialog.js?v=0.27';
-import {channelReports} from './channel-reports.js?v=0.27';
-import {managementView} from './campaign-management.js?v=0.27';
-import {clientReview,workerReviews} from './campaign-review.js?v=0.27';
-import {mountSearch,renderSearchProposal,searchLabels,emptySearch} from './search-workspace.js?v=0.27';
+import './dialogs.js?v=0.27.1';
+import {navigation} from './navigation.js?v=0.27.1';
+import {questionsWorkflow} from './question-dialog.js?v=0.27.1';
+import {channelReports} from './channel-reports.js?v=0.27.1';
+import {managementView} from './campaign-management.js?v=0.27.1';
+import {clientReview,workerReviews} from './campaign-review.js?v=0.27.1';
+import {mountSearch,renderSearchProposal,searchLabels,emptySearch} from './search-workspace.js?v=0.27.1';
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation,quotaPresentation} from './campaigns-client.js?v=0.27';
+import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation,quotaPresentation} from './campaigns-client.js?v=0.27.1';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id), client=createCampaignClient();
@@ -229,7 +229,7 @@ function renderResearch(){
 async function switchClient(id,campaign='campaign-01'){
  if(saving||submitting||regenerationSending){say('Oota salvestuse lõppu.');return;}if(dirty||proposalDirty){say('Salvesta muudatused enne kliendi vahetamist.');return;}
  if(!/^[0-9]{4}$/.test(id))return;
- userEpoch++;client.start(getAuth().currentUser);clearProtected();clientId=id;assisted=true;rootRoute='/worker/clients/'+id+'/';campaignId=campaign;route=rootRoute+'campaigns/'+campaign+'/';editing=true;mode(false);history.replaceState(null,'','?client='+id+'&view=worker&release=0.27');await refresh(true);if(state)questionsUI=questionsWorkflow(questionRoot,client,reportBase(),clientId,{auto:false});
+ userEpoch++;client.start(getAuth().currentUser);clearProtected();clientId=id;assisted=true;rootRoute='/worker/clients/'+id+'/';campaignId=campaign;route=rootRoute+'campaigns/'+campaign+'/';editing=true;mode(false);history.replaceState(null,'','?client='+id+'&view=worker&release=0.27.1');await refresh(true);if(state)questionsUI=questionsWorkflow(questionRoot,client,reportBase(),clientId,{auto:false});
 }
 $('adminClient').onchange=()=>switchClient($('adminClient').value);
 const managementBox=node('details');managementBox.className='advanced-section';managementBox.append(node('summary','Optimeerimine ja tegevuste ajalugu'));const managementContent=node('div');managementBox.append(managementContent);managementBox.className='card advanced-section';$('product').querySelector('main').append(managementBox);const management=managementView(managementContent,client);
@@ -241,7 +241,7 @@ const regenerationBox=node('section'),regenerationLabel=node('label','Mida peaks
 regenerationInput.maxLength=1500;regenerationLabel.append(regenerationInput);regenerationButton.type='button';regenerationStatus.setAttribute('role','status');regenerationBox.append(regenerationLabel,regenerationButton,regenerationStatus);$('proposalForm').after(regenerationBox);$('creativeDialog').append($('proposalForm'),regenerationBox,contentReviewBox);const openCreative=node('button','Vaata ja muuda reklaami sisu');openCreative.type='button';openCreative.onclick=()=>$('creativeDialog').showModal();$('proposalCard').append(openCreative);$('closeCreative').onclick=()=>$('creativeDialog').close();
 function renderRegeneration(){const used=state?.regenerations?.used||0;regenerationBox.hidden=!state?.proposal||state.proposal.brief_version!==state.brief?.version;regenerationButton.disabled=regenerationSending||dirty||proposalDirty||used>=20||['queued','running','limited'].includes(state?.generation?.status);if(!regenerationSending)regenerationStatus.textContent=(20-used)+' / 20 AI uuesti koostamist alles. Käsitsi muutmine ei kuluta neid kordi. Uus versioon vajab uut kinnitust.';}
 regenerationButton.onclick=async()=>{if(regenerationButton.disabled)return;if(!regenerationInput.value.trim()){regenerationStatus.textContent='Kirjelda, mida soovid parandada.';return;}const epoch=userEpoch,scope=selectionEpoch;regenerationSending=true;regenerationButton.disabled=true;regenerationStatus.textContent='Saadan uue versiooni soovi…';try{await client.write(route+'regenerate',{client_id:clientId,proposal_version:state.proposal.version,feedback:regenerationInput.value.trim()});if(epoch!==userEpoch||scope!==selectionEpoch)return;regenerationInput.value='';regenerationStatus.textContent='Uue versiooni soov on järjekorras. Varasemad versioonid jäävad alles.';await refresh();}catch(e){if(epoch===userEpoch&&scope===selectionEpoch)regenerationStatus.textContent=e.message;}finally{regenerationSending=false;if(epoch===userEpoch&&scope===selectionEpoch)renderRegeneration();}};
-onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),current=>{userEpoch++;clearInterval(timer);client.start(current);clearProtected();questionsUI?.destroy();mode(false);if(!current){$('gateMessage').textContent='Logi Google kontoga sisse portaali kaudu.';return;}refresh(true).then(()=>{if(!state)return;questionsUI=questionsWorkflow(questionRoot,client,reportBase(),clientId,{auto:!assisted});});timer=setInterval(()=>{if(!document.hidden&&(['queued','running','limited'].includes(state?.generation?.status)||['queued','running'].includes(state?.help?.status)||Date.now()-(window.lastCampaignPoll||0)>30000)){window.lastCampaignPoll=Date.now();refresh(false);}},5000);});
+onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),current=>{userEpoch++;clearInterval(timer);client.start(current);clearProtected();questionsUI?.destroy();mode(false);if(!current){$('gateMessage').textContent='Logi Google kontoga sisse portaali kaudu.';return;}refresh(true).then(()=>{if(!state)return;questionsUI=questionsWorkflow(questionRoot,client,reportBase(),clientId,{auto:false});});timer=setInterval(()=>{if(!document.hidden&&(['queued','running','limited'].includes(state?.generation?.status)||['queued','running'].includes(state?.help?.status)||Date.now()-(window.lastCampaignPoll||0)>30000)){window.lastCampaignPoll=Date.now();refresh(false);}},5000);});
 
 let selectedAdsTab='overview',questionsUI=null;
 const questionRoot=node('div');questionRoot.className='head-actions';document.querySelector('.product-head').append(questionRoot);
