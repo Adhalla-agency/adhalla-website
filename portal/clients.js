@@ -1,6 +1,6 @@
-import './dialogs.js?v=0.26';
+import './dialogs.js?v=0.27';
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient} from './campaigns-client.js?v=0.26';
+import {createCampaignClient} from './campaigns-client.js?v=0.27';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id),api=createCampaignClient();let epoch=0,selection=0,busy=false;
@@ -17,7 +17,7 @@ async function open(id){const capture=epoch,pick=++selection;busy=false;$('conte
  try{const review=await api.read('/worker/workspaces/'+encodeURIComponent(id));if(capture!==epoch||pick!==selection)return;const root=$('content'),profile=review.snapshot.business;
  root.append(node('h2',profile.name));for(const [key,title] of [['website','Veebileht'],['description','Ettevõte'],['offering','Pakkumine'],['customer','Kliendid'],['objective','Eesmärk']])root.append(node('h3',title),node('p',profile[key]||'Täpsustamata'));
  root.append(node('p','Tööruumi tunnus: '+id));const state=review.lifecycle?.status||'unreviewed';$('detailStatus').textContent=labels[state]||state;
- if(state==='promoted'){const clientId=review.lifecycle.client_id;const link=node('a','Ava selle kliendi äri ülevaade');link.href='business.html?client='+encodeURIComponent(clientId)+'&release=0.26';root.append(link);await sourceForm(root,clientId,capture,pick);return;}
+ if(state==='promoted'){const clientId=review.lifecycle.client_id;const link=node('a','Ava selle kliendi äri ülevaade');link.href='business.html?client='+encodeURIComponent(clientId)+'&release=0.27';root.append(link);await sourceForm(root,clientId,capture,pick);return;}
  const action=state==='discovery'?'approve':state==='approved'?'promote':'qualify';
  const explanation=node('p',action==='promote'?'See loob järgmise püsikliendi numbri ja tasuta piloodi Interpretation ligipääsu. Number jääb sellele ettevõttele. Ühendused ja reklaamide muutmine on alguses keelatud.':action==='approve'?'Kinnitan selle täpse ettevõtteprofiili valitud piloodiks. Püsikliendi numbrit veel ei looda.':'Märgin selle täpse ettevõtteprofiili üle vaadatuks. See ei loo püsikliendi numbrit.');root.append(explanation);
  const label=node('label','Kinnituseks sisesta tööruumi tunnus'),confirm=node('input');confirm.autocomplete='off';label.append(confirm);root.append(label);

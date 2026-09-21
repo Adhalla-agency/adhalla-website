@@ -1,4 +1,4 @@
-import './dialogs.js?v=0.26';
+import './dialogs.js?v=0.27';
 const n=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const labels={current_state:'Praegune olukord',trajectory:'Suund ja muutused',key_findings:'Olulised tähelepanekud',explanations:'Mis võib seda selgitada?',unknowns:'Mida me veel ei tea?'};
 const certainty={observed:'Andmetes nähtav või kliendi kinnitatud',possible:'Võimalik selgitus · pole tõestatud',unknown:'Praegu teadmata'};
