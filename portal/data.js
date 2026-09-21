@@ -1,12 +1,12 @@
-import './dialogs.js?v=0.27';
-import {renderReport,sources} from './report-content.js?v=0.27';
-import {reportEvents} from './timeline.js?v=0.27';
-import {navigation} from './navigation.js?v=0.27';
-import {questionsWorkflow} from './question-dialog.js?v=0.27';
-import {measurementChain} from './measurement-chain.js?v=0.27';
+import './dialogs.js?v=0.27.1';
+import {renderReport,sources} from './report-content.js?v=0.27.1';
+import {reportEvents} from './timeline.js?v=0.27.1';
+import {navigation} from './navigation.js?v=0.27.1';
+import {questionsWorkflow} from './question-dialog.js?v=0.27.1';
+import {measurementChain} from './measurement-chain.js?v=0.27.1';
 import {firebaseConfig} from './firebase-config.js';
-import {weeklyView} from './weekly.js?v=0.27';
-import {createCampaignClient} from './campaigns-client.js?v=0.27';
+import {weeklyView} from './weekly.js?v=0.27.1';
+import {createCampaignClient} from './campaigns-client.js?v=0.27.1';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id),api=createCampaignClient();
@@ -77,7 +77,7 @@ onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),async user=>{
  const requested=query.get('run'),type=query.get('cadence');reportSelection=reportHistory.find(r=>r.run_id===requested&&r.type===type)||null;
  const date=/^\d{4}-\d{2}-\d{2}$/;if(date.test(query.get('start')||'')&&date.test(query.get('end')||'')){$('start').value=query.get('start');$('end').value=query.get('end');}else{reportSelection=reportSelection||reportHistory[0]||null;if(reportSelection){$('start').value=reportSelection.period.start;$('end').value=reportSelection.period.end;}}
  }catch(e){if(capture!==epoch)return;reportRoot.textContent=e.message;}await refresh();if(capture!==epoch||!current)return;
- const aside=document.querySelector('.product-side nav');navigation(aside,{current:'data',clientId:current.client_id,worker:base.startsWith('/worker/')||user.email==='admin@adhalla.ee'});const action=node('div');action.className='head-actions';document.querySelector('.product-head').append(action);questions=questionsWorkflow(action,api,base,current.client_id,{auto:!base.startsWith('/worker/')});
+ const aside=document.querySelector('.product-side nav');navigation(aside,{current:'data',clientId:current.client_id,worker:base.startsWith('/worker/')||user.email==='admin@adhalla.ee'});const action=node('div');action.className='head-actions';document.querySelector('.product-head').append(action);questions=questionsWorkflow(action,api,base,current.client_id,{auto:false});
 });
 
 $('dates').onsubmit=async e=>{e.preventDefault();document.querySelector('.period-popover').open=false;await refresh();};

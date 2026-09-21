@@ -1,8 +1,8 @@
-import {questionsWorkflow} from './question-dialog.js?v=0.27';
-import {createCampaignClient} from './campaigns-client.js?v=0.27';
+import {questionsWorkflow} from './question-dialog.js?v=0.27.1';
+import {createCampaignClient} from './campaigns-client.js?v=0.27.1';
 import {firebaseConfig} from './firebase-config.js';
-import {confirmationState,matchesSavedProfile,detailLists,emptyDetails,discoveryText} from './business-profile-client.js?v=0.27';
-import {renderKnowledge,knowledgePending} from './company-knowledge.js?v=0.27';
+import {confirmationState,matchesSavedProfile,detailLists,emptyDetails,discoveryText} from './business-profile-client.js?v=0.27.1';
+import {renderKnowledge,knowledgePending} from './company-knowledge.js?v=0.27.1';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 import {getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js';
@@ -89,7 +89,7 @@ async function registerWorkspace(){
   const response=await fetch('https://adhalla-workspace-api-184522982163.europe-north1.run.app/v1/workspaces/'+encodeURIComponent(owner.uid)+'/register',{
    method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:'{}',credentials:'omit',redirect:'error',cache:'no-store'});
   if(!response.ok)throw Error();const {data}=await response.json();if(capture!==epoch)return;
-  registered=true;permanentId=data.client_id||permanentId;refreshKnowledge();$('businessOverview').hidden=!permanentId;renderChannelGate();if(permanentId&&!questionsUI){questionApi.start(user);questionsUI=questionsWorkflow(questionRoot,questionApi,permanentId==='0000'?'/internal/clients/0000':'/workspaces/'+encodeURIComponent(user.uid),permanentId);}
+  registered=true;permanentId=data.client_id||permanentId;refreshKnowledge();$('businessOverview').hidden=!permanentId;renderChannelGate();if(permanentId&&!questionsUI){questionApi.start(user);questionsUI=questionsWorkflow(questionRoot,questionApi,permanentId==='0000'?'/internal/clients/0000':'/workspaces/'+encodeURIComponent(user.uid),permanentId,{auto:false});}
   $('promotionStatus').textContent=data.client_id?'Sinu kliendinumber: '+data.client_id+'. Mõõdikud ja nädalakokkuvõtted leiad „Äri ülevaate” lehelt.':'Tööruum on Adhalla ülevaatuse nimekirjas. Püsikliendi ligipääs aktiveeritakse pärast kinnitamist.';
  }catch{if(capture===epoch)$('promotionStatus').textContent='Ettevõtte info on alles. Adhalla ülevaatuse järjekorda lisamine ei õnnestunud; vajuta „Värskenda vaadet”.';}
  finally{if(capture===epoch)registering=false;}
@@ -203,7 +203,7 @@ async function saveWorkspace(event) {
 }
 $('workspaceForm').addEventListener('submit',saveWorkspace);
 
-function renderChannelGate(){const link=$('internalProduct'),ready=!!businessConfirmation?.confirmed;link.hidden=false;link.classList.toggle('channel-pending',!ready);link.setAttribute('aria-disabled',String(!ready||!permanentId));link.textContent=ready?'Google Ads':'◷ Google Ads';link.title=!ready?'Esmalt kinnita ettevõtte info.':!permanentId?'Adhalla peab esmalt kinnitama sinu klienditööruumi.':'Ava kampaaniad';link.href=permanentId?'campaigns.html?client='+permanentId+'&release=0.27':'#business';link.onclick=e=>{if(!ready||!permanentId){e.preventDefault();message(!ready?'Vaata ettevõtte info üle ja kinnita see, et avada reklaamide tööruum.':'Ettevõtte info on kinnitatud. Adhalla seob sinu tööruumi enne reklaamide seadistamist.');}};$('dataReports').hidden=!permanentId;const more=$('businessReview');if(more)more.hidden=!ready&&!discoveryJob?.candidate&&!fields.slice(2).some(k=>$(k).value.trim());}
+function renderChannelGate(){const link=$('internalProduct'),ready=!!businessConfirmation?.confirmed;link.hidden=false;link.classList.toggle('channel-pending',!ready);link.setAttribute('aria-disabled',String(!ready||!permanentId));link.textContent=ready?'Google Ads':'◷ Google Ads';link.title=!ready?'Esmalt kinnita ettevõtte info.':!permanentId?'Adhalla peab esmalt kinnitama sinu klienditööruumi.':'Ava kampaaniad';link.href=permanentId?'campaigns.html?client='+permanentId+'&release=0.27.1':'#business';link.onclick=e=>{if(!ready||!permanentId){e.preventDefault();message(!ready?'Vaata ettevõtte info üle ja kinnita see, et avada reklaamide tööruum.':'Ettevõtte info on kinnitatud. Adhalla seob sinu tööruumi enne reklaamide seadistamist.');}};$('dataReports').hidden=!permanentId;const more=$('businessReview');if(more)more.hidden=!ready&&!discoveryJob?.candidate&&!fields.slice(2).some(k=>$(k).value.trim());}
 
 let knowledgeSequence=0;
 async function refreshKnowledge(){

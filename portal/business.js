@@ -1,11 +1,11 @@
-import './dialogs.js?v=0.27';
-import {reportDialog,reportLink} from './report-content.js?v=0.27';
+import './dialogs.js?v=0.27.1';
+import {reportDialog,reportLink} from './report-content.js?v=0.27.1';
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient} from './campaigns-client.js?v=0.27';
-import {weeklyView} from './weekly.js?v=0.27';
-import {calendar,reportEvents} from './timeline.js?v=0.27';
-import {questionsWorkflow} from './question-dialog.js?v=0.27';
-import {navigation} from './navigation.js?v=0.27';
+import {createCampaignClient} from './campaigns-client.js?v=0.27.1';
+import {weeklyView} from './weekly.js?v=0.27.1';
+import {calendar,reportEvents} from './timeline.js?v=0.27.1';
+import {questionsWorkflow} from './question-dialog.js?v=0.27.1';
+import {navigation} from './navigation.js?v=0.27.1';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id),api=createCampaignClient(),views={weekly:weeklyView($('weekly'),api),monthly:weeklyView($('monthly'),api,{cadence:'monthly'})};
@@ -25,7 +25,7 @@ onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),async user=>{
   for(const[k,view]of Object.entries(views)){view.setScope(base,metrics.client_id);view.render(k==='weekly'?week:month);}
   events=reportEvents(week.history,month.history);timeline=calendar($('calendar'),{events,onSelect:choices});choices(null,events.slice().sort((a,b)=>b.date.localeCompare(a.date)).slice(0,6));
   $('weekly').hidden=!week.report&&!!month.report;$('monthly').hidden=!!week.report||!month.report;
-  $('business').hidden=false;$('gate').hidden=true;questions=questionsWorkflow($('questionAction'),api,base,metrics.client_id,{auto:!worker});
+  $('business').hidden=false;$('gate').hidden=true;questions=questionsWorkflow($('questionAction'),api,base,metrics.client_id,{auto:false});
   $('overviewStatus').textContent=week.report?'Viimane nädalaülevaade · '+new Date(week.report.generated_at).toLocaleDateString('et-EE'):'Esimene ülevaade ilmub pärast ühendatud andmete töötlemist.';
  }catch(e){if(capture===epoch)$('gateMessage').textContent=e.message;}
 });
