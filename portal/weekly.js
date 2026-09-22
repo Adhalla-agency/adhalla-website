@@ -1,5 +1,5 @@
 // Model prose is always text, never HTML. Answers remain bound to one report version.
-import {questionBacklog} from './questions.js?v=0.27.1';
+import {questionBacklog} from './questions.js?v=0.29';
 export function weeklyView(root,api,{cadence='weekly',showQuestions=false}={}){
  const monthly=cadence==='monthly';
  let data=null,epoch=0,timer=null,shown=null,saving=false;
