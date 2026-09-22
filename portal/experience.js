@@ -1,9 +1,9 @@
-import {createCampaignClient} from './campaigns-client.js?v=0.28';
-const style=document.createElement('link');style.rel='stylesheet';style.href=new URL('./experience.css?v=0.28',import.meta.url).href;document.head.append(style);
+import {createCampaignClient} from './campaigns-client.js?v=0.29';
+const style=document.createElement('link');style.rel='stylesheet';style.href=new URL('./experience.css?v=0.29',import.meta.url).href;document.head.append(style);
 
 // Own workspace only: visiting a client's admin view never changes that client's choice.
 let session=null;
-export function clearExperience(){session?.destroy();session=null;delete document.documentElement.dataset.experience;}
+export function clearExperience(){session?.destroy();session=null;delete document.documentElement.dataset.experience;delete document.documentElement.dataset.clientExperience;}
 export async function ensureExperience(user){
  if(session?.uid!==user.uid){clearExperience();session=workflow(user);}
  return session.load();
@@ -17,7 +17,8 @@ function workflow(user){
  (document.querySelector('.product-side,.sidebar')||document.body).append(root);
  let value=null,pending=null,dialog=null,destroyed=false,busy=false;
  const publish=()=>{const tier=value?.selection?.tier;button.textContent='Kasutusviis'+(tier?' · '+value.choices.find(c=>c.id===tier)?.name:'');
-  if(tier)document.documentElement.dataset.experience=tier;
+  if(tier){document.documentElement.dataset.experience=tier;document.documentElement.dataset.clientExperience=new URLSearchParams(location.search).get('view')==='worker'?'worker':tier;}
+  if(tier==='evaluation'&&location.pathname.endsWith('/campaigns.html')&&new URLSearchParams(location.search).get('view')!=='worker'){location.replace('business.html');return;}
   document.dispatchEvent(new CustomEvent('adhalla:experience',{detail:{tier:tier||null,workspaceId:user.uid}}));};
  async function load(){
   if(destroyed)return false;if(value)return !!value.selection;
@@ -36,7 +37,7 @@ function workflow(user){
   for(const choice of value.choices){const label=document.createElement('label');label.className='experience-choice';
    const input=document.createElement('input');input.type='radio';input.name='experience';input.value=choice.id;input.required=true;input.checked=value.selection?.tier===choice.id;
    const name=document.createElement('strong');name.textContent=choice.name;const description=document.createElement('span');description.textContent=choice.description;label.append(input,name,description);choices.append(label);}
-  const note=document.createElement('p');note.textContent='Valik ei muuda makseid ega anna reklaamide käivitamise või automaatse muutmise luba. Erinevate tööviiside vaated lisanduvad järgmistes etappides.';
+  const note=document.createElement('p');note.textContent='Valik ei muuda makseid ega anna reklaamide käivitamise või automaatse muutmise luba. Hindamine keskendub andmetele ja tõlgendustele. Loomise ja Agency töövooge täiendame järgmistes etappides.';
   const status=document.createElement('p');status.setAttribute('role','status');
   const save=document.createElement('button');save.type='submit';save.textContent='Salvesta kasutusviis';
   const close=document.createElement('button');close.type='button';close.textContent='Sulge';

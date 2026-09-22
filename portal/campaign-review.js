@@ -1,4 +1,4 @@
-import './dialogs.js?v=0.27.1';
+import './dialogs.js?v=0.29';
 const n=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const labels={campaign_content_confirmation:'Kliendi sisukinnitus',campaign_review:'Kampaania ülevaatus',campaign_consultation:'Kampaania konsultatsioon',measurement_setup:'Mõõtmise seadistamise abi'};
 const states={content_confirmed:'Sisu kliendi poolt kinnitatud',unassigned:'Ootab Adhallat',in_progress:'Töös',awaiting_client:'Vali konsultatsiooni aeg',scheduled:'Konsultatsiooni aeg valitud',completed:'Lõpetatud',declined:'Tagasi lükatud'};

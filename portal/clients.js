@@ -1,11 +1,13 @@
-import './dialogs.js?v=0.27.1';
+import {connectionSupport} from './connection-support.js?v=0.29';
+import './dialogs.js?v=0.29';
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient} from './campaigns-client.js?v=0.27.1';
+import {createCampaignClient} from './campaigns-client.js?v=0.29';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id),api=createCampaignClient();let epoch=0,selection=0,busy=false;
 const node=(tag,text='')=>{const e=document.createElement(tag);e.textContent=text;return e;};
 const labels={unreviewed:'Ülevaatamata',discovery:'Üle vaadatud',approved:'Piloodiks kinnitatud',promoted:'Püsiklient'};
+const connectionRoot=document.createElement('section');document.querySelector('main').append(connectionRoot);const support=connectionSupport(connectionRoot,api);
 let requestedClient=new URLSearchParams(location.search).get('client');
 function message(error){return error.status===403?'Selleks puudub Adhalla kliendihalduse õigus.':error.status===400?'Kontrolli ettevõtte veebiaadressi, valitud sammu ja kinnitust. Andmed võisid vahepeal muutuda; ava tööruum uuesti.':error.message;}
 async function load(){const capture=epoch;$('status').textContent='Laadin…';try{const rows=await api.read('/worker/workspaces');if(capture!==epoch)return;$('list').replaceChildren();
@@ -40,5 +42,5 @@ async function sourceForm(root,clientId,capture,pick){const data=await api.read(
   try{await api.write('/worker/clients/'+clientId+'/sources',{confirm_client_id:clientId,base_version:data.version,sources});if(capture===epoch&&pick===selection){status.textContent='Ühenduse kontroll on esitatud. Server kontrollib õigusi ja allika nime enne ühenduse aktiveerimist.';}}
   catch(e){if(capture===epoch&&pick===selection){status.textContent=message(e);submit.disabled=false;}}finally{if(capture===epoch&&pick===selection)busy=false;}};
 }
-$('close').onclick=()=>{$('detail').close();selection++;};$('detail').addEventListener('cancel',()=>selection++);$('refresh').onclick=load;
-onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),user=>{epoch++;selection++;api.start(user);$('detail').close();$('content').replaceChildren();$('list').replaceChildren();if(user)load();else $('status').textContent='Logi esmalt portaali kaudu Adhalla töötaja Google kontoga sisse.';});
+$('close').onclick=()=>{$('detail').close();selection++;};$('detail').addEventListener('cancel',()=>selection++);$('refresh').onclick=()=>{load();support.load();};
+onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),user=>{epoch++;selection++;api.start(user);$('detail').close();$('content').replaceChildren();$('list').replaceChildren();support.clear();if(user){load();support.load();}else $('status').textContent='Logi esmalt portaali kaudu Adhalla töötaja Google kontoga sisse.';});

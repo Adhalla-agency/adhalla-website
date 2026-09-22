@@ -1,8 +1,8 @@
-import {questionsWorkflow} from './question-dialog.js?v=0.27.1';
-import {createCampaignClient} from './campaigns-client.js?v=0.27.1';
+import {questionsWorkflow} from './question-dialog.js?v=0.29';
+import {createCampaignClient} from './campaigns-client.js?v=0.29';
 import {firebaseConfig} from './firebase-config.js';
-import {confirmationState,matchesSavedProfile,detailLists,emptyDetails,discoveryText} from './business-profile-client.js?v=0.27.1';
-import {renderKnowledge,knowledgePending} from './company-knowledge.js?v=0.27.1';
+import {confirmationState,matchesSavedProfile,detailLists,emptyDetails,discoveryText} from './business-profile-client.js?v=0.29';
+import {renderKnowledge,knowledgePending} from './company-knowledge.js?v=0.29';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 import {getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js';
@@ -147,7 +147,7 @@ onAuthStateChanged(auth, current => {
   $('userEmail').textContent = current.email || '';
   const internalLink=$('internalProduct');
   internalLink.hidden=false;internalLink.setAttribute('aria-disabled','true');
-  if(current.email==='admin@adhalla.ee') current.getIdToken(true).then(token=>{if(thisEpoch!==epoch)throw Error('Account changed');return fetch('https://adhalla-workspace-api-184522982163.europe-north1.run.app/v1/internal/clients/0000/overview',
+  if(current.email==='admin@adhalla.ee') current.getIdToken(true).then(token=>{if(thisEpoch!==epoch)throw Error('Account changed');return fetch('https://adhalla-workspace-api-184522982163.europe-north1.run.app/v1/internal/clients/0000/metrics',
     {headers:{Authorization:'Bearer '+token},credentials:'omit',redirect:'error',cache:'no-store'});}).then(response=>{if(thisEpoch===epoch&&response.ok){permanentId='0000';$('workerDirectory').hidden=false;renderChannelGate();}}).catch(()=>{});
   $('saveWorkspace').disabled = true;
   message('Laadin sinu tööruumi…');
