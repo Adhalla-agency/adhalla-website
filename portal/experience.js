@@ -1,5 +1,5 @@
-import {createCampaignClient} from './campaigns-client.js?v=0.29';
-const style=document.createElement('link');style.rel='stylesheet';style.href=new URL('./experience.css?v=0.29',import.meta.url).href;document.head.append(style);
+import {createCampaignClient} from './campaigns-client.js?v=0.30';
+const style=document.createElement('link');style.rel='stylesheet';style.href=new URL('./experience.css?v=0.30',import.meta.url).href;document.head.append(style);
 
 // Own workspace only: visiting a client's admin view never changes that client's choice.
 let session=null;
@@ -37,7 +37,7 @@ function workflow(user){
   for(const choice of value.choices){const label=document.createElement('label');label.className='experience-choice';
    const input=document.createElement('input');input.type='radio';input.name='experience';input.value=choice.id;input.required=true;input.checked=value.selection?.tier===choice.id;
    const name=document.createElement('strong');name.textContent=choice.name;const description=document.createElement('span');description.textContent=choice.description;label.append(input,name,description);choices.append(label);}
-  const note=document.createElement('p');note.textContent='Valik ei muuda makseid ega anna reklaamide käivitamise või automaatse muutmise luba. Hindamine keskendub andmetele ja tõlgendustele. Loomise ja Agency töövooge täiendame järgmistes etappides.';
+  const note=document.createElement('p');note.textContent='Valik ei muuda makseid ega anna reklaamide käivitamise või automaatse muutmise luba. Hindamine keskendub andmetele ja tõlgendustele. Loomine lisab iseteeninduse kampaaniatööriistad; automaatika ja reklaamide käivitamine vajavad eraldi luba.';
   const status=document.createElement('p');status.setAttribute('role','status');
   const save=document.createElement('button');save.type='submit';save.textContent='Salvesta kasutusviis';
   const close=document.createElement('button');close.type='button';close.textContent='Sulge';
