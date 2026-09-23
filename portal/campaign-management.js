@@ -1,20 +1,21 @@
-import {automationControls} from './automation-controls.js?v=0.29';
-import {managementReview} from './management-review.js?v=0.29';
+import {creationPermissions,isCreation} from './creation-controls.js?v=0.30';
+import {automationControls} from './automation-controls.js?v=0.30';
+import {managementReview} from './management-review.js?v=0.30';
 const node=(tag,text)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;return el;};
 const labels={pause_keywords:'Märksõna peatamine',add_keywords:'Märksõna lisamine',add_negatives:'Välistuse lisamine',create_ads:'Uus reklaam',edit_ads:'Reklaami uuendamine',adjust_budget:'Eelarve muutmine',change_bidding_strategy:'Pakkumisstrateegia katse',activate_campaign:'Kampaania käivitamine'};
 const states={proposed:'Ettepanek · kinnitamata',approved:'Kinnitatud · ootab töötlemist',completed:'Tehtud',rejected:'Tagasi lükatud',blocked:'Õigus või alusandmed vajavad kontrolli',failed:'Tegevus ei alanud',reconciliation_required:'Tulemus vajab kontrolli · kordus lukus',rolled_back:'Tagasi pööratud',rollback_approved:'Tagasipööre kinnitatud'};
 function explain(root,value){const list=node('dl');for(const[key,val]of Object.entries(value||{})){list.append(node('dt',key),node('dd',typeof val==='object'?JSON.stringify(val):String(val)));}root.append(list);}
 export function managementView(root,api){
- let epoch=0,route=null,clientId=null,isWorker=false,data=null,timer=null,policy=null;
+ let experience=null;let epoch=0,route=null,clientId=null,isWorker=false,data=null,timer=null,policy=null;
  function reset(){epoch++;route=null;data=null;clearTimeout(timer);root.replaceChildren();root.hidden=true;document.querySelectorAll('dialog[data-management]').forEach(d=>{d.close();d.remove();});}
- async function load(){const capture=epoch,path=route;if(!path)return;try{const [value,rights]=await Promise.all([api.read(path+'optimization'),api.read(path+'automation').catch(()=>null)]);if(capture!==epoch)return;data=value;policy=rights;render();}catch(error){if(capture===epoch){root.replaceChildren(node('p','Kampaania halduse andmeid ei saanud praegu lugeda.'));}}}
+ async function load(){const capture=epoch,path=route;if(!path)return;try{const [value,rights]=await Promise.all([api.read(path+'optimization'),api.read(path+(isCreation()&&!isWorker?'creation_permissions':'automation')).catch(()=>null)]);if(capture!==epoch)return;data=value;policy=rights;render();}catch(error){if(capture===epoch){root.replaceChildren(node('p','Kampaania halduse andmeid ei saanud praegu lugeda.'));}}}
  function render(){root.hidden=false;root.replaceChildren(node('h2','Kampaania hetkeseis ja haldus'));
   const message=node('p');message.setAttribute('role','status');message.textContent=data.job?.summary||'Siin näed Google’ist loetud kampaaniat, soovitatud muudatusi ja tehtud tegevusi.';root.append(message);
-  root.append(node('p','Ettepanek ei muuda reklaame. Täitmine vajab paketiõigust, kliendi lubatud tegevusi ja serveri kontrolli. Käivitamine ning eelarvemuudatus vajavad eraldi kinnitust.'));
+  root.append(node('p',isCreation()&&!isWorker?'Ettepaneku võid kinnitada üheks toiminguks. Automaatikaload annavad eraldi püsiva loa; mõlemal juhul kontrollitakse ühendust ja kampaania täpset seisu.':'Ettepaneku täitmine vajab kehtivaid õigusi ja serveri kontrolli.'));
   const refresh=node('button','Loe kampaania hetkeseis');refresh.type='button';refresh.disabled=['queued','running'].includes(data.job?.status);root.append(refresh);const capture=epoch;
-  automationControls(root,api,route,clientId,policy,{worker:isWorker,current:()=>capture===epoch,reload:load});
+  if(isCreation()&&!isWorker)creationPermissions(root,api,route,clientId,policy,{current:()=>capture===epoch,reload:load});else automationControls(root,api,route,clientId,policy,{worker:isWorker,current:()=>capture===epoch,reload:load});
   if(data.observation_stale_configuration)root.append(node('p','Ühenduse seadistus on muutunud. Allolev seis on varasem; enne toiminguid on vaja uut lugemist.'));
-  if(isWorker)managementReview(root,data,(command,version,payload)=>api.write(route+'optimization',{client_id:clientId,command,version,payload}),{current:()=>capture===epoch,reload:load});
+  if(isWorker||isCreation())managementReview(root,data,(command,version,payload)=>api.write(route+'optimization',{client_id:clientId,command,version,payload}),{current:()=>capture===epoch,reload:load,owner:!isWorker,available:policy?.available_actions||[]});
   refresh.onclick=async()=>{refresh.disabled=true;message.textContent='Andmelugemine saadetakse tööjärjekorda…';try{await api.write(route+'optimization',{client_id:clientId,command:'refresh',version:null,payload:{}});if(capture!==epoch)return;await load();}catch(e){if(capture===epoch){message.textContent=e.message;refresh.disabled=false;}}};
   const observation=data.observation;
   if(observation){const metrics=observation.metrics,summary=node('p',new Date(observation.observed_at).toLocaleString('et-EE')+' · '+observation.period.start+' – '+observation.period.end+' · '+metrics.impressions+' näitamist · '+metrics.clicks+' klikki · '+(metrics.cost_micros/1e6).toFixed(2)+' '+(observation.entities.campaign?.currency||''));root.append(summary);
@@ -32,10 +33,10 @@ export function managementView(root,api){
   if(plan.affected_entities)for(const value of Object.values(plan.affected_entities)){dialog.append(node('p','Käivitatav osa: '+(value.text||value.name||value.headlines?.join(' · ')||value.kind)));}
   dialog.append(node('p','See on konkreetne muudatus ülal näidatud varasema seisu ja tõendite alusel. Muutunud sisu või õigused blokeerivad täitmise.'));
   const message=node('p');message.setAttribute('role','status');dialog.append(message);let sending=false;
-  if(isWorker){const confirm=node('input');confirm.type='checkbox';const label=node('label');label.append(confirm,document.createTextNode(' Olen kliendi, täpse muudatuse, tõendid ja mõju üle vaadanud.'));dialog.append(label);
-   for(const[command,text]of plan.status==='proposed'?[['approve','Kinnita see muudatus'],['reject','Lükka tagasi']]:plan.status==='completed'?[['rollback','Taotle täpset tagasipööret']]:[]){const b=node('button',text);b.type='button';dialog.append(b);b.onclick=async()=>{if(sending)return;if(command!=='reject'&&!confirm.checked){message.textContent='Vaata muudatus üle ja märgi kinnitus.';return;}sending=true;b.disabled=true;try{await api.write(path+'optimization',{client_id:cid,command,version:plan.version,payload:{plan_id:plan.plan_id}});if(capture!==epoch)return;dialog.close();dialog.remove();await load();}catch(e){if(capture===epoch){message.textContent=e.status===403?'Selle tegevuse jaoks puudub praegu vajalik paketiõigus, kliendi luba või serveri tegevusõigus.':e.message;sending=false;b.disabled=false;}}};}
+  if(isWorker||isCreation()){const confirm=node('input');confirm.type='checkbox';const label=node('label');label.append(confirm,document.createTextNode(' Olen kliendi, täpse muudatuse, tõendid ja mõju üle vaadanud.'));dialog.append(label);
+   for(const[command,text]of plan.status==='proposed'?[['approve','Kinnita see muudatus'],['reject','Lükka tagasi']]:plan.status==='completed'&&isWorker?[['rollback','Taotle täpset tagasipööret']]:[]){const b=node('button',text);b.type='button';dialog.append(b);b.onclick=async()=>{if(sending)return;if(command!=='reject'&&!confirm.checked){message.textContent='Vaata muudatus üle ja märgi kinnitus.';return;}sending=true;b.disabled=true;try{await api.write(path+'optimization',{client_id:cid,command,version:plan.version,payload:{plan_id:plan.plan_id}});if(capture!==epoch)return;dialog.close();dialog.remove();await load();}catch(e){if(capture===epoch){message.textContent=e.status===403?'Selle tegevuse jaoks puudub praegu vajalik paketiõigus, kliendi luba või serveri tegevusõigus.':e.message;sending=false;b.disabled=false;}}};}
   }
   dialog.className='product-modal';dialog.addEventListener('close',()=>dialog.remove(),{once:true});document.body.append(dialog);dialog.showModal();
  }
- return {reset,setScope(path,id,worker){if(path!==route||id!==clientId||worker!==isWorker){reset();route=path;clientId=id;isWorker=worker;load();}},load};
+ return {reset,setScope(path,id,worker){if(path!==route||id!==clientId||worker!==isWorker||experience!==isCreation()){reset();experience=isCreation();route=path;clientId=id;isWorker=worker;load();}},load};
 }
