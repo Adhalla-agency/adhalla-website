@@ -1,5 +1,5 @@
-import {createCampaignClient} from './campaigns-client.js?v=0.30';
-const style=document.createElement('link');style.rel='stylesheet';style.href=new URL('./experience.css?v=0.30',import.meta.url).href;document.head.append(style);
+import {createCampaignClient} from './campaigns-client.js?v=0.31';
+const style=document.createElement('link');style.rel='stylesheet';style.href=new URL('./experience.css?v=0.31',import.meta.url).href;document.head.append(style);
 
 // Own workspace only: visiting a client's admin view never changes that client's choice.
 let session=null;
@@ -18,7 +18,10 @@ function workflow(user){
  let value=null,pending=null,dialog=null,destroyed=false,busy=false;
  const publish=()=>{const tier=value?.selection?.tier;button.textContent='Kasutusviis'+(tier?' · '+value.choices.find(c=>c.id===tier)?.name:'');
   if(tier){document.documentElement.dataset.experience=tier;document.documentElement.dataset.clientExperience=new URLSearchParams(location.search).get('view')==='worker'?'worker':tier;}
-  if(tier==='evaluation'&&location.pathname.endsWith('/campaigns.html')&&new URLSearchParams(location.search).get('view')!=='worker'){location.replace('business.html');return;}
+  const workerView=new URLSearchParams(location.search).get('view')==='worker';
+  if(!workerView&&tier==='agency'&&location.pathname.endsWith('/campaigns.html')){location.replace('agency.html'+location.search);return;}
+  if(!workerView&&tier&&tier!=='agency'&&location.pathname.endsWith('/agency.html')){location.replace(tier==='evaluation'?'business.html':'campaigns.html');return;}
+  if(tier==='evaluation'&&location.pathname.endsWith('/campaigns.html')&&!workerView){location.replace('business.html');return;}
   document.dispatchEvent(new CustomEvent('adhalla:experience',{detail:{tier:tier||null,workspaceId:user.uid}}));};
  async function load(){
   if(destroyed)return false;if(value)return !!value.selection;

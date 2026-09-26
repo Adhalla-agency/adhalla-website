@@ -1,9 +1,9 @@
 // Weekly prompts belong to the signed-in owner, independently of the open module.
 // A worker browsing another business must never receive that business's questions.
 import {firebaseConfig} from './firebase-config.js';
-import {ensureExperience,clearExperience} from './experience.js?v=0.30';
-import {createCampaignClient} from './campaigns-client.js?v=0.30';
-import {questionsWorkflow} from './question-dialog.js?v=0.30';
+import {ensureExperience,clearExperience} from './experience.js?v=0.31';
+import {createCampaignClient} from './campaigns-client.js?v=0.31';
+import {questionsWorkflow} from './question-dialog.js?v=0.31';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const api=createCampaignClient(),root=document.createElement('div');root.hidden=true;document.body.append(root);
