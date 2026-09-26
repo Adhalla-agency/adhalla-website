@@ -1,15 +1,15 @@
 // Weekly prompts belong to the signed-in owner, independently of the open module.
 // A worker browsing another business must never receive that business's questions.
 import {firebaseConfig} from './firebase-config.js';
-import {ensureExperience,clearExperience} from './experience.js?v=0.31';
-import {createCampaignClient} from './campaigns-client.js?v=0.31';
-import {questionsWorkflow} from './question-dialog.js?v=0.31';
+import {ensureExperience,clearExperience} from './experience.js?v=0.32';
+import {createCampaignClient} from './campaigns-client.js?v=0.32';
+import {questionsWorkflow} from './question-dialog.js?v=0.32';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const api=createCampaignClient(),root=document.createElement('div');root.hidden=true;document.body.append(root);
 let epoch=0,workflow=null,timer=null,events=null;
 onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),user=>{
- const capture=++epoch;workflow?.destroy();workflow=null;clearInterval(timer);events?.abort();events=new AbortController();clearExperience();api.start(user);if(!user)return;
+ const capture=++epoch;workflow?.destroy();workflow=null;clearInterval(timer);events?.abort();events=new AbortController();api.start(user);if(!user){clearExperience();return;}
  const base=user.email==='admin@adhalla.ee'?'/internal/clients/0000':'/workspaces/'+encodeURIComponent(user.uid);
  let reading=false;
  async function connect(){if(capture!==epoch||workflow||reading||document.hidden)return;reading=true;

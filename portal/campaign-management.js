@@ -1,6 +1,6 @@
-import {creationPermissions,isCreation} from './creation-controls.js?v=0.31';
-import {automationControls} from './automation-controls.js?v=0.31';
-import {managementReview} from './management-review.js?v=0.31';
+import {creationPermissions,isCreation} from './creation-controls.js?v=0.32';
+import {automationControls} from './automation-controls.js?v=0.32';
+import {managementReview} from './management-review.js?v=0.32';
 const node=(tag,text)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;return el;};
 const labels={pause_keywords:'Märksõna peatamine',add_keywords:'Märksõna lisamine',add_negatives:'Välistuse lisamine',create_ads:'Uus reklaam',edit_ads:'Reklaami uuendamine',adjust_budget:'Eelarve muutmine',change_bidding_strategy:'Pakkumisstrateegia katse',activate_campaign:'Kampaania käivitamine'};
 const states={proposed:'Ettepanek · kinnitamata',approved:'Kinnitatud · ootab töötlemist',completed:'Tehtud',rejected:'Tagasi lükatud',blocked:'Õigus või alusandmed vajavad kontrolli',failed:'Tegevus ei alanud',reconciliation_required:'Tulemus vajab kontrolli · kordus lukus',rolled_back:'Tagasi pööratud',rollback_approved:'Tagasipööre kinnitatud'};
@@ -8,7 +8,7 @@ function explain(root,value){const list=node('dl');for(const[key,val]of Object.e
 export function managementView(root,api){
  let experience=null;let epoch=0,route=null,clientId=null,isWorker=false,data=null,timer=null,policy=null;
  function reset(){epoch++;route=null;data=null;clearTimeout(timer);root.replaceChildren();root.hidden=true;document.querySelectorAll('dialog[data-management]').forEach(d=>{d.close();d.remove();});}
- async function load(){const capture=epoch,path=route;if(!path)return;try{const [value,rights]=await Promise.all([api.read(path+'optimization'),api.read(path+(isCreation()&&!isWorker?'creation_permissions':'automation')).catch(()=>null)]);if(capture!==epoch)return;data=value;policy=rights;render();}catch(error){if(capture===epoch){root.replaceChildren(node('p','Kampaania halduse andmeid ei saanud praegu lugeda.'));}}}
+ async function load(){const capture=epoch,path=route;if(!path)return;try{root.hidden=false;root.replaceChildren(node('p','Laen kampaania halduse valikuid…'));const [observed,rights]=await Promise.allSettled([api.read(path+'optimization'),api.read(path+(isCreation()&&!isWorker?'creation_permissions':'automation'))]);if(capture!==epoch)return;data=observed.status==='fulfilled'?observed.value:{job:{summary:'Kampaania hetkeseisu ei saanud lugeda. Õiguste vaade on eraldi.'},plans:[],journal:[],experiments:[]};policy=rights.status==='fulfilled'?rights.value:null;render();}catch(error){if(capture===epoch){root.hidden=false;root.replaceChildren(node('p','Kampaania halduse andmeid ei saanud praegu lugeda.'));const retry=node('button','Proovi uuesti');retry.onclick=load;root.append(retry);}}}
  function render(){root.hidden=false;root.replaceChildren(node('h2','Kampaania hetkeseis ja haldus'));
   const message=node('p');message.setAttribute('role','status');message.textContent=data.job?.summary||'Siin näed Google’ist loetud kampaaniat, soovitatud muudatusi ja tehtud tegevusi.';root.append(message);
   root.append(node('p',isCreation()&&!isWorker?'Ettepaneku võid kinnitada üheks toiminguks. Automaatikaload annavad eraldi püsiva loa; mõlemal juhul kontrollitakse ühendust ja kampaania täpset seisu.':'Ettepaneku täitmine vajab kehtivaid õigusi ja serveri kontrolli.'));
