@@ -1,7 +1,7 @@
-import {connectionSupport} from './connection-support.js?v=0.30';
-import './dialogs.js?v=0.30';
+import {connectionSupport} from './connection-support.js?v=0.31';
+import './dialogs.js?v=0.31';
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient} from './campaigns-client.js?v=0.30';
+import {createCampaignClient} from './campaigns-client.js?v=0.31';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id),api=createCampaignClient();let epoch=0,selection=0,busy=false;

@@ -1,5 +1,5 @@
 // Saved reports only. Opening a report never queues model work or data retrieval.
-import './dialogs.js?v=0.30';
+import './dialogs.js?v=0.31';
 export const sources={all:'Ettevõte',google_ads:'Google Ads',ga4:'Google Analytics',gtm:'Google Tag Manager',meta:'Meta',linkedin:'LinkedIn',tiktok:'TikTok'};
 const n=(t,s)=>{const e=document.createElement(t);if(s!==undefined)e.textContent=s;return e;};
 export function reportLink(report,cadence,{clientId,worker=false,source='all'}={}){
