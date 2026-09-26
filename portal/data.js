@@ -1,12 +1,12 @@
-import './dialogs.js?v=0.32';
-import {renderReport,sources} from './report-content.js?v=0.32';
-import {reportEvents} from './timeline.js?v=0.32';
-import {navigation} from './navigation.js?v=0.32';
-import {questionsWorkflow} from './question-dialog.js?v=0.32';
-import {measurementChain} from './measurement-chain.js?v=0.32';
+import './dialogs.js?v=0.33';
+import {renderReport,sources} from './report-content.js?v=0.33';
+import {reportEvents} from './timeline.js?v=0.33';
+import {navigation} from './navigation.js?v=0.33';
+import {questionsWorkflow} from './question-dialog.js?v=0.33';
+import {measurementChain} from './measurement-chain.js?v=0.33';
 import {firebaseConfig} from './firebase-config.js';
-import {weeklyView} from './weekly.js?v=0.32';
-import {createCampaignClient} from './campaigns-client.js?v=0.32';
+import {weeklyView} from './weekly.js?v=0.33';
+import {createCampaignClient} from './campaigns-client.js?v=0.33';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id),api=createCampaignClient();
@@ -28,7 +28,7 @@ async function loadSavedReport(){const current=++reportEpoch,capture=epoch,start
 }
 
 function clear(){clearInterval(timer);timer=null;current=null;submitting=false;$('business').hidden=true;$('gate').hidden=false;$('metrics').replaceChildren();$('readStatus').textContent='';$('start').value='';$('end').value='';reportEpoch++;reportSelection=null;reportHistory=[];reportRoot.replaceChildren();}
-function render(data){current=data;$('clientIdentity').textContent=(data.name||'Ettevõte')+' · '+data.client_id;$('clientKind').textContent=data.client_id==='0000'?'KAITSTUD SISEKLIENT':'ETTEVÕTTE ÜLEVAADE';const job=data.job,pending=job&&['queued','running'].includes(job.status);$('loadMetrics').disabled=submitting;
+function render(data){current=data;$('clientIdentity').textContent=(data.name||'Ettevõte')+' · '+data.client_id;document.dispatchEvent(new CustomEvent('adhalla:navigation',{detail:{clientId:data.client_id}}));const job=data.job,pending=job&&['queued','running'].includes(job.status);$('loadMetrics').disabled=submitting;
  $('readStatus').textContent=pending?(job.status==='running'?'Loen Google’i andmeid…':'Andmelugemine on järjekorras. Tulemus ilmub siia tavaliselt kuni 5 minuti jooksul.'):(job?.status==='failed'?'Andmelugemine ei õnnestunud. Varasemad andmed jäävad nähtavale; proovi uuesti.':data.report?'Kuvatakse salvestatud andmeid. Soovi korral saad värskema seisu eraldi tellida.':'Selle perioodi salvestatud andmeid veel pole. Vajadusel vajuta „Uuenda andmeid”; lugemine võib võtta kuni 5 minutit.');
  if(data.sources_ready===false)$('readStatus').textContent='Adhalla peab esmalt kontrollima ja ühendama sinu ettevõtte andmeallika. Seejärel saad siit valida perioodi.';
  if(!timer&&pending)timer=setInterval(()=>{if(!document.hidden)refresh();},15000);if(timer&&!pending){clearInterval(timer);timer=null;}
@@ -63,13 +63,13 @@ function render(data){current=data;$('clientIdentity').textContent=(data.name||'
  }
  gtm.append(node('p','Veel kontrollimata: märgiste käivitumine veebilehel, nõusoleku toimimine, GA4 sihtkoha vastavus ning päris päringu või ostu mõõtmine. GTM-i lugemine ei muuda ega avalda midagi.','source-note'));
 }
-async function refresh(){const capture=epoch,read=++readEpoch;const query=$('start').value&&$('end').value?'?start='+encodeURIComponent($('start').value)+'&end='+encodeURIComponent($('end').value):'';try{const data=await api.read(route+query);if(capture!==epoch||read!==readEpoch)return;$('business').hidden=false;$('gate').hidden=true;if(!$('start').value){const p=data.report?.period||data.default_period;if(p){$('start').value=p.start;$('end').value=p.end;}}render(data);sourceView(selectedSource);await loadSavedReport();$('periodLabel').textContent=$('start').value+' – '+$('end').value+' ▾';$('freshMetrics').disabled=submitting||data.sources_ready===false||['queued','running'].includes(data.job?.status);}catch(e){if(capture!==epoch)return;if([401,403].includes(e.status)){clear();$('gateMessage').textContent='Selle ettevõtte vaatamiseks puudub ligipääs.';}else $('readStatus').textContent=e.message;}}
-$('freshMetrics').onclick=async()=>{if(submitting)return;const capture=epoch;submitting=true;$('loadMetrics').disabled=true;$('readStatus').textContent='Saadan andmepäringu…';try{const job=await api.write(route,{client_id:current.client_id,start:$('start').value,end:$('end').value});if(capture!==epoch)return;submitting=false;render({...current,job});await refresh();}catch(error){if(capture!==epoch)return;submitting=false;$('loadMetrics').disabled=false;$('readStatus').textContent=error.code==='metrics_limit'?'Tänane 12 andmelugemise piir on täis. Jätka homme.':error.code==='metrics_pending'?'Üks andmelugemine on juba töös. Oota selle lõppu.':error.message;}};
+async function refresh(){const capture=epoch,read=++readEpoch;const query=$('start').value&&$('end').value?'?start='+encodeURIComponent($('start').value)+'&end='+encodeURIComponent($('end').value):'';try{const data=await api.read(route+query);if(capture!==epoch||read!==readEpoch)return;$('business').hidden=false;$('gate').hidden=true;if(!$('start').value){const p=data.report?.period||data.default_period;if(p){$('start').value=p.start;$('end').value=p.end;}}render(data);sourceView(selectedSource);await loadSavedReport();if(capture!==epoch||read!==readEpoch)return;$('periodLabel').textContent=$('start').value+' – '+$('end').value+' ▾';$('freshMetrics').disabled=submitting||data.sources_ready===false||['queued','running'].includes(data.job?.status);}catch(e){if(capture!==epoch||read!==readEpoch)return;if([401,403].includes(e.status)){clear();$('gateMessage').textContent='Selle ettevõtte vaatamiseks puudub ligipääs.';}else $('readStatus').textContent=e.message;}}
+$('freshMetrics').onclick=async()=>{if(submitting||!current)return;const capture=epoch;submitting=true;$('loadMetrics').disabled=true;$('readStatus').textContent='Saadan andmepäringu…';try{const job=await api.write(route,{client_id:current.client_id,start:$('start').value,end:$('end').value});if(capture!==epoch)return;submitting=false;render({...current,job});await refresh();}catch(error){if(capture!==epoch)return;submitting=false;$('loadMetrics').disabled=false;$('readStatus').textContent=error.code==='metrics_limit'?'Tänane 12 andmelugemise piir on täis. Jätka homme.':error.code==='metrics_pending'?'Üks andmelugemine on juba töös. Oota selle lõppu.':error.message;}};
 onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),async user=>{
  const capture=++epoch;api.start(user);clear();weekly.reset();monthly.reset();questions?.destroy();
  if(!user){$('gateMessage').textContent='Logi Google kontoga portaali kaudu sisse.';return;}
  const selected=new URLSearchParams(location.search).get('client');
- base=selected&&/^[0-9]{4}$/.test(selected)&&selected!=='0000'?'/worker/clients/'+selected:user.email==='admin@adhalla.ee'?'/internal/clients/0000':'/workspaces/'+encodeURIComponent(user.uid);
+ base=new URLSearchParams(location.search).get('view')==='worker'&&selected&&/^[0-9]{4}$/.test(selected)?'/worker/clients/'+selected:user.email==='admin@adhalla.ee'?'/internal/clients/0000':'/workspaces/'+encodeURIComponent(user.uid);
  route=base+'/metrics';reportHistory=[];reportSelection=null;reportEpoch++;reportRoot.replaceChildren();
  const query=new URLSearchParams(location.search);sourceView(query.get('source')||'all');
  try{const [week,month]=await Promise.all([api.read(base+'/weekly'),api.read(base+'/monthly')]);if(capture!==epoch)return;reportHistory=reportEvents(week.history,month.history).sort((a,b)=>b.period.end.localeCompare(a.period.end));
@@ -80,7 +80,7 @@ onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),async user=>{
  const aside=document.querySelector('.product-side nav');navigation(aside,{current:'data',clientId:current.client_id,worker:base.startsWith('/worker/')||user.email==='admin@adhalla.ee'});const action=node('div');action.className='head-actions';document.querySelector('.product-head').append(action);questions=questionsWorkflow(action,api,base,current.client_id,{auto:false});
 });
 
-$('dates').onsubmit=async e=>{e.preventDefault();document.querySelector('.period-popover').open=false;await refresh();};
+$('dates').onsubmit=async e=>{e.preventDefault();if(!$('start').value||!$('end').value||$('start').value>$('end').value){$('readStatus').textContent='Vali algus- ja lõppkuupäev õiges järjekorras.';return;}$('readStatus').textContent='Laen valitud perioodi…';document.querySelector('.period-popover').open=false;await refresh();};
 for(const button of document.querySelectorAll('#sourceTabs [data-source]'))button.onclick=()=>{sourceView(button.dataset.source);loadSavedReport();};
 for(const button of document.querySelectorAll('[data-period]'))button.onclick=()=>{const today=new Date();let end=new Date(Date.UTC(today.getFullYear(),today.getMonth(),today.getDate()-1)),start=new Date(end);if(button.dataset.period==='month'){end=new Date(Date.UTC(today.getFullYear(),today.getMonth(),0));start=new Date(Date.UTC(today.getFullYear(),today.getMonth()-1,1));}else start.setUTCDate(start.getUTCDate()-Number(button.dataset.period)+1);$('start').value=start.toISOString().slice(0,10);$('end').value=end.toISOString().slice(0,10);$('dates').requestSubmit();};
 document.querySelector('.product-head').append(document.querySelector('.period-popover').parentElement);
