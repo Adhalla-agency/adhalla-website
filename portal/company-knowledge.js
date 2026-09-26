@@ -1,4 +1,4 @@
-import {renderAssessment} from './understanding.js?v=0.31';
+import {renderAssessment} from './understanding.js?v=0.32';
 const node=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const names={name:'Ettevõte',website:'Veebileht',description:'Tegevus',offering:'Pakkumine',customer:'Klient',objective:'Eesmärk',products_services:'Tooted ja teenused',positioning:'Positsioneerimine',business_facts:'Ettevõtte faktid',locations:'Piirkonnad',value_propositions:'Väärtuspakkumine',conversion_paths:'Kliendi teekond',relevant_pages:'Olulised lehed',phone:'Ettevõtte telefon',phone_country:'Telefoni riik',logo_url:'Logo'};
 const sources={google_ads:'Google Ads',ga4:'Google Analytics 4',gtm:'Google Tag Manager'};
