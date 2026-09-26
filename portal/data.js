@@ -48,7 +48,7 @@ function render(data){current=data;$('clientIdentity').textContent=(data.name||'
    else if(!limited&&old===0)tile.append(node('small','Eelmine väärtus oli 0; protsentuaalset muutust ei arvutata.'));grid.append(tile);}
   for(const message of key==='google_ads'?['Konversioon ei võrdu automaatselt müügiga. Tulemus sõltub konto mõõtmise ja omistamise seadistusest.']:['Võtmesündmused on GA4-s määratud tegevused. Need ei tähenda automaatselt kinnitatud müüke või päringuid.','GA4 tulu ja Google Adsi konversiooniväärtust ei liideta kokku.'])section.append(node('p',message,'source-note'));
  }
- const chain=node('section');chain.dataset.source='gtm';chain.hidden=!['all','gtm'].includes(selectedSource);root.append(chain);measurementChain(chain,report);
+ const chain=node('section');chain.className='measurement-chain-detail';chain.dataset.source='gtm';chain.hidden=!['all','gtm'].includes(selectedSource);root.append(chain);measurementChain(chain,report);
  const gtm=node('section','','card'),inspection=report.gtm;gtm.dataset.source='gtm';gtm.hidden=!['all','gtm'].includes(selectedSource);gtm.append(node('h2','Google Tag Manager'));root.append(gtm);
  if(inspection?.status!=='available'){gtm.append(node('p',inspection?.status==='not_authorized'?'○ GTM pole selle kliendiga lugemiseks ühendatud.':'GTM seadistust ei õnnestunud värskelt kontrollida. See ei tähenda, et märgised puuduvad.','source-note'));return;}
  gtm.append(node('p','✓ Konteineri seadistus kontrollitud · '+new Date(inspection.inspected_at).toLocaleString('et-EE'),'source-note'),node('p','See on kontrollihetke seadistus, mitte valitud kuupäevade ajalooline seis.','muted'));
