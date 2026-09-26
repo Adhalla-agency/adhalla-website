@@ -7,6 +7,6 @@ export function navigation(root,{current='business',clientId=null,worker=false,c
  for(const[key,label,url]of items){const a=document.createElement('a');a.textContent=label;a.href=url;if(current===key)a.setAttribute('aria-current','page');
   if(key==='ads'&&!confirmed){a.textContent='◷ Google Ads';a.setAttribute('aria-disabled','true');a.title='Esmalt kinnita ettevõtte info.';a.onclick=e=>{e.preventDefault();let p=nav.querySelector('[role=status]');if(!p){p=document.createElement('p');p.setAttribute('role','status');nav.append(p);}p.textContent='Esmalt vaata ettevõtte info üle ja kinnita see.';};}nav.append(a);}
  for(const label of ['Meta','TikTok','LinkedIn']){const a=document.createElement('span');a.className='future';a.textContent=label+' · tulekul';nav.append(a);}
- if(admin){const a=document.createElement('a');a.href='clients.html';a.textContent='Admin · kliendid';nav.append(a);}
+ if(admin&&document.documentElement.dataset.portalView==='admin'){for(const[label,href]of [['Kliendid','clients.html?mode=admin'],['Tööde ülevaatus',(clientId||document.documentElement.dataset.ownClient)?'campaigns.html?client='+encodeURIComponent(clientId||document.documentElement.dataset.ownClient)+'&view=worker&technical=1&mode=admin':'clients.html?mode=admin']]){const a=document.createElement('a');a.href=href;a.textContent=label;nav.append(a);}}
  root.replaceChildren(nav);document.dispatchEvent(new CustomEvent('adhalla:navigation',{detail:{clientId,worker,admin}}));return nav;
 }

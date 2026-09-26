@@ -1,5 +1,5 @@
-import {createCampaignClient} from './campaigns-client.js?v=0.32';
-const style=document.createElement('link');style.rel='stylesheet';style.href=new URL('./experience.css?v=0.32',import.meta.url).href;document.head.append(style);
+import {createCampaignClient} from './campaigns-client.js?v=0.33';
+const style=document.createElement('link');style.rel='stylesheet';style.href=new URL('./experience.css?v=0.33',import.meta.url).href;document.head.append(style);
 
 // Own workspace only: visiting a client's admin view never changes that client's choice.
 let session=null;
@@ -9,16 +9,18 @@ export async function ensureExperience(user){
  return session.load();
 }
 function workflow(user){
- const api=createCampaignClient();api.start(user);document.documentElement.dataset.portalAdmin=String(user.email==='admin@adhalla.ee');const brand=document.querySelector('.product-side .brand,.sidebar .brand');if(brand&&!brand.querySelector('img')){const logo=document.createElement('img');logo.src='../assets/adhalla-logo.png';logo.alt='';brand.prepend(logo);}
+ const api=createCampaignClient();api.start(user);document.documentElement.dataset.portalAdmin=String(/@adhalla\.ee$/i.test(user.email||''));const brand=document.querySelector('.product-side .brand,.sidebar .brand');if(brand&&!brand.querySelector('img')){const logo=document.createElement('img');logo.src='../assets/adhalla-logo.png';logo.alt='';brand.prepend(logo);}
  const path='/workspaces/'+encodeURIComponent(user.uid)+'/experience';
  const root=document.createElement('div');root.className='experience-setting';
  const button=document.createElement('button');button.type='button';button.textContent='Kasutusviis';
  button.setAttribute('aria-label','Muuda oma Adhalla kasutusviisi');root.append(button);
  (document.querySelector('.product-side,.sidebar')||document.body).append(root);
+ let viewToggle=null;const viewKey='adhalla:view:'+user.uid;let adminMode=false;try{adminMode=sessionStorage.getItem(viewKey)==='admin';}catch{}if(new URLSearchParams(location.search).get('mode')==='admin'||new URLSearchParams(location.search).get('view')==='worker')adminMode=true;
+ function setView(){if(!/@adhalla\.ee$/i.test(user.email||''))return;const side=document.querySelector('.product-side,.sidebar');if(!side)return;if(!viewToggle){viewToggle=document.createElement('div');viewToggle.className='portal-view-toggle';viewToggle.setAttribute('aria-label','Portaali vaade');for(const[mode,label]of [['client','Kliendi vaade'],['admin','Admini vaade']]){const b=document.createElement('button');b.type='button';b.textContent=label;b.dataset.mode=mode;b.onclick=()=>{try{sessionStorage.setItem(viewKey,mode);}catch{}const id=ownClient;location.href=mode==='admin'?(id?'campaigns.html?client='+id+'&view=worker&technical=1&mode=admin':'clients.html?mode=admin'):(id?'business.html?client='+id:'index.html');};viewToggle.append(b);}side.append(viewToggle);}for(const b of viewToggle.children)b.setAttribute('aria-pressed',String((adminMode?'admin':'client')===b.dataset.mode));document.documentElement.dataset.portalView=adminMode?'admin':'client';}document.addEventListener('adhalla:navigation',setView);
  let value=null,pending=null,dialog=null,destroyed=false,busy=false,ownClient=null;
- const identity=document.querySelector('.identity,.client-chip')||document.createElement('div');identity.className='identity';if(!identity.parentNode)root.before(identity);const existingName=identity.querySelector('strong');identity.replaceChildren();button.className='client-switch';button.replaceChildren();const tierLabel=document.createElement('small'),company=document.createElement('strong');company.textContent=existingName?.textContent||'Minu ettevõte';if(existingName?.id)identity.dataset.nameId=existingName.id;if(identity.dataset.nameId)company.id=identity.dataset.nameId;button.append(tierLabel,company);identity.append(button);root.hidden=true;
+ const identity=document.querySelector('.identity,.client-chip')||document.createElement('div');identity.className='identity';const side=document.querySelector('.product-side,.sidebar');if(side)side.querySelector('.brand')?.after(identity);else root.before(identity);const existingName=identity.querySelector('strong'),existingKind=identity.querySelector('small');if(existingKind?.id)identity.dataset.kindId=existingKind.id;identity.replaceChildren();button.className='client-switch';button.replaceChildren();const tierLabel=document.createElement('small'),company=document.createElement('strong');if(identity.dataset.kindId)tierLabel.id=identity.dataset.kindId;company.textContent=existingName?.textContent||'Minu ettevõte';if(existingName?.id)identity.dataset.nameId=existingName.id;if(identity.dataset.nameId)company.id=identity.dataset.nameId;button.append(tierLabel,company);identity.append(button);root.hidden=true;
  const setIdentity=()=>{const q=new URLSearchParams(location.search),foreign=ownClient&&q.get('view')==='worker'&&q.get('client')&&q.get('client')!==ownClient;button.disabled=!!foreign;tierLabel.textContent=foreign?'Töötaja vaade':value?.choices.find(c=>c.id===value.selection?.tier)?.name||'Vali kasutusviis';const businessName=document.getElementById('businessName')?.textContent;if(businessName&&businessName!=='Minu ettevõte'&&!foreign)company.textContent=businessName+(ownClient?' · '+ownClient:'');if(ownClient==='0000'&&!foreign)company.textContent='Adhalla · 0000';else if(ownClient&&!foreign&&!company.textContent.includes(ownClient))company.textContent+=' · '+ownClient;};document.addEventListener('adhalla:navigation',setIdentity);
- const publish=()=>{const tier=value?.selection?.tier;setIdentity();
+ const publish=()=>{const tier=value?.selection?.tier;setIdentity();setView();
   if(tier){document.documentElement.dataset.experience=tier;document.documentElement.dataset.clientExperience=new URLSearchParams(location.search).get('view')==='worker'?'worker':tier;}
   const q=new URLSearchParams(location.search);const workerView=q.get('view')==='worker';
   if(workerView&&q.get('client')===ownClient&&q.get('technical')!=='1'){q.delete('view');location.replace(location.pathname+'?'+q);return;}
@@ -62,5 +64,5 @@ function workflow(user){
   };dialog.showModal();
  }
  button.onclick=async()=>{await load();open();};
- return {uid:user.uid,load,destroy(){destroyed=true;api.start(null);dialog?.remove();document.removeEventListener('adhalla:navigation',setIdentity);button.remove();root.remove();}};
+ return {uid:user.uid,load,destroy(){destroyed=true;api.start(null);dialog?.remove();document.removeEventListener('adhalla:navigation',setIdentity);document.removeEventListener('adhalla:navigation',setView);viewToggle?.remove();delete document.documentElement.dataset.portalView;button.remove();root.remove();}};
 }

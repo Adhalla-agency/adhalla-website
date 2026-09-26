@@ -1,4 +1,4 @@
-import './dialogs.js?v=0.32';
+import './dialogs.js?v=0.33';
 const n=(tag,text)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;return e;};
 const labels={campaign_content_confirmation:'Kliendi sisukinnitus',campaign_review:'Kampaania ülevaatus',campaign_consultation:'Kampaania konsultatsioon',measurement_setup:'Mõõtmise seadistamise abi'};
 const states={content_confirmed:'Sisu kliendi poolt kinnitatud',unassigned:'Ootab Adhallat',in_progress:'Töös',awaiting_client:'Vali konsultatsiooni aeg',scheduled:'Konsultatsiooni aeg valitud',completed:'Lõpetatud',declined:'Tagasi lükatud'};
@@ -21,18 +21,18 @@ export function clientReview(root,state,api,route,clientId,refresh,{dirty=false,
  }
 }
 
-export async function workerReviews(root,api,openCampaign){
- const records=await api.read('/worker/service-requests');root.replaceChildren(n('h3','Ülevaatused ja abipalved'));
+export async function workerReviews(root,api,openCampaign,queue=null){
+ const records=await api.read('/worker/service-requests');if(!queue)root.replaceChildren(n('h3','Ülevaatused ja abipalved'));
  for(const row of records.filter(Boolean)){
-  const card=n('button',(labels[row.kind]||'Abipalve')+' · klient '+row.client_id+' · '+row.campaign_id+' · '+(states[row.status]||row.status));card.type='button';card.className='ticket-card';root.append(card);
+  const card=n('button',(labels[row.kind]||'Abipalve')+' · klient '+row.client_id+' · '+row.campaign_id+' · '+(states[row.status]||row.status));card.type='button';card.className='ticket-card';if(queue)queue.add(row,card);else root.append(card);
   card.onclick=async()=>{const record=await api.read('/worker/service-requests/'+row.request_id),dialog=n('dialog'),close=n('button','Sulge');close.type='button';close.onclick=()=>{dialog.close();dialog.remove();};dialog.className='product-modal';dialog.addEventListener('close',()=>dialog.remove(),{once:true});dialog.append(n('h2',labels[record.kind]||'Abipalve'),n('p','Klient '+record.client_id+' · '+record.campaign_id),n('p',states[record.status]||record.status),close);document.body.append(dialog);dialog.showModal();
-   if(record.kind==='campaign_help'){dialog.append(n('h3','Kliendi küsimus'),n('p',record.snapshot.question),n('h3','AI vastus'),n('p',record.snapshot.answer||'Vastus puudub'));const done=n('button','Võtan abipalve tööks');done.onclick=async()=>{done.disabled=true;try{await api.write('/worker/service-requests/'+record.request_id,{base_version:record.version,action:'claim',slots:[]});dialog.close();await workerReviews(root,api,openCampaign);}catch(e){dialog.append(n('p',e.message));done.disabled=false;}};dialog.append(done);return;}
+   if(record.kind==='campaign_help'){dialog.append(n('h3','Kliendi küsimus'),n('p',record.snapshot.question),n('h3','AI vastus'),n('p',record.snapshot.answer||'Vastus puudub'));const done=n('button','Võtan abipalve tööks');done.onclick=async()=>{done.disabled=true;try{await api.write('/worker/service-requests/'+record.request_id,{base_version:record.version,action:'claim',slots:[]});dialog.close();await (queue?queue.reload():workerReviews(root,api,openCampaign));}catch(e){dialog.append(n('p',e.message));done.disabled=false;}};dialog.append(done);return;}
    const proposal=record.snapshot.proposal;dialog.append(n('h3',proposal.campaign_name),n('p',proposal.rationale));for(const group of proposal.ad_groups)dialog.append(n('h4',group.name),n('p',group.headlines.join(' · ')),n('p',group.descriptions.join(' · ')));
    dialog.append(n('p','Sisu versioon '+record.proposal_version.slice(0,8)+'. See abipalve ei anna Google’i muutmisõigust.'));
    if(record.snapshot.measurement)dialog.append(n('p','Mõõtmise kontroll: '+record.snapshot.measurement.status+'. Päris teekonna läbimine '+(record.snapshot.measurement.end_to_end_verified?'kinnitatud':'kontrollimata')+'.'));
    const open=n('button','Ava täpse kampaania loomise ülevaatus');open.type='button';open.onclick=async()=>{dialog.close();dialog.remove();await openCampaign(record.campaign_request_id);};dialog.append(open);
    const message=n('p');message.setAttribute('role','status');dialog.append(message);let pending=false;
-   async function send(action,slots=[]){if(pending)return;pending=true;message.textContent='Salvestan…';try{await api.write('/worker/service-requests/'+record.request_id,{base_version:record.version,action,slots});dialog.close();dialog.remove();await workerReviews(root,api,openCampaign);}catch(e){message.textContent=e.message;pending=false;}}
+   async function send(action,slots=[]){if(pending)return;pending=true;message.textContent='Salvestan…';try{await api.write('/worker/service-requests/'+record.request_id,{base_version:record.version,action,slots});dialog.close();dialog.remove();await (queue?queue.reload():workerReviews(root,api,openCampaign));}catch(e){message.textContent=e.message;pending=false;}}
    if(!['completed','declined'].includes(record.status)){
     for(const[action,label]of [['claim','Dibs · võtan tööks'],['complete','Märgi abipalve lõpetatuks'],['decline','Lükka abipalve tagasi']]){const b=n('button',label);b.type='button';b.onclick=()=>send(action);dialog.append(b);}
     if(record.kind==='campaign_consultation'){

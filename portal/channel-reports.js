@@ -1,5 +1,5 @@
-import {reportLink,renderReport} from './report-content.js?v=0.32';
-import {reportEvents,calendar} from './timeline.js?v=0.32';
+import {reportLink,renderReport} from './report-content.js?v=0.33';
+import {reportEvents,calendar} from './timeline.js?v=0.33';
 const n=(t,s)=>{const e=document.createElement(t);if(s!==undefined)e.textContent=s;return e;};
 const labels={impressions:'Näitamised',clicks:'Klikid',cost:'Reklaamikulu',conversions:'Konversioonid',conversion_value:'Omistatud konversiooniväärtus'};
 export async function channelReports(root,api,base){

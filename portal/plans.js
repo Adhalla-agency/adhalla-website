@@ -1,3 +1,3 @@
-import {navigation} from './navigation.js?v=0.32';
+import {navigation} from './navigation.js?v=0.33';
 const query=new URLSearchParams(location.search);navigation(document.getElementById('navigation'),{current:'plans',clientId:query.get('client'),worker:query.get('view')==='worker'});
 fetch('./plans.json',{cache:'no-store',credentials:'omit'}).then(r=>{if(!r.ok)throw Error();return r.json();}).then(c=>{for(const key of ['interpretation','automation']){const value=c.plans?.[key]?.monthly_eur;if(!Number.isFinite(value)||value<0)throw Error();document.getElementById(key+'Price').textContent='Tavahind '+new Intl.NumberFormat('et-EE',{style:'currency',currency:'EUR',maximumFractionDigits:0}).format(value)+' / kuu';}}).catch(()=>{for(const key of ['interpretation','automation'])document.getElementById(key+'Price').textContent='Hinnakirja laadimine ei õnnestunud.';});
