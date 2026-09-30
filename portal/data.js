@@ -30,9 +30,9 @@ async function loadSavedReport(){const current=++reportEpoch,capture=epoch,start
 
 function clear(){automaticReads.clear();readEpoch++;clearInterval(timer);timer=null;current=null;submitting=false;$('business').hidden=true;$('gate').hidden=false;$('metrics').replaceChildren();$('readStatus').textContent='';$('start').value='';$('end').value='';reportEpoch++;reportSelection=null;reportHistory=[];reportRoot.replaceChildren();}
 function render(data){current=data;$('clientIdentity').textContent=(data.name||'Ettevõte')+' · '+data.client_id;document.dispatchEvent(new CustomEvent('adhalla:navigation',{detail:{clientId:data.client_id}}));const job=data.job,pending=job&&['queued','running'].includes(job.status);$('loadMetrics').disabled=submitting;
- $('readStatus').textContent=pending?(job.status==='running'?'Loen Google’i andmeid…':'Andmelugemine on järjekorras. Tulemus ilmub siia tavaliselt kuni 5 minuti jooksul.'):(job?.status==='failed'?'Andmelugemine ei õnnestunud. Varasemad andmed jäävad nähtavale; proovi uuesti.':data.report?'Kuvatakse salvestatud andmeid. Soovi korral saad värskema seisu eraldi tellida.':'Selle perioodi salvestatud andmeid veel pole. Vajadusel vajuta „Uuenda andmeid”; lugemine võib võtta kuni 5 minutit.');
+ $('readStatus').textContent=pending?(job.status==='running'?'Loen Google’i andmeid…':'Hangin valitud perioodi andmeid…'):(job?.status==='failed'?'Andmelugemine ei õnnestunud. Varasemad andmed jäävad nähtavale; proovi uuesti.':data.report?'Kuvatakse salvestatud andmeid. Soovi korral saad värskema seisu eraldi tellida.':'Selle perioodi salvestatud andmeid veel pole. Andmete saamiseks vajuta „Uuenda andmeid”.');
  if(data.sources_ready===false)$('readStatus').textContent='Adhalla peab esmalt kontrollima ja ühendama sinu ettevõtte andmeallika. Seejärel saad siit valida perioodi.';
- if(!timer&&pending)timer=setInterval(()=>{if(!document.hidden)refresh();},5000);if(timer&&!pending){clearInterval(timer);timer=null;}
+ if(!timer&&pending)timer=setInterval(()=>{if(!document.hidden)refresh();},2000);if(timer&&!pending){clearInterval(timer);timer=null;}
  const selectedPeriod=$('start').value&&$('end').value;const report=data.report&&(!selectedPeriod||(data.report.period.start===$('start').value&&data.report.period.end===$('end').value))?data.report:null,root=$('metrics');root.replaceChildren();if(!report){root.append(node('p','Selle valitud perioodi salvestatud mõõdikuid veel pole.')); return;}
  root.append(node('h2','Valitud periood'),node('p',dates(report.period)+' · võrdlus '+report.period.comparison_start+' – '+report.period.comparison_end,'report-dates'),node('p','Andmed loetud '+new Date(report.generated_at).toLocaleString('et-EE')+'.','muted'));
  for(const [key,title,fields] of [['google_ads','Google Ads',[['impressions','Näitamised'],['clicks','Klikid'],['cost','Reklaamikulu',true],['conversions','Konversioonid'],['conversion_value','Konversiooniväärtus',true]]],['ga4','Google Analytics',[['activeUsers','Aktiivsed kasutajad'],['sessions','Seansid'],['engagedSessions','Kaasatud seansid'],['keyEvents','Võtmesündmused'],['totalRevenue','Mõõdetud tulu',true]]]]){
@@ -65,7 +65,7 @@ function render(data){current=data;$('clientIdentity').textContent=(data.name||'
  gtm.append(node('p','Veel kontrollimata: märgiste käivitumine veebilehel, nõusoleku toimimine, GA4 sihtkoha vastavus ning päris päringu või ostu mõõtmine. GTM-i lugemine ei muuda ega avalda midagi.','source-note'));
 }
 function selectedWindow(){return $('start').value+'|'+$('end').value;}
-function poll(){if(!timer)timer=setInterval(()=>{if(!document.hidden)refresh();},5000);}
+function poll(){if(!timer)timer=setInterval(()=>{if(!document.hidden)refresh();},2000);}
 async function requestMetrics(automatic=false){
  if(submitting||!current||current.sources_ready===false)return;
  const capture=epoch,key=selectedWindow(),body={client_id:current.client_id,start:$('start').value,end:$('end').value};
