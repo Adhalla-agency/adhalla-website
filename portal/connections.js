@@ -6,7 +6,7 @@ import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.
 const api=createCampaignClient(),$=id=>document.getElementById(id),node=(tag,text='')=>{const n=document.createElement(tag);n.textContent=text;return n;};
 let epoch=0,user=null,busy=false;const drafts=new Map();
 const names={ga4:'Google Analytics 4',gtm:'Google Tag Manager',google_ads:'Google Ads'};
-const states={connected:'✓ Ühendatud',not_connected:'○ Ühendamata',setup_incomplete:'◷ Seadistamine pooleli',needs_attention:'! Vajab tähelepanu'};
+const states={connected:'✓ Ühendatud',connected_stale:'✓ Ühendatud · varasem kontroll',not_connected:'○ Ühendamata',setup_incomplete:'◷ Seadistamine pooleli',needs_attention:'! Vajab tähelepanu'};
 const requests={submitted:'Saadetud Adhallale',reviewing:'Adhalla vaatab üle',waiting_client:'Ootab sinu vastust',resolved:'Abipalve lahendatud'};
 const fields={ga4:[['resource_id','GA4 atribuudi ID (numbrid, mitte G-…)'],['name','Atribuudi täpne nimi']],google_ads:[['resource_id','Google Adsi kliendi-ID (10 numbrit)'],['name','Konto täpne nimi']],gtm:[['account_id','GTM konto number'],['container_id','GTM konteineri number'],['public_id','Avalik konteineritunnus (GTM-…)']]};
 const instructions={
@@ -17,7 +17,8 @@ async function load(){if(!user||busy)return;const capture=epoch;$('connectionMes
 function render(data){$('sourceCards').replaceChildren();for(const row of data.sources){
  const card=node('section');card.className='card source-card';const heading=node('div');heading.className='connection-heading';const badge=node('span',states[row.status]);badge.className='connection-status '+row.status;heading.append(node('h2',names[row.source]),badge);card.append(heading);
  card.append(node('p',row.checked_at?'Viimane andmete lugemine: '+new Date(row.checked_at).toLocaleString('et-EE')+'.':'Google’i värsket lugemist pole veel kinnitatud.'));
- if(row.status==='needs_attention')card.append(node('p','Viimane kontroll ebaõnnestus või on aegunud. See ei tähenda automaatselt, et ühendus on eemaldatud. Adhalla saab lugemisõigust kontrollida.'));
+ if(row.status==='connected_stale')card.append(node('p','Viimane edukas lugemine on varasemast. Vali „Andmed ja raportid” lehel soovitud periood — uued andmed loetakse seal automaatselt.'));
+ if(row.status==='needs_attention')card.append(node('p','Viimane andmete lugemine ei õnnestunud. See ei tähenda automaatselt, et ühendus on eemaldatud. Adhalla saab lugemisõigust kontrollida.'));
  const facts=node('p');facts.className='connection-facts';facts.textContent=fields[row.source].map(([key,label])=>row.resources[key]?label+': '+row.resources[key]:'').filter(Boolean).join(' · ');card.append(facts);
  if(row.verification&&['queued','running'].includes(row.verification.status))card.append(node('p','Ühenduse kontroll on järjekorras või käib.'));
  if(row.request){const receipt=node('div');receipt.className='connection-receipt';receipt.append(node('strong',requests[row.request.status]||row.request.status),node('p',row.request.kind==='help'?row.request.note:'Esitatud tunnused: '+Object.values(row.request.resources).join(' · ')));if(row.request.worker_note)receipt.append(node('p','Adhalla: '+row.request.worker_note));card.append(receipt);}
