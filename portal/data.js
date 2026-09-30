@@ -69,6 +69,7 @@ function poll(){if(!timer)timer=setInterval(()=>{if(!document.hidden)refresh();}
 async function requestMetrics(automatic=false){
  if(submitting||!current||current.sources_ready===false)return;
  const capture=epoch,key=selectedWindow(),body={client_id:current.client_id,start:$('start').value,end:$('end').value};
+ if(!automatic)body.refresh=true;
  if(automatic&&automaticReads.has(key))return;automaticReads.add(key);submitting=true;$('freshMetrics').disabled=true;$('readStatus').textContent='Loen valitud perioodi värskeid andmeid…';
  let retryAfterPending=false;
  try{await api.write(route,body);if(capture!==epoch)return;}
