@@ -1,12 +1,24 @@
-export function navigation(root,{current='business',clientId=null,worker=false,confirmed=true}={}){
- const admin=worker||document.documentElement.dataset.portalAdmin==='true';worker=worker&&new URLSearchParams(location.search).get('view')==='worker';
- const query=clientId?'?client='+encodeURIComponent(clientId)+(worker?'&view=worker&technical=1':''):'';
- const profile=worker&&clientId&&clientId!=='0000'?'clients.html?client='+encodeURIComponent(clientId):'index.html';
- const items=[['profile','Ettevõtte info',profile],['business','Äri ülevaade','business.html'+query],['ads','Google Ads','campaigns.html'+query],['data','Andmed ja raportid','data.html'+query],['connections','Ühendused','connections.html']];
- const nav=document.createElement('nav');nav.className='module-nav';nav.setAttribute('aria-label','Portaali moodulid');
- for(const[key,label,url]of items){const a=document.createElement('a');a.textContent=label;a.href=url;if(current===key)a.setAttribute('aria-current','page');
-  if(key==='ads'&&!confirmed){a.textContent='◷ Google Ads';a.setAttribute('aria-disabled','true');a.title='Esmalt kinnita ettevõtte info.';a.onclick=e=>{e.preventDefault();let p=nav.querySelector('[role=status]');if(!p){p=document.createElement('p');p.setAttribute('role','status');nav.append(p);}p.textContent='Esmalt vaata ettevõtte info üle ja kinnita see.';};}nav.append(a);}
- for(const label of ['Meta','TikTok','LinkedIn']){const a=document.createElement('span');a.className='future';a.textContent=label+' · tulekul';nav.append(a);}
- if(admin&&document.documentElement.dataset.portalView==='admin'){for(const[label,href]of [['Kliendid','clients.html?mode=admin'],['Tööde ülevaatus',(clientId||document.documentElement.dataset.ownClient)?'campaigns.html?client='+encodeURIComponent(clientId||document.documentElement.dataset.ownClient)+'&view=worker&technical=1&mode=admin':'clients.html?mode=admin']]){const a=document.createElement('a');a.href=href;a.textContent=label;nav.append(a);}}
- root.replaceChildren(nav);document.dispatchEvent(new CustomEvent('adhalla:navigation',{detail:{clientId,worker,admin}}));return nav;
+export function navigation(root,options={}){
+ const {current='business',clientId=null,worker=false,confirmed=true}=options;
+ const render=()=>{
+  const data=document.documentElement.dataset,q=new URLSearchParams(location.search);
+  const admin=data.portalAdmin==='true'&&(data.portalView==='admin'||q.get('mode')==='admin');
+  const id=data.selectedClient||clientId||q.get('client')||data.ownClient;
+  const selected=new URLSearchParams();if(id)selected.set('client',id);
+  if(admin){selected.set('mode','admin');selected.set('view','worker');selected.set('technical',data.staffTools==='full'?'1':'0');}
+  const query=selected.size?'?'+selected:'';
+  const profile=admin?'staff-profile.html':'index.html';
+  const ads=admin&&data.staffTools==='full'?'campaigns.html':data.clientExperience==='agency'?'agency.html':'campaigns.html';
+  const items=[['profile','Ettevõtte info',profile],['business','Äri ülevaade','business.html'],['ads','Google Ads',ads],['data','Andmed ja raportid','data.html'],['connections','Ühendused','connections.html']];
+  const nav=document.createElement('nav');nav.className='module-nav';nav.setAttribute('aria-label','Portaali moodulid');
+  for(const[key,label,path]of items){const a=document.createElement('a');a.textContent=label;a.href=path+query;if(current===key)a.setAttribute('aria-current','page');
+   if(key==='ads'&&!confirmed&&!admin){a.setAttribute('aria-disabled','true');a.onclick=e=>{e.preventDefault();a.title='Esmalt kinnita ettevõtte info.';};}nav.append(a);}
+  for(const label of ['Meta','TikTok','LinkedIn']){const a=document.createElement('span');a.className='future';a.textContent=label+' · tulekul';nav.append(a);}
+  if(admin)for(const[key,label,path]of [['work','Töökeskus','work-center.html'],['support','Kasutajatugi','work-center.html'],['clients','Kliendid','clients.html']]){
+   const a=document.createElement('a');a.textContent=label+(key==='support'&&Number(data.supportCount)?' · '+data.supportCount:'');a.href=path+query+(key==='support'?'&category=support':'');a.dataset.workerAction='true';if(current===key)a.setAttribute('aria-current','page');nav.append(a);
+  }
+  root.replaceChildren(nav);document.dispatchEvent(new CustomEvent('adhalla:navigation',{detail:{clientId:id,worker,admin}}));
+ };
+ if(root._navigationListener)document.removeEventListener('adhalla:experience',root._navigationListener);
+ root._navigationListener=render;document.addEventListener('adhalla:experience',render);render();return root.querySelector('nav');
 }
