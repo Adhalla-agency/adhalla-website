@@ -87,6 +87,7 @@ export function campaignPresentation(item){
  const stop=item.safety_pause;
  if(['requested','running'].includes(stop?.status))return {tone:'pending',text:'Peatamise kinnitus ootel'};
  if(['failed','reconciliation_required'].includes(stop?.status))return {tone:'attention',text:'Peatamine pole kinnitatud · vajab kontrolli'};
+ if(item.blocking_issue==='targeting_selection_required')return {tone:'ready',text:'Täpsusta reklaami asukohad · sisu on alles'};
  const observed=item.google_state?.result;
  if(item.creation&&['unassigned','in_progress'].includes(item.status)&&item.submitted_version===item.brief_version)return {tone:'pending',text:'Muudatus esitatud · ootab Adhalla kinnitust'+(observed?.campaign_status==='ENABLED'?' · senine reklaam on aktiivne':' · senine kampaania on koostatud')};
  if(stop?.status==='completed'&&(!item.google_state?.observed_at||Date.parse(stop.completed_at)>=Date.parse(item.google_state.observed_at)))return {tone:'ready',text:'Koostatud · peatatud sinu soovil'};

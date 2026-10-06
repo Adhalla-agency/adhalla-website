@@ -1,11 +1,11 @@
-import './dialogs.js?v=0.33';
-import {reportDialog,reportLink} from './report-content.js?v=0.33';
+import './dialogs.js?v=0.36';
+import {reportDialog,reportLink} from './report-content.js?v=0.36';
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient} from './campaigns-client.js?v=0.33';
-import {weeklyView} from './weekly.js?v=0.33';
-import {calendar,reportEvents} from './timeline.js?v=0.33';
-import {questionsWorkflow} from './question-dialog.js?v=0.33';
-import {navigation} from './navigation.js?v=0.33';
+import {createCampaignClient} from './campaigns-client.js?v=0.36';
+import {weeklyView} from './weekly.js?v=0.36';
+import {calendar,reportEvents} from './timeline.js?v=0.36';
+import {questionsWorkflow} from './question-dialog.js?v=0.36';
+import {navigation} from './navigation.js?v=0.36';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id),api=createCampaignClient(),views={weekly:weeklyView($('weekly'),api),monthly:weeklyView($('monthly'),api,{cadence:'monthly'})};
@@ -18,7 +18,7 @@ $('historyRange').onchange=()=>{const days=+$('historyRange').value,cutoff=days?
 onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),async user=>{
  const capture=++epoch;api.start(user);questions?.destroy();document.querySelectorAll('dialog[aria-label="Salvestatud raport"]').forEach(d=>{d.close();d.remove();});for(const view of Object.values(views))view.reset();$('business').hidden=true;$('gate').hidden=false;events=[];
  if(!user){$('gateMessage').textContent='Logi portaali kaudu sisse.';return;}
- const selected=new URLSearchParams(location.search).get('client'),worker=selected&&selected!=='0000'&&/^[0-9]{4}$/.test(selected);
+ const selected=new URLSearchParams(location.search).get('client'),worker=selected&&new URLSearchParams(location.search).get('view')==='worker'&&/^[0-9]{4}$/.test(selected);
  base=worker?'/worker/clients/'+selected:user.email==='admin@adhalla.ee'?'/internal/clients/0000':'/workspaces/'+encodeURIComponent(user.uid);
  try{const [metrics,week,month]=await Promise.all([api.read(base+'/metrics'),api.read(base+'/weekly'),api.read(base+'/monthly')]);if(capture!==epoch)return;
   $('clientIdentity').textContent=(metrics.name||'Ettevõte')+' · '+metrics.client_id;navigation($('moduleNav'),{clientId:metrics.client_id,current:'business',worker:!!worker||user.email==='admin@adhalla.ee'});reportOptions={clientId:metrics.client_id,worker:!!worker,source:'all'};const latest=[['weekly',week.report],['monthly',month.report]].filter(([,r])=>r).sort((a,b)=>b[1].period.end.localeCompare(a[1].period.end))[0];$('dataLink').href=latest?reportLink(latest[1],latest[0],reportOptions):'data.html';
