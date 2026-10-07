@@ -1,5 +1,8 @@
 (function () {
   "use strict";
+  if (window.__adhallaFormspreeInstalled) return;
+  window.__adhallaFormspreeInstalled = true;
+  const submitting = new WeakSet();
 
   function getVariant(form) {
     if (form.dataset && form.dataset.experimentVariant) {
@@ -62,6 +65,9 @@
   }
 
   async function submitForm(form) {
+    if (submitting.has(form)) return;
+    if (!form.reportValidity()) return;
+    submitting.add(form);
     const status = ensureStatus(form);
     status.textContent = "";
     setBusy(form, true);
@@ -75,35 +81,37 @@
         }
       });
 
-      let result = null;
-      try {
-        result = await response.json();
-      } catch (_) {}
+      if (!response.ok) throw new Error('submission_failed');
 
-      if (!response.ok) {
-        let message = "Päringu saatmine ei õnnestunud. Sinu sisestatud info on alles — proovi hetk hiljem uuesti.";
-        if (result && Array.isArray(result.errors) && result.errors[0] && result.errors[0].message) {
-          message = result.errors[0].message;
-        }
-        throw new Error(message);
-      }
+    } catch (_) {
+      status.textContent = "Päringu saatmine ei õnnestunud. Sinu sisestatud info on alles — proovi hetk hiljem uuesti.";
+      submitting.delete(form);
+      setBusy(form, false);
+      return;
+    }
 
+    // A tracking error must never turn an accepted lead into a retryable failure.
+    status.textContent = "Päring on saadetud. Avame kinnituse…";
+    let redirected = false;
+    const finish = () => {
+      if (redirected) return;
+      redirected = true;
+      clearTimeout(fallback);
+      window.location.assign(thankYouUrl(form));
+    };
+    // The independent timeout also works if GTM is blocked or never loads.
+    const fallback = setTimeout(finish, 1500);
+    try {
       window.dataLayer = window.dataLayer || [];
       window.dataLayer.push({
         event: "adhalla_lead_success_client",
         experiment_id: "landing_v1",
         experiment_variant: getVariant(form),
-        lead_type: getLeadType(form)
+        lead_type: getLeadType(form),
+        eventCallback: finish,
+        eventTimeout: 1400
       });
-
-      window.location.assign(thankYouUrl(form));
-    } catch (error) {
-      status.textContent =
-        error && error.message
-          ? error.message
-          : "Päringu saatmine ei õnnestunud. Sinu sisestatud info on alles — proovi hetk hiljem uuesti.";
-      setBusy(form, false);
-    }
+    } catch (_) { finish(); }
   }
 
   document.addEventListener("submit", function (event) {
