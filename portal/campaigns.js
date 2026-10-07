@@ -6,7 +6,7 @@ import {navigation} from './navigation.js?v=0.36';
 import {questionsWorkflow} from './question-dialog.js?v=0.36';
 import {channelReports} from './channel-reports.js?v=0.36';
 import {creationDecision,isCreation} from './creation-controls.js?v=0.36';
-import {managementView} from './campaign-management.js?v=0.36';
+import {managementView} from './campaign-management.js?v=0.37';
 import {clientReview,workerReviews} from './campaign-review.js?v=0.36';
 import {mountSearch,renderSearchProposal,searchLabels,emptySearch} from './search-workspace.js?v=0.36';
 import {firebaseConfig} from './firebase-config.js';
