@@ -3,7 +3,7 @@ import {questionsWorkflow} from './question-dialog.js?v=0.36';
 import {createCampaignClient} from './campaigns-client.js?v=0.36';
 import {firebaseConfig} from './firebase-config.js';
 import {confirmationState,matchesSavedProfile,detailLists,emptyDetails,discoveryText} from './business-profile-client.js?v=0.36';
-import {renderKnowledge,knowledgePending} from './company-knowledge.js?v=0.36';
+import {renderKnowledge,knowledgePending} from './company-knowledge.js?v=0.38';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 import {getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js';

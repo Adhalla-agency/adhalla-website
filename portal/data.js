@@ -3,7 +3,7 @@ import {renderReport,sources} from './report-content.js?v=0.36';
 import {reportEvents} from './timeline.js?v=0.36';
 import {navigation} from './navigation.js?v=0.36';
 import {questionsWorkflow} from './question-dialog.js?v=0.36';
-import {measurementChain} from './measurement-chain.js?v=0.36';
+import {measurementChain} from './measurement-chain.js?v=0.38';
 import {firebaseConfig} from './firebase-config.js';
 import {weeklyView} from './weekly.js?v=0.36';
 import {createCampaignClient} from './campaigns-client.js?v=0.36';
