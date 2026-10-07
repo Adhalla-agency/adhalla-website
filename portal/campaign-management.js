@@ -1,6 +1,7 @@
 import {creationPermissions,isCreation} from './creation-controls.js?v=0.36';
 import {automationControls} from './automation-controls.js?v=0.36';
 import {managementReview} from './management-review.js?v=0.36';
+import {launchReadiness} from './launch-readiness.js?v=0.37';
 const node=(tag,text)=>{const el=document.createElement(tag);if(text!==undefined)el.textContent=text;return el;};
 const labels={pause_keywords:'Märksõna peatamine',add_keywords:'Märksõna lisamine',add_negatives:'Välistuse lisamine',create_ads:'Uus reklaam',edit_ads:'Reklaami uuendamine',adjust_budget:'Eelarve muutmine',change_bidding_strategy:'Pakkumisstrateegia katse',activate_campaign:'Kampaania käivitamine'};
 const states={proposed:'Ettepanek · kinnitamata',approved:'Kinnitatud · ootab töötlemist',completed:'Tehtud',rejected:'Tagasi lükatud',blocked:'Õigus või alusandmed vajavad kontrolli',failed:'Tegevus ei alanud',reconciliation_required:'Tulemus vajab kontrolli · kordus lukus',rolled_back:'Tagasi pööratud',rollback_approved:'Tagasipööre kinnitatud'};
@@ -15,6 +16,7 @@ export function managementView(root,api){
   const refresh=node('button','Loe kampaania hetkeseis');refresh.type='button';refresh.disabled=['queued','running'].includes(data.job?.status);root.append(refresh);const capture=epoch;
   if(isCreation()&&!isWorker)creationPermissions(root,api,route,clientId,policy,{current:()=>capture===epoch,reload:load});else automationControls(root,api,route,clientId,policy,{worker:isWorker,current:()=>capture===epoch,reload:load});
   if(data.observation_stale_configuration)root.append(node('p','Ühenduse seadistus on muutunud. Allolev seis on varasem; enne toiminguid on vaja uut lugemist.'));
+  launchReadiness(root,data.launch_readiness);
   if(isWorker||isCreation())managementReview(root,data,(command,version,payload)=>api.write(route+'optimization',{client_id:clientId,command,version,payload}),{current:()=>capture===epoch,reload:load,owner:!isWorker,available:policy?.available_actions||[]});
   refresh.onclick=async()=>{refresh.disabled=true;message.textContent='Andmelugemine saadetakse tööjärjekorda…';try{await api.write(route+'optimization',{client_id:clientId,command:'refresh',version:null,payload:{}});if(capture!==epoch)return;await load();}catch(e){if(capture===epoch){message.textContent=e.message;refresh.disabled=false;}}};
   const observation=data.observation;

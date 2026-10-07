@@ -1,0 +1,10 @@
+const labels={campaign_not_created:'Kampaania pole veel Google Adsis loodud. Lõpeta esmalt peatatud kampaania loomine.',campaign_not_observed:'Kampaania hetkeseis vajab Google’ist lugemist.',fresh_observation_required:'Kampaania andmed on aegunud või puudulikud. Loe hetkeseis uuesti.',targeting_review_required:'Asukohad, keeled või reklaamivõrgustik vajavad täpsustamist.',dedicated_budget_required:'Kampaanial peab olema oma kinnitatud päevaeelarve.',ads_required:'Google Adsis pole selle kampaania reklaame veel näha.',ad_strength_pending:'Google pole reklaamide tugevuse hinnangut veel lõpetanud. Ootel hinnang ei tähenda ebaõnnestunud loomist.',ad_strength_improvement_required:'Vähemalt ühe reklaami tugevus vajab parandamist. Adhalla käivitamise siht on vähemalt Average.',conversion_delivery_verification_required:'Päris konversiooni teekond vajab kontrolli: veebilehe tegevus, nõusolek ja tulemuse kohalejõudmine. Ühenduse olemasolust üksi ei piisa.',conversion_verifier_unavailable:'Mõõtmise varasema kinnitaja ligipääs on muutunud. Vajalik on uus kontroll.',activation_capability_unavailable:'Selle kliendi ühenduse seadistus ei luba praegu kampaania käivitamist.'};
+export function launchReadiness(root,value){
+ if(!value)return;const n=(tag,text)=>{const el=document.createElement(tag);el.textContent=text;return el;};
+ const box=n('section','');box.className='launch-readiness';box.setAttribute('aria-label','Käivitamise eeldused');box.append(n('h3','Enne reklaami käivitamist'));
+ const blockers=Array.isArray(value.blockers)?value.blockers:[];
+ if(blockers.length){box.append(n('p','Need kontrollid vajavad veel lahendamist:'));const list=n('ul','');for(const code of blockers)list.append(n('li',labels[code]||'Kampaania eeldused vajavad täiendavat kontrolli.'));box.append(list);}
+ else box.append(n('p','Salvestatud seadistuse kontrollid on läbitud. See ei ole reklaami käivitamise kinnitus.'));
+ box.append(n('p','Käivitamisel kontrollitakse lisaks valitud reklaame, kehtivat luba, eelarvepiiri ja Google’i värsket seisu.'));
+ root.append(box);
+}
