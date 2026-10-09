@@ -5,6 +5,7 @@ export function launchReadiness(root,value){
  const blockers=Array.isArray(value.blockers)?value.blockers:[];
  if(blockers.length){box.append(n('p','Need kontrollid vajavad veel lahendamist:'));const list=n('ul','');for(const code of blockers)list.append(n('li',labels[code]||'Kampaania eeldused vajavad täiendavat kontrolli.'));box.append(list);}
  else box.append(n('p','Salvestatud seadistuse kontrollid on läbitud. See ei ole reklaami käivitamise kinnitus.'));
+ if(value.warnings?.some(code=>code.startsWith('ad_strength_')))box.append(n('p','Google’i reklaami tugevuse hinnang on veel ootel või soovitab teksti täiendada. See on soovitus, mitte kinnitamise või käivitamise piirang.'));
  box.append(n('p','Käivitamisel kontrollitakse lisaks valitud reklaame, kehtivat luba, eelarvepiiri ja Google’i värsket seisu.'));
  root.append(box);
 }
