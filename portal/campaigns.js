@@ -1,4 +1,5 @@
 import './dialogs.js?v=0.36';
+import {locationPicker} from './location-picker.js?v=0.39';
 import {ensureExperience} from './experience.js?v=0.36';
 import {ticketQueue} from './ticket-queue.js?v=0.36';
 import {connectionSupport} from './connection-support.js?v=0.36';
@@ -10,7 +11,7 @@ import {managementView} from './campaign-management.js?v=0.38';
 import {clientReview,workerReviews} from './campaign-review.js?v=0.36';
 import {mountSearch,renderSearchProposal,searchLabels,emptySearch} from './search-workspace.js?v=0.38';
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation,quotaPresentation} from './campaigns-client.js?v=0.36';
+import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation,quotaPresentation} from './campaigns-client.js?v=0.39';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id), client=createCampaignClient();
@@ -30,7 +31,7 @@ for(const [key,label,type]of fields){
  if(type==='money'){input.inputMode='decimal';input.placeholder=['target_cpa','target_roas','max_cpc'].includes(key)?'Valikuline · jäta tühjaks':'Näiteks 10,00';}
  if(type==='url')input.placeholder='https://';
  input.maxLength=({objective:1500,landing_page:500,currency:3,strategy_notes:5000,constraints:3000})[key]||(type==='list'?16100:type==='money'?10:2000);
- if(type==='list')wrap.append(node('small','Üks väärtus rea kohta.'));
+ if(type==='list'&&key!=='locations')wrap.append(node('small','Üks väärtus rea kohta.'));
  wrap.append(input);if(['target_cpa','target_roas'].includes(key)){const optional=node('label');optional.className='optional-choice';const toggle=node('input');toggle.type='checkbox';toggle.id='use-'+key;toggle.setAttribute('aria-controls',input.id);optional.append(toggle,node('span',key==='target_roas'?'Soovin määrata ROAS eesmärgi':'Soovin määrata CPA eesmärgi'));wrap.prepend(optional);input.disabled=true;toggle.onchange=()=>{input.disabled=!toggle.checked;if(!toggle.checked)input.value='';markDirty();};}if(['objective','offer','constraints','strategy_notes'].includes(key))wrap.className='wide';$('briefFields').append(wrap);
 }
 const bidding=node('label','Pakkumisstrateegia'), strategy=node('select');strategy.id='brief-bidding_strategy';
@@ -38,7 +39,8 @@ for(const [value,text]of [['MAXIMIZE_CLICKS','Maximize Clicks · võimalikult pa
 const political=node('label','Kas kampaania sisaldab EL-i poliitreklaami?'), select=node('select');select.id='brief-eu_political_ads';
 for(const [value,text]of [['unknown','Pole veel kinnitatud'],['no','Ei'],['yes','Jah']]){const o=node('option',text);o.value=value;select.append(o);}political.append(select);$('briefFields').append(political);
 const searchForm=mountSearch($('briefFields'),markDirty);
-function fillBrief(brief){searchForm.fill(brief,{fresh:!state?.brief,separateAvailable:!!state?.separate_campaigns_available,technicalEditor:assisted});$('brief-bidding_strategy').value=brief.bidding_strategy||(state?.brief?'MANUAL_CPC':'MAXIMIZE_CLICKS');for(const[key,,type]of fields)$('brief-'+key).value=type==='list'?(brief[key]||[]).join('\n'):brief[key]??'';$('brief-eu_political_ads').value=brief.eu_political_ads||'unknown';for(const key of ['target_cpa','target_roas']){const active=brief[key]!==null&&brief[key]!==undefined&&brief[key]!=='';$('use-'+key).checked=active;$('brief-'+key).disabled=!active;}}
+const locations=locationPicker($('brief-locations'),query=>client.read(route+'locations?q='+encodeURIComponent(query)));
+function fillBrief(brief){searchForm.fill(brief,{fresh:!state?.brief,separateAvailable:!!state?.separate_campaigns_available,technicalEditor:assisted});$('brief-bidding_strategy').value=brief.bidding_strategy||(state?.brief?'MANUAL_CPC':'MAXIMIZE_CLICKS');for(const[key,,type]of fields)$('brief-'+key).value=type==='list'?(brief[key]||[]).join('\n'):brief[key]??'';locations.sync();$('brief-eu_political_ads').value=brief.eu_political_ads||'unknown';for(const key of ['target_cpa','target_roas']){const active=brief[key]!==null&&brief[key]!==undefined&&brief[key]!=='';$('use-'+key).checked=active;$('brief-'+key).disabled=!active;}}
 function briefValue(){const result={schema_version:1};for(const[key,,type]of fields){const raw=$('brief-'+key).value.trim();result[key]=type==='list'?lines(raw):type==='money'?raw.replace(',','.')||null:raw;}result.eu_political_ads=$('brief-eu_political_ads').value;result.bidding_strategy=$('brief-bidding_strategy').value;for(const key of ['target_cpa','target_roas'])if(!$('use-'+key).checked)result[key]=null;return normalizeBrief({...result,...searchForm.read()});}
 function input(label,value,tag='input'){const l=node('label',label),i=node(tag);i.value=value;l.append(i);return [l,i];}
 let proposalInputs=null;
