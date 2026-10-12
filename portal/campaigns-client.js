@@ -42,7 +42,7 @@ export const help={
  max_cpc:'Maximize Clicksi puhul valikuline ühe kliki pakkumise ülempiir. Tühjaks jätmisel määrab Google pakkumised päevase eelarve alusel. Liiga madal piir võib takistada reklaamide kuvamist. Päevaeelarvest ei saa tuletada turu minimaalset klikihinda; võrdle Keyword Planneri hinnavahemikega. Manuaalse CPC puhul on see vajalik algpakkumine.',
  target_cpa:'Soovitud keskmine kulu ühe päringu või ostu kohta konto valuutas. Planeerimise eesmärk, mitte garanteeritud tulemus ega praegu rakendatav pakkumisstrateegia.',
  target_roas:'Soovitud reklaamitulu ja kulu suhe kordajana: 4 tähendab 400%. Planeerimise eesmärk; see ei muuda praegu pakkumisstrateegiat.',
- locations:'Üks täpne asukoht rea kohta, näiteks Estonia või Tallinn, Estonia. Sihtimine põhineb kohalolekul. Ebaselge asukoht peatab loomise.',
+ locations:'Otsi ja vali Google’i kataloogist täpne linn, maakond või riik. Tartu linn, Tartu vald ja Tartumaa on eraldi valikud. Võid lisada mitu asukohta. Sihtimine põhineb kohalolekul.',
  languages:'Üks Google Adsi keel või keelekood rea kohta, näiteks et või en. Keyword Planneri uuringuks vali korraga üks keel.',
  competitors:'Otsesed konkurendid, keda klient võiks sinu asemel valida. AI pakub kuni 20 kontrollimist vajavat kandidaati ja püüab leida vähemalt 10; neid ei esitata kontrollitud turuedetabelina.',
  keywords:'Üks otsingufraas rea kohta. AI kasutab pakkumist, sihtgruppi ja ärikonteksti, seejärel hangib kuni 100 ideed Google Keyword Plannerist. Vaatad valiku enne lisamist üle.',
