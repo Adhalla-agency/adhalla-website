@@ -130,7 +130,7 @@ function markDirty(){document.querySelectorAll('[aria-invalid]').forEach(el=>el.
 $('briefForm').oninput=e=>{searchForm.invalidate(e.target.id.replace('brief-',''));markDirty();};$('proposalForm').oninput=()=>{proposalDirty=true;renderRegeneration();};
 const saveBriefOnly=async e=>{e.preventDefault();if(saving)return;saving=true;$('saveBrief').disabled=true;
  const value=briefValue(),signature=JSON.stringify(value);
- try{const saved=await client.write(route+'brief',{client_id:clientId,base_version:draftBase,brief:value});refreshSequence++;state={...state,brief:saved};draftBase=saved.version;dirty=JSON.stringify(briefValue())!==signature;if(!dirty)editing=false;await refresh(!dirty);say(dirty?'Eelmine versioon salvestatud. Hilisemad sisestused vajavad veel salvestamist.':'Lähteülesanne salvestatud. Võid selle nüüd Adhallale esitada.');}
+ try{const saved=await client.write(route+'brief',{client_id:clientId,base_version:draftBase,brief:value});draftBase=saved.version;dirty=JSON.stringify(briefValue())!==signature;if(!dirty)editing=false;await refresh(!dirty);say(dirty?'Eelmine versioon salvestatud. Hilisemad sisestused vajavad veel salvestamist.':'Lähteülesanne salvestatud. Võid selle nüüd Adhallale esitada.');}
  catch(e){say(e.message);if(e.field){$('brief-'+e.field)?.setAttribute('aria-invalid','true');$('brief-'+e.field)?.focus();}if(e.status===409){await refresh(false);const box=$('conflict');box.replaceChildren(node('h3','Serveris on uuem salvestus'),node('pre',JSON.stringify(state.brief?.brief,null,2)));const use=node('button','Olen võrrelnud · salvesta minu väljad uuema versioonina');use.type='button';use.onclick=()=>{draftBase=state.brief?.version||null;box.hidden=true;$('briefForm').requestSubmit();};box.append(use);box.hidden=false;}}
  finally{saving=false;$('saveBrief').disabled=false;renderCards();}};
 $('prefill').onclick=()=>{const current=briefValue();for(const[k,v]of Object.entries(state.prefill)){if((current[k]===null||current[k]===''||(Array.isArray(current[k])&&!current[k].length))&&v)current[k]=v;}fillBrief(current);markDirty();$('generate').disabled=true;say('Olemasolevad äriväärtused lisatud tühjadele väljadele. Vaata üle ja salvesta.');};
@@ -284,6 +284,7 @@ function renderSeparateCampaigns(){separateBox.replaceChildren();for(const[kind,
 const previewButton=$('saveBrief');previewButton.textContent='Vaata reklaami eelvaadet';
 const draftNote=node('p','Eelvaate koostamiseks hoitakse sisestatud lähteülesanne mustandina alles. Reklaami ei looda ega saadeta kinnitamiseks enne sinu valikut.');previewButton.parentElement.before(draftNote);
 const previewExamples=node('section');previewExamples.id='creativeExamples';$('proposalForm').before(previewExamples);
+const previewRetry=node('button','Proovi eelvaadet uuesti');previewRetry.type='button';previewRetry.hidden=true;previewRetry.onclick=()=>previewCampaign();previewExamples.before(previewRetry);
 const saveCreativeButton=$('saveProposal');saveCreativeButton.setAttribute('form','proposalForm');saveCreativeButton.textContent='Salvesta reklaamisisu';regenerationBox.after(saveCreativeButton);
 const adminSave=node('button','Salvesta lähteülesande parandused');adminSave.type='button';adminSave.className='secondary';adminSave.hidden=!assisted;adminSave.onclick=()=>saveBriefOnly({preventDefault(){}});previewButton.after(adminSave);
 $('briefForm').onsubmit=async e=>{e.preventDefault();await previewCampaign();};
@@ -296,22 +297,23 @@ async function previewCampaign(){
  if(!$('creativeDialog').open)$('creativeDialog').showModal();
  $('creativeStatus').textContent='Valmistan reklaami eelvaadet ette…';
  try{
-  if(dirty||!state?.brief||(state.brief.brief.schema_version===2&&(!state.brief.brief.search.subject||!state.brief.brief.search.country))){const brief=briefValue(),signature=JSON.stringify(brief);const saved=await client.write(route+'brief',{client_id:clientId,base_version:draftBase,brief});if(epoch!==userEpoch||scope!==selectionEpoch)return;draftBase=saved.version;dirty=JSON.stringify(briefValue())!==signature;if(dirty)throw Error('Lähteülesannet muudeti eelvaate avamise ajal. Ava eelvaade uuesti.');fillBrief(saved.brief);await refresh();}
+  if(dirty||!state?.brief||(state.brief.brief.schema_version===2&&(!state.brief.brief.search.subject||!state.brief.brief.search.country))){const brief=briefValue(),signature=JSON.stringify(brief);const saved=await client.write(route+'brief',{client_id:clientId,base_version:draftBase,brief});if(epoch!==userEpoch||scope!==selectionEpoch)return;refreshSequence++;state={...state,brief:saved};draftBase=saved.version;dirty=JSON.stringify(briefValue())!==signature;if(dirty)throw Error('Lähteülesannet muudeti eelvaate avamise ajal. Ava eelvaade uuesti.');fillBrief(saved.brief);await refresh();}
   if(epoch!==userEpoch||scope!==selectionEpoch)return;
   if(state?.proposal?.brief_version===state?.brief?.version&&state?.proposal?.version){renderPreviewStatus();return;}
   await client.write(route+'preview',{client_id:clientId,base_version:state.brief.version});
   if(epoch!==userEpoch||scope!==selectionEpoch)return;
   await refresh();renderPreviewStatus();
  }catch(e){if(epoch===userEpoch&&scope===selectionEpoch)$('creativeStatus').textContent=e.message;}
- finally{if(epoch===userEpoch&&scope===selectionEpoch){saving=false;previewButton.disabled=false;saveCreativeButton.disabled=['queued','running','limited'].includes(state?.generation?.status);}}
+ finally{if(epoch===userEpoch&&scope===selectionEpoch){saving=false;previewButton.disabled=false;previewRetry.disabled=false;saveCreativeButton.disabled=['queued','running','limited'].includes(state?.generation?.status);}}
 }
 function renderPreviewStatus(){
  if(!state)return;const ready=state.proposal&&state.proposal.brief_version===state.brief?.version;
  openCreative.disabled=!state.proposal;
  const busy=['queued','running','limited'].includes(state.generation?.status);
+ previewRetry.hidden=!!ready||busy||!['failed','awaiting_input'].includes(state.generation?.status);previewRetry.disabled=saving;
  saveCreativeButton.hidden=!ready;saveCreativeButton.disabled=busy||saving;regenerationBox.hidden=!ready;
  if(busy)$('creativeStatus').textContent=state.generation.status==='limited'?quotaPresentation(state.generation):(state.generation.status==='queued'?'Eelvaade on tööjärjekorras.':'Adhalla koostab ja kontrollib uusi reklaamitekste.')+' Tulemus ilmub siia automaatselt. Varasem sisu jääb allpool alles; uut soovi pole vaja saata.';
- else if(['failed','awaiting_input'].includes(state.generation?.status))$('creativeStatus').textContent=state.generation?.error_code==='proposal_validation_failed'?'Uue eelvaate koostamine peatus: genereeritud tekstid ei läbinud reklaami sisukontrolli. See ei ole enam laadimisel. Varasem sisu on alles. Uue katse saad teha nupuga „Vaata reklaami eelvaadet”.':'Eelvaate koostamine jäi pooleli ega ole enam laadimisel. Varasem sisu on alles. Sulge aken ja proovi eelvaadet uuesti.';
+ else if(['failed','awaiting_input'].includes(state.generation?.status))$('creativeStatus').textContent=state.generation?.error_code==='proposal_validation_failed'?'Uue eelvaate koostamine peatus: genereeritud tekstid ei läbinud reklaami sisukontrolli. See ei ole enam laadimisel. Varasem sisu on alles. Uue katse saad teha alloleva nupuga.':'Eelvaate koostamine jäi pooleli ega ole enam laadimisel. Varasem sisu on alles. Uue katse saad teha alloleva nupuga.';
  else if(ready&&!creativeFeedback)$('creativeStatus').textContent=state.proposal.preview_only?'Reklaamitekstide eelvaade on valmis. Tehniline kampaanianimi ja riigikood vajavad enne loomist Adhalla täpsustust.':'Reklaami eelvaade on valmis. Vaata tekstid üle ja vali akna lõpus, kuidas edasi minna. Google võib allolevaid tekste näidata eri kombinatsioonides.';
  const previewKey=clientId+':'+campaignId+':'+(state.proposal?.version||'empty')+':'+ready;if(previewKey===renderedPreviewKey)return;renderedPreviewKey=previewKey;previewExamples.replaceChildren();
  if(state.proposal){previewExamples.append(node('h3',ready?'Nii võib reklaam otsingus välja näha':'Varasem salvestatud eelvaade'));
