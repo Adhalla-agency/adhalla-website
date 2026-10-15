@@ -1,4 +1,4 @@
-import {navigation} from './navigation.js?v=0.36';
+import {navigation} from './navigation.js?v=0.41';
 import {questionsWorkflow} from './question-dialog.js?v=0.36';
 import {createCampaignClient} from './campaigns-client.js?v=0.36';
 import {firebaseConfig} from './firebase-config.js';

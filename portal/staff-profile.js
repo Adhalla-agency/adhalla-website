@@ -1,7 +1,7 @@
 import {firebaseConfig} from './firebase-config.js';
 import {createCampaignClient} from './campaigns-client.js?v=0.36';
 import {ensureExperience} from './experience.js?v=0.36';
-import {navigation} from './navigation.js?v=0.36';
+import {navigation} from './navigation.js?v=0.41';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const api=createCampaignClient(),$=id=>document.getElementById(id),node=(tag,text)=>{const el=document.createElement(tag);el.textContent=text;return el;};let epoch=0;

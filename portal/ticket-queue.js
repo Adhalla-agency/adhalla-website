@@ -8,7 +8,7 @@ export function ticketState(row){
 export function ticketPriority(row){
  // Only structured records count; client prose and suggested ad budgets are not payments.
  if(row.payment?.status==='paid'||row.payment_status==='paid'||row.financial_approval_required===true||['activate_campaign','adjust_budget'].includes(row.action?.action))return 'top';
- if(row.source||['binding','connection','connection_help','measurement_setup','google_ads_campaign'].includes(row.kind)||['failed','blocked','reconciliation_required'].includes(row.status))return 'important';
+ if(row.source||['binding','connection','connection_help','measurement_setup','diagnostics_support','google_ads_campaign'].includes(row.kind)||['failed','blocked','reconciliation_required'].includes(row.status))return 'important';
  if(['campaign_review','campaign_consultation','campaign_content_confirmation','campaign_help'].includes(row.kind))return 'medium';
  return 'small';
 }
