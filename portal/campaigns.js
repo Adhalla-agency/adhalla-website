@@ -1,14 +1,14 @@
 import './dialogs.js?v=0.36';
 import {locationPicker} from './location-picker.js?v=0.39';
 import {ensureExperience} from './experience.js?v=0.36';
-import {ticketQueue} from './ticket-queue.js?v=0.36';
+import {ticketQueue} from './ticket-queue.js?v=0.41';
 import {connectionSupport} from './connection-support.js?v=0.36';
-import {navigation} from './navigation.js?v=0.36';
+import {navigation} from './navigation.js?v=0.41';
 import {questionsWorkflow} from './question-dialog.js?v=0.36';
 import {channelReports} from './channel-reports.js?v=0.36';
 import {creationDecision,isCreation} from './creation-controls.js?v=0.36';
 import {managementView} from './campaign-management.js?v=0.38';
-import {clientReview,workerReviews} from './campaign-review.js?v=0.36';
+import {clientReview,workerReviews} from './campaign-review.js?v=0.41';
 import {mountSearch,renderSearchProposal,searchLabels,emptySearch} from './search-workspace.js?v=0.38';
 import {firebaseConfig} from './firebase-config.js';
 import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation,quotaPresentation} from './campaigns-client.js?v=0.39';

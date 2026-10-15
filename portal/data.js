@@ -1,7 +1,7 @@
 import './dialogs.js?v=0.36';
 import {renderReport,sources} from './report-content.js?v=0.36';
 import {reportEvents} from './timeline.js?v=0.36';
-import {navigation} from './navigation.js?v=0.36';
+import {navigation} from './navigation.js?v=0.41';
 import {questionsWorkflow} from './question-dialog.js?v=0.36';
 import {measurementChain} from './measurement-chain.js?v=0.38';
 import {firebaseConfig} from './firebase-config.js';

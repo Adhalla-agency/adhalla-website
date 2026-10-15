@@ -9,7 +9,7 @@ export function navigation(root,options={}){
   const query=selected.size?'?'+selected:'';
   const profile=admin?'staff-profile.html':'index.html';
   const ads=admin&&data.staffTools==='full'?'campaigns.html':data.clientExperience==='agency'?'agency.html':'campaigns.html';
-  const items=[['profile','Ettevõtte info',profile],['business','Äri ülevaade','business.html'],['ads','Google Ads',ads],['data','Andmed ja raportid','data.html'],['connections','Ühendused','connections.html']];
+  const items=[['profile','Ettevõtte info',profile],['business','Äri ülevaade','business.html'],['diagnostics','Diagnostika','diagnostics.html'],['ads','Google Ads',ads],['data','Andmed ja raportid','data.html'],['connections','Ühendused','connections.html']];
   const nav=document.createElement('nav');nav.className='module-nav';nav.setAttribute('aria-label','Portaali moodulid');
   for(const[key,label,path]of items){const a=document.createElement('a');a.textContent=label;a.href=path+query;if(current===key)a.setAttribute('aria-current','page');
    if(key==='ads'&&!confirmed&&!admin){a.setAttribute('aria-disabled','true');a.onclick=e=>{e.preventDefault();a.title='Esmalt kinnita ettevõtte info.';};}nav.append(a);}
