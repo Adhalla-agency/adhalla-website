@@ -1,3 +1,4 @@
+import {observedStatus} from './campaign-lifecycle.js?v=0.42';
 export function createCampaignClient(fetcher=fetch) {
   const base='https://adhalla-workspace-api-184522982163.europe-north1.run.app/v1';
   let user=null, epoch=0, active=new Set(), retries=new Map();
@@ -5,7 +6,7 @@ export function createCampaignClient(fetcher=fetch) {
   async function call(path,body) {
     if(!user)throw Error('Palun logi sisse.');
     const captured=user, generation=epoch, controller=new AbortController();active.add(controller);
-    const timeout=setTimeout(()=>controller.abort(),['/pause','/preview','/regenerate','/help'].some(x=>path.endsWith(x))?95000:25000);
+    const timeout=setTimeout(()=>controller.abort(),['/pause','/lifecycle','/sync','/preview','/regenerate','/help'].some(x=>path.endsWith(x))?95000:25000);
     try {
       const token=await captured.getIdToken(true);
       if(generation!==epoch)throw Error('Konto muutus.');
@@ -85,12 +86,15 @@ export function quotaPresentation(job){
 
 export function campaignPresentation(item){
  const stop=item.safety_pause;
+ if(['requested','running'].includes(item.removal?.status))return {tone:'pending',text:'Eemaldamine Google Adsist on ootel'};
+ if(['failed','reconciliation_required'].includes(item.removal?.status))return {tone:'attention',text:'Eemaldamine pole kinnitatud · vajab kontrolli'};
  if(['requested','running'].includes(stop?.status))return {tone:'pending',text:'Peatamise kinnitus ootel'};
  if(['failed','reconciliation_required'].includes(stop?.status))return {tone:'attention',text:'Peatamine pole kinnitatud · vajab kontrolli'};
  if(item.blocking_issue==='targeting_selection_required')return {tone:'ready',text:'Täpsusta reklaami asukohad · sisu on alles'};
- const observed=item.google_state?.result;
+ const observed={campaign_status:observedStatus(item)};
+ if(observed.campaign_status==='REMOVED')return {tone:'attention',text:'Google Adsist eemaldatud'};
  if(item.creation&&['unassigned','in_progress'].includes(item.status)&&item.submitted_version===item.brief_version)return {tone:'pending',text:'Muudatus esitatud · ootab Adhalla kinnitust'+(observed?.campaign_status==='ENABLED'?' · senine reklaam on aktiivne':' · senine kampaania on koostatud')};
- if(stop?.status==='completed'&&(!item.google_state?.observed_at||Date.parse(stop.completed_at)>=Date.parse(item.google_state.observed_at)))return {tone:'ready',text:'Koostatud · peatatud sinu soovil'};
+ if(stop?.status==='completed'&&observed.campaign_status!=='ENABLED')return {tone:'ready',text:'Koostatud · peatatud sinu soovil'};
  if(observed?.campaign_status==='ENABLED')return {tone:'approved',text:'Aktiivne · viimane Google Adsi kontroll'};
  if(observed?.campaign_status==='PAUSED')return {tone:'ready',text:'Koostatud · Google Adsis peatatud, reklaam ei tööta'};
  if(item.creation)return {tone:'ready',text:'Koostatud peatatud olekus · hetkeolukord vajab lugemist'};
