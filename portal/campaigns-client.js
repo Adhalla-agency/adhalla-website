@@ -8,7 +8,7 @@ export function createCampaignClient(fetcher=fetch) {
     const captured=user, generation=epoch, controller=new AbortController();active.add(controller);
     const timeout=setTimeout(()=>controller.abort(),['/pause','/lifecycle','/sync','/preview','/regenerate','/help'].some(x=>path.endsWith(x))?95000:25000);
     try {
-      const token=await captured.getIdToken(true);
+      const token=await Promise.race([captured.getIdToken(),new Promise((_,reject)=>controller.signal.addEventListener('abort',()=>reject(new DOMException('Ühenduse ooteaeg lõppes.','AbortError')),{once:true}))]);
       if(generation!==epoch)throw Error('Konto muutus.');
       const response=await fetcher(base+path,{method:body?'POST':'GET',headers:{Authorization:'Bearer '+token,...(body?{'Content-Type':'application/json'}:{})},
         body:body?JSON.stringify(body):undefined,credentials:'omit',redirect:'error',cache:'no-store',signal:controller.signal});
