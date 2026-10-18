@@ -19,8 +19,9 @@ export function createCampaignClient(fetcher=fetch) {
       return result.data;
     } finally {clearTimeout(timeout);active.delete(controller);}
   }
-  async function write(path,body){
+  async function write(path,body,{newRequest=false}={}){
     const key=JSON.stringify({path,body});
+    if(newRequest)retries.delete(key);
     const request_id=retries.get(key)||crypto.randomUUID();retries.set(key,request_id);
     const result=await call(path,{...body,request_id});retries.delete(key);return result;
   }

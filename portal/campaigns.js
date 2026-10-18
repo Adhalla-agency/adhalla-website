@@ -12,7 +12,7 @@ import {managementView} from './campaign-management.js?v=0.38';
 import {clientReview,workerReviews} from './campaign-review.js?v=0.41';
 import {mountSearch,renderSearchProposal,searchLabels,emptySearch} from './search-workspace.js?v=0.38';
 import {firebaseConfig} from './firebase-config.js';
-import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation,quotaPresentation} from './campaigns-client.js?v=0.43';
+import {createCampaignClient,fields,lines,states,help,normalizeBrief,cpcGuidance,approvalPresentation,campaignPresentation,researchPresentation,quotaPresentation} from './campaigns-client.js?v=0.45';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth,onAuthStateChanged} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 const $=id=>document.getElementById(id), client=createCampaignClient();
@@ -296,27 +296,39 @@ function renderSeparateCampaigns(){separateBox.replaceChildren();for(const[kind,
 const previewButton=$('saveBrief');previewButton.textContent='Vaata reklaami eelvaadet';
 const draftNote=node('p','Eelvaate koostamiseks hoitakse sisestatud lähteülesanne mustandina alles. Reklaami ei looda ega saadeta kinnitamiseks enne sinu valikut.');previewButton.parentElement.before(draftNote);
 const previewExamples=node('section');previewExamples.id='creativeExamples';$('proposalForm').before(previewExamples);
-const previewRetry=node('button','Proovi eelvaadet uuesti');previewRetry.type='button';previewRetry.hidden=true;previewRetry.onclick=()=>previewCampaign();previewExamples.before(previewRetry);
+const previewRetry=node('button','Koosta eelvaade uuesti');previewRetry.type='button';previewRetry.hidden=true;previewRetry.onclick=()=>previewCampaign({retry:true});previewExamples.before(previewRetry);
 const saveCreativeButton=$('saveProposal');saveCreativeButton.setAttribute('form','proposalForm');saveCreativeButton.textContent='Salvesta reklaamisisu';regenerationBox.after(saveCreativeButton);
 const adminSave=node('button','Salvesta lähteülesande parandused');adminSave.type='button';adminSave.className='secondary';adminSave.hidden=!assisted;adminSave.onclick=()=>saveBriefOnly({preventDefault(){}});previewButton.after(adminSave);
 $('briefForm').onsubmit=async e=>{e.preventDefault();await previewCampaign();};
-async function previewCampaign(){
- if(saving||regenerationSending)return;previewError=null;
- renderPreviewStatus();
- if(!dirty&&state?.proposal?.brief_version===state?.brief?.version&&state?.proposal?.version){if(!$('creativeDialog').open)$('creativeDialog').showModal();return;}
- if(!dirty&&['queued','running','limited'].includes(state?.generation?.status)){if(!$('creativeDialog').open)$('creativeDialog').showModal();renderPreviewStatus();return;}
- const epoch=userEpoch,scope=selectionEpoch; saving=true;previewButton.disabled=true;
+async function previewCampaign({retry=false}={}){
  if(!$('creativeDialog').open)$('creativeDialog').showModal();
- $('creativeStatus').textContent='Valmistan reklaami eelvaadet ette…';
+ if(saving||regenerationSending){renderPreviewStatus();return;}previewError=null;
+ renderPreviewStatus();
+ if(!dirty&&state?.proposal?.brief_version===state?.brief?.version&&state?.proposal?.version)return;
+ const epoch=userEpoch,scope=selectionEpoch; saving=true;previewButton.disabled=true;
  try{
+  // Reopening observes the persisted result. It never retries failed work merely
+  // because the user wants to look at the preview again.
+  if(!dirty){$('creativeStatus').textContent='Kontrollin eelvaate seisu…';if(!await refresh())return;
+   if(epoch!==userEpoch||scope!==selectionEpoch)return;
+   if(state?.proposal?.brief_version===state?.brief?.version&&state?.proposal?.version)return;
+   if(['queued','running','limited'].includes(state?.generation?.status))return;
+   if(state?.generation&&!retry)return;
+  }
+  $('creativeStatus').textContent='Koostan reklaami eelvaadet…';
   if(dirty||!state?.brief||(state.brief.brief.schema_version===2&&(!state.brief.brief.search.subject||!state.brief.brief.search.country))){const brief=briefValue(),signature=JSON.stringify(brief);const saved=await client.write(route+'brief',{client_id:clientId,base_version:draftBase,brief});if(epoch!==userEpoch||scope!==selectionEpoch)return;refreshSequence++;state={...state,brief:saved};draftBase=saved.version;dirty=JSON.stringify(briefValue())!==signature;if(dirty)throw Error('Lähteülesannet muudeti eelvaate avamise ajal. Ava eelvaade uuesti.');fillBrief(saved.brief);await refresh();}
   if(epoch!==userEpoch||scope!==selectionEpoch)return;
   if(state?.proposal?.brief_version===state?.brief?.version&&state?.proposal?.version){renderPreviewStatus();return;}
-  const previewResult=await client.write(route+'preview',{client_id:clientId,base_version:state.brief.version});
+  await client.write(route+'preview',{client_id:clientId,base_version:state.brief.version},
+   {newRequest:retry&&['failed','awaiting_input'].includes(state?.generation?.status)});
   if(epoch!==userEpoch||scope!==selectionEpoch)return;
   refreshSequence++;await refresh();renderPreviewStatus();
- }catch(e){if(epoch===userEpoch&&scope===selectionEpoch){saving=false;refreshSequence++;await refresh();previewError=e.name==='AbortError'?'Ühenduse ooteaeg lõppes. Kontrollin salvestatud töö tulemust; uut koostamist ei käivitata.':e.message;renderPreviewStatus();}}
- finally{if(epoch===userEpoch&&scope===selectionEpoch){saving=false;previewButton.disabled=false;previewRetry.disabled=false;saveCreativeButton.disabled=['queued','running'].includes(state?.generation?.status);}}
+ }catch(e){if(epoch===userEpoch&&scope===selectionEpoch){saving=false;refreshSequence++;const checked=await refresh();
+   const ready=state?.proposal?.brief_version===state?.brief?.version&&state?.proposal?.version;
+   // A dispatch timeout is not a generation failure. The persisted result wins.
+   if(!ready&&(!checked||!state?.generation))previewError=e.name==='AbortError'?'Ühendus katkes. Kontrollin koostamise tulemust uuesti.':e.message;
+  }}
+ finally{if(epoch===userEpoch&&scope===selectionEpoch){saving=false;previewButton.disabled=false;renderPreviewStatus();}}
 }
 function renderPreviewStatus(){
  if(!state)return;const ready=state.proposal&&state.proposal.brief_version===state.brief?.version;
@@ -326,12 +338,14 @@ function renderPreviewStatus(){
  saveCreativeButton.hidden=!ready;saveCreativeButton.disabled=busy;regenerationBox.hidden=!ready;
  const job=state.generation||{},started=Date.parse(job.started_at||job.created_at),elapsed=Number.isFinite(started)?Math.max(0,Math.floor((Date.now()-started)/1000)):null;
  const reasons={text_too_long:'Üks reklaamitekst ületas lubatud pikkuse ka pärast parandamist.',duplicate_text:'Tekstivariandid kordasid üksteist.',keyword_alignment:'Pealkirjad ei vastanud piisavalt valitud märksõnadele.',description_keyword_alignment:'Kirjeldused ei vastanud piisavalt valitud märksõnadele.',unsupported_evidence:'Tekstis kasutati kinnitamata tõendeid.',unconfirmed_page:'Üks lingi sihtleht ei olnud kinnitatud.'};
- if(previewError)$('creativeStatus').textContent=previewError;
+ if(ready&&!busy&&!creativeFeedback)$('creativeStatus').textContent='Reklaami eelvaade on valmis. Vaata tekstid üle ja vali akna lõpus järgmine samm.';
+ else if(previewError)$('creativeStatus').textContent=previewError;
  else if(busy)$('creativeStatus').textContent=(job.stage==='repairing_text'?'Kontrollin ja parandan koostatud reklaamisisu.':job.status==='queued'?'Eelvaate koostamine on vastu võetud.':'Koostan ja kontrollin reklaamitekste.')+(elapsed!==null?' Möödunud '+elapsed+' s.':'')+' Tulemus ilmub automaatselt; võid akna sulgeda ja hiljem tagasi tulla.';
  else if(job.status==='limited')$('creativeStatus').textContent=quotaPresentation(job)+' Koostamine praegu ei tööta; siin ootamine seda ei kiirenda.';
- else if(['failed','awaiting_input'].includes(job.status))$('creativeStatus').textContent=(job.error_code==='generation_timeout'?'Koostamise tähtaeg möödus. See töö ei ole enam laadimisel.':(reasons[job.validation_issue]||'Eelvaate koostamine jäi pooleli.')+' See ei ole enam laadimisel.')+' Varasem sisu on alles. Proovi eelvaadet uuesti; topeltkampaaniat sellest ei teki.';
+ else if(['failed','awaiting_input'].includes(job.status))$('creativeStatus').textContent=(job.error_code==='generation_timeout'?'Eelvaate koostamine ei lõpetanud ettenähtud ajaga.':(reasons[job.validation_issue]||'Eelvaate koostamine ei õnnestunud.'))+(state.proposal?' Varasem eelvaade on allpool nähtav.':' Selle kampaania eelvaadet ei ole veel valmis.')+' Uue katse saad käivitada nupuga „Koosta eelvaade uuesti“.';
  else if(ready&&!creativeFeedback)$('creativeStatus').textContent='Reklaami eelvaade on valmis. Vaata tekstid üle ja vali akna lõpus järgmine samm.';
- else $('creativeStatus').textContent=saving?'Valmistan reklaami eelvaadet ette…':'Selle lähteülesande eelvaadet pole veel koostatud. Vajuta „Proovi eelvaadet uuesti“.';
+ else $('creativeStatus').textContent=saving?'Koostan reklaami eelvaadet…':'Selle lähteülesande eelvaadet pole veel koostatud. Vajuta „Koosta eelvaade“.';
+ previewRetry.textContent=job.status?'Koosta eelvaade uuesti':'Koosta eelvaade';
  if(!ready&&!busy&&!saving&&job.status!=='limited')previewRetry.hidden=false;
  const previewKey=clientId+':'+campaignId+':'+(state.proposal?.version||'empty')+':'+ready;if(previewKey===renderedPreviewKey)return;renderedPreviewKey=previewKey;previewExamples.replaceChildren();
  if(state.proposal){previewExamples.append(node('h3',ready?'Nii võib reklaam otsingus välja näha':'Varasem salvestatud eelvaade'));
