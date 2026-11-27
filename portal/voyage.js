@@ -11,7 +11,8 @@ export function firstIsland(profile, connections) {
   return {company, analytics, advertising, reached: company && analytics && advertising};
 }
 
-export function renderVoyage(root, state) {
+export function renderVoyage(root, state, milestone = null) {
+  state = {...state, reached: state.reached || !!milestone};
   const items = [
     [state.company, 'Ettevõtte info on täidetud ja kinnitatud', '#business'],
     [state.analytics, 'Google Analytics 4 on ühendatud', 'connections.html'],

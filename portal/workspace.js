@@ -4,7 +4,7 @@ import {createCampaignClient} from './campaigns-client.js?v=0.36';
 import {firebaseConfig} from './firebase-config.js';
 import {confirmationState,matchesSavedProfile,detailLists,emptyDetails,discoveryText} from './business-profile-client.js?v=0.36';
 import {renderKnowledge,knowledgePending} from './company-knowledge.js?v=0.38';
-import {firstIsland,renderVoyage} from './voyage.js?v=0.1';
+import {firstIsland,renderVoyage} from './voyage.js?v=0.2';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 import {getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js';
@@ -17,8 +17,14 @@ let registered=false,registering=false,permanentId=null,questionsUI=null;const q
 let user = null, savedWorkspace = null, unsubscribe = null, epoch = 0, canSave = false, dirty = false;
 let businessConfirmation=null,confirmationBusy=false,confirmationEpoch=0;
 let detailsDirty=false,discoveryJob=null,discoveryBusy=false,discoveryEpoch=0,discoveryError='',formRevision=0;
-const voyageApi=createCampaignClient();let voyageConnections=null,voyageConnectionEpoch=0;
-function showVoyage(){renderVoyage($('voyage'),firstIsland(businessConfirmation,voyageConnections));}
+const voyageApi=createCampaignClient();let voyageConnections=null,voyageConnectionEpoch=0,voyageMilestone=null;
+function showVoyage(){renderVoyage($('voyage'),firstIsland(businessConfirmation,voyageConnections),voyageMilestone);}
+async function refreshVoyageMilestone(){
+ if(!user)return;const captured=epoch;
+ try{const data=await voyageApi.read('/workspaces/'+encodeURIComponent(user.uid)+'/voyage');
+  if(captured!==epoch)return;voyageMilestone=data.first_island;showVoyage();
+ }catch{} // A missing or temporarily unavailable achievement must never block the workspace.
+}
 async function refreshVoyageConnections(){
  if(!user)return;const captured=epoch,seq=++voyageConnectionEpoch;
  try{const result=await voyageApi.read('/workspaces/'+encodeURIComponent(user.uid)+'/connections');
@@ -100,7 +106,7 @@ async function registerWorkspace(){
   const response=await fetch('https://adhalla-workspace-api-184522982163.europe-north1.run.app/v1/workspaces/'+encodeURIComponent(owner.uid)+'/register',{
    method:'POST',headers:{Authorization:'Bearer '+token,'Content-Type':'application/json'},body:'{}',credentials:'omit',redirect:'error',cache:'no-store'});
   if(!response.ok)throw Error();const {data}=await response.json();if(capture!==epoch)return;
-  registered=true;permanentId=data.client_id||permanentId;refreshVoyageConnections();refreshKnowledge();$('businessOverview').hidden=!permanentId;renderChannelGate();if(permanentId&&!questionsUI){questionApi.start(user);questionsUI=questionsWorkflow(questionRoot,questionApi,permanentId==='0000'?'/internal/clients/0000':'/workspaces/'+encodeURIComponent(user.uid),permanentId,{auto:false});}
+  registered=true;permanentId=data.client_id||permanentId;refreshVoyageConnections();refreshVoyageMilestone();refreshKnowledge();$('businessOverview').hidden=!permanentId;renderChannelGate();if(permanentId&&!questionsUI){questionApi.start(user);questionsUI=questionsWorkflow(questionRoot,questionApi,permanentId==='0000'?'/internal/clients/0000':'/workspaces/'+encodeURIComponent(user.uid),permanentId,{auto:false});}
   $('promotionStatus').textContent=data.client_id?'Sinu kliendinumber: '+data.client_id+'. Mõõdikud ja nädalakokkuvõtted leiad „Äri ülevaate” lehelt.':'Tööruum on Adhalla ülevaatuse nimekirjas. Püsikliendi ligipääs aktiveeritakse pärast kinnitamist.';
  }catch{if(capture===epoch)$('promotionStatus').textContent='Ettevõtte info on alles. Adhalla ülevaatuse järjekorda lisamine ei õnnestunud; vajuta „Värskenda vaadet”.';}
  finally{if(capture===epoch)registering=false;}
@@ -149,12 +155,13 @@ onAuthStateChanged(auth, current => {
   const thisEpoch = ++epoch;
   unsubscribe?.(); unsubscribe = null;
   user = current;
-  voyageConnections=null;++voyageConnectionEpoch;voyageApi.start(current);
+  voyageConnections=null;voyageMilestone=null;++voyageConnectionEpoch;voyageApi.start(current);
   clearWorkspace(); message('');
   $('authGate').hidden = !!current;
   $('appShell').hidden = !current;
   if (!current) return;
   refreshVoyageConnections();
+  refreshVoyageMilestone();
 
   $('userName').textContent = current.displayName || 'Minu konto';
   $('userEmail').textContent = current.email || '';
@@ -182,6 +189,7 @@ onAuthStateChanged(auth, current => {
 });
 $('refreshWorkspace').addEventListener('click', () => {
   refreshVoyageConnections();
+  refreshVoyageMilestone();
   registered=false;registerWorkspace();
   refreshConfirmation();
   discoveryRequest().catch(()=>{});
