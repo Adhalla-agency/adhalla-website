@@ -17,7 +17,7 @@ async function load(){if(!user||busy)return;const capture=epoch;$('connectionMes
 function render(data){$('sourceCards').replaceChildren();for(const row of data.sources){
  const card=node('section');card.className='card source-card';const heading=node('div');heading.className='connection-heading';const badge=node('span',states[row.status]);badge.className='connection-status '+row.status;heading.append(node('h2',names[row.source]),badge);card.append(heading);
  card.append(node('p',row.checked_at?'Viimane andmete lugemine: '+new Date(row.checked_at).toLocaleString('et-EE')+'.':'Google’i värsket lugemist pole veel kinnitatud.'));
- if(row.status==='connected_stale')card.append(node('p','Viimane edukas lugemine on varasemast. Vali „Andmed ja raportid” lehel soovitud periood — uued andmed loetakse seal automaatselt.'));
+ if(row.status==='connected_stale')card.append(node('p',row.last_success_at?'Viimane edukas kontroll: '+new Date(row.last_success_at).toLocaleString('et-EE')+'. Värske kontroll ei kinnitanud ühendust; Adhalla proovib uuesti automaatselt.':'Viimane edukas lugemine on varasemast. Adhalla kontrollib ühendust automaatselt uuesti.'));
  if(row.status==='needs_attention')card.append(node('p','Viimane andmete lugemine ei õnnestunud. See ei tähenda automaatselt, et ühendus on eemaldatud. Adhalla saab lugemisõigust kontrollida.'));
  const facts=node('p');facts.className='connection-facts';facts.textContent=fields[row.source].map(([key,label])=>row.resources[key]?label+': '+row.resources[key]:'').filter(Boolean).join(' · ');card.append(facts);
  if(row.verification&&['queued','running'].includes(row.verification.status))card.append(node('p','Ühenduse kontroll on järjekorras või käib.'));
@@ -34,3 +34,4 @@ function render(data){$('sourceCards').replaceChildren();for(const row of data.s
 }}
 $('refreshConnections').onclick=load;
 onAuthStateChanged(getAuth(initializeApp(firebaseConfig)),next=>{epoch++;user=next;busy=false;drafts.clear();api.start(next);$('sourceCards').replaceChildren();navigation($('navigation'),{current:'connections',clientId:staffClient,worker:next?.email==='admin@adhalla.ee'});if(next)load();else $('connectionMessage').textContent='Ühenduste nägemiseks logi portaali Google kontoga sisse.';});
+
