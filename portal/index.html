@@ -10,7 +10,7 @@
   <link rel="icon" type="image/png" href="../assets/adhalla-logo.png">
   <link rel="stylesheet" href="styles.css?v=0.2">
   <link rel="stylesheet" href="workspace.css?v=0.4">
-<link rel="stylesheet" href="product.css?v=0.36"><link rel="stylesheet" href="voyage.css?v=0.2"></head>
+<link rel="stylesheet" href="product.css?v=0.36"><link rel="stylesheet" href="voyage.css?v=0.3"></head>
 <body class="company-page">
   <section class="auth-gate" id="authGate" aria-labelledby="welcomeTitle">
     <div class="auth-card">
@@ -38,7 +38,9 @@
       </header>
       <section class="voyage" id="voyage" aria-labelledby="voyageTitle">
         <div class="voyage-head"><div><div class="eyebrow">SINU TEEKOND</div><h2 id="voyageTitle">Esimene siht: andmete saar</h2><p data-voyage-state role="status">Kontrollin sinu teekonda…</p></div><span class="voyage-tag" data-voyage-progress>Teel 10% juurde</span></div>
-        <div class="voyage-map" aria-hidden="true"><span class="voyage-dock">⚓</span><span class="voyage-ship" data-voyage-ship>⛵</span><span class="voyage-island">🏝️</span></div>
+        <div class="voyage-map"><span class="voyage-dock" aria-hidden="true">⚓</span><span class="voyage-ship" data-voyage-ship aria-hidden="true">⛵</span><button type="button" class="voyage-island" data-island-open aria-label="Ava esimese saare saavutus">🏝️</button></div>
+        <button type="button" class="voyage-details" data-island-open>Vaata esimese saare saavutust →</button>
+        <dialog class="voyage-celebration" data-island-dialog aria-labelledby="islandDetailsTitle"><div class="voyage-celebration-art" aria-hidden="true">⛵ 🏝️</div><p class="voyage-celebration-kicker">ESIMENE SAAR · 10%</p><h2 id="islandDetailsTitle" data-island-title>Esimene saar</h2><p data-island-description></p><p>Loomise taseme ostuvõimaluse avamisel on plaanis 75% soodustus 48 tunniks. Veebiost ei ole veel avatud, seega soodustus ega kell ei ole praegu aktiivne.</p><div class="voyage-celebration-actions"><a href="plans.html">Vaata pakette</a><form method="dialog"><button>Sulge</button></form></div></dialog>
         <ul class="voyage-steps" data-voyage-steps></ul>
       </section>
       <section class="state-card" hidden aria-label="Ettevõtte mõistmine ja andmete kindlus">
@@ -89,7 +91,7 @@
       <footer><span>Adhalla · sinu ettevõtte tööruum</span><a href="../privacy.html">Privaatsus</a></footer>
     </main>
   </div>
-  <script type="module" src="workspace.js?v=0.47"></script>
+  <script type="module" src="workspace.js?v=0.48"></script>
 <script type="module" src="portal-prompts.js?v=0.47"></script></body>
 </html>
 
