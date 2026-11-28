@@ -4,7 +4,7 @@ import {createCampaignClient} from './campaigns-client.js?v=0.36';
 import {firebaseConfig} from './firebase-config.js';
 import {confirmationState,matchesSavedProfile,detailLists,emptyDetails,discoveryText} from './business-profile-client.js?v=0.36';
 import {renderKnowledge,knowledgePending} from './company-knowledge.js?v=0.38';
-import {firstIsland,renderVoyage} from './voyage.js?v=0.2';
+import {firstIsland,renderVoyage} from './voyage.js?v=0.3';
 import {initializeApp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-app.js';
 import {getAuth, GoogleAuthProvider, signInWithPopup, signOut, onAuthStateChanged, setPersistence, browserSessionPersistence} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-auth.js';
 import {getFirestore, doc, onSnapshot, setDoc, updateDoc, serverTimestamp} from 'https://www.gstatic.com/firebasejs/12.2.1/firebase-firestore.js';
@@ -242,4 +242,3 @@ async function refreshKnowledge(){
 setInterval(()=>{if(user&&!document.hidden)refreshKnowledge();},60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshKnowledge();});
 window.addEventListener('focus',()=>refreshKnowledge());
-

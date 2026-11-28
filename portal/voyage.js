@@ -36,5 +36,16 @@ export function renderVoyage(root, state, milestone = null) {
     item.append(mark, link); list.append(item);
   }
   root.querySelector('[data-voyage-ship]').classList.toggle('arrived', state.reached);
+  const dialog = root.querySelector('[data-island-dialog]');
+  if (dialog) {
+    dialog.querySelector('[data-island-title]').textContent = state.reached ? 'Jõudsid esimesele saarele!' : 'Sinu esimene siht';
+    dialog.querySelector('[data-island-description]').textContent = state.reached
+      ? 'Oled täitnud esimese saare tingimused. Saavutus jääb sinu teekonnale alles ja saad tutvuda Loomise võimalustega.'
+      : 'Täida ja kinnita ettevõtte info ning ühenda GA4 ja Google Ads või Meta, et jõuda esimesele saarele.';
+    if (!dialog.dataset.initialized) {
+      dialog.dataset.initialized = 'true';
+      root.querySelectorAll('[data-island-open]').forEach(button => button.addEventListener('click', () => { if (!dialog.open) dialog.showModal(); }));
+      dialog.addEventListener('click', event => { if (event.target === dialog) dialog.close(); });
+    }
+  }
 }
-
