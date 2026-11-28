@@ -242,4 +242,3 @@ async function refreshKnowledge(){
 setInterval(()=>{if(user&&!document.hidden)refreshKnowledge();},60000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)refreshKnowledge();});
 window.addEventListener('focus',()=>refreshKnowledge());
-
