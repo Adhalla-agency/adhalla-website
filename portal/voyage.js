@@ -49,4 +49,3 @@ export function renderVoyage(root, state, milestone = null) {
     }
   }
 }
-
